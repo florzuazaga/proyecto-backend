@@ -2,7 +2,8 @@ class ProductManager{
     constructor(){
         this.products=[]
     }
-    static id = 0
+    static id = 0;
+    
     getProducts=()=>{
         return this.products
     }
