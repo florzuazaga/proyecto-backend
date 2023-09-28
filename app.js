@@ -3,7 +3,7 @@ class ProductManager{
         this.products=[]
     }
     static id = 0;
-    
+
     getProducts=()=>{
         return this.products
     }
@@ -15,6 +15,12 @@ class ProductManager{
       
     }
     addProduct=(title,description,image,price,thumbnail,code,stock)=>{
+      for(let i = 0; i < this.products.length; i++){
+        if(this.products [i].code === code){
+          console.log(`el code ${code} esta dos veces`);
+          break;
+        }
+      }
       ProductManager.id++
       this.products.push({title,description,image,price,thumbnail,code,stock, id:ProductManager.id});
     }
