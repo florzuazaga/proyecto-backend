@@ -21,8 +21,18 @@ class ProductManager{
           break;
         }
       }
-      ProductManager.id++
-      this.products.push({title,description,image,price,thumbnail,code,stock, id:ProductManager.id});
+      const newProducto ={
+        title,
+        description,
+        image,
+        price,
+        thumbnail,
+        code,
+        stock,
+      }
+      console.log(Object.values (newProducto))
+      //ProductManager.id++
+      //this.products.push({ id:ProductManager.id});
     }
 }
 const productmanager= new ProductManager();
