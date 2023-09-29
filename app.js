@@ -30,9 +30,10 @@ class ProductManager{
         code,
         stock,
       }
-      console.log(Object.values (newProducto))
-      //ProductManager.id++
-      //this.products.push({ id:ProductManager.id});
+      if(!Object.values(newProducto).includes(undefined)){
+         ProductManager.id++
+         this.products.push({...newProducto, id:ProductManager.id});
+      }
     }
 }
 const productmanager= new ProductManager();
@@ -43,7 +44,8 @@ productmanager.addProduct("product1","description1",'imagen1',12,"url","code1",5
 productmanager.addProduct("product2","description2",'imagen2',13,"url","code2",600);
 
 console.log(productmanager.getProducts());
-productmanager.getProductsById(2)
+//productmanager.addProduct("product3","description3",'imagen3',13,"url","code2",700);
+//productmanager.getProductsById(2)
 
 
 
