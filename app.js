@@ -14,12 +14,14 @@ class ProductManager{
       !this.aparece(id) ? console.log("not found"): console.log(this.aparece(id));
       
     }
+    
+    
     addProduct=(title,description,image,price,thumbnail,code,stock)=>{
       for(let i = 0; i < this.products.length; i++){
-        if(this.products [i].code === code){
+      if(this.products [i].code === code){
           console.log(`el code ${code} esta dos veces`);
           break;
-        }
+       }
       }
       const newProducto ={
         title,
