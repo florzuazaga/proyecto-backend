@@ -92,6 +92,12 @@ class ProductManager {
       console.error(`Error al guardar los productos en el archivo: ${error.message}`);
     }
   }
+
+  getProductByIdFromFile(id) {
+    const products = this.loadProducts();
+    const product = products.find((producto) => producto.id === id);
+    return product;
+  }
 }
 
 const productmanager = new ProductManager('productos.json'); 
@@ -136,6 +142,16 @@ productmanager.updateProduct(1, { price: 15, stock: 550 });
 productmanager.deleteProduct(3);
 
 console.log(productmanager.getProducts());
+
+const productId = 2; 
+const productById = productmanager.getProductByIdFromFile(productId);
+
+if (productById) {
+  console.log(productById);
+} else {
+  console.log(`Producto con ID ${productId} no encontrado`);
+}
+
 
 
       
