@@ -41,25 +41,26 @@ class ProductManager {
       return;
     }
 
-   
+    // Asignar automáticamente un ID
     product.id = ++ProductManager.id;
 
     this.products.push(product);
-    this.saveProducts(); 
+    this.saveProducts(); // Guardar productos en el archivo después de agregar uno nuevo.
     console.log(`Producto con ID ${product.id} agregado`);
   }
 
-  updateProduct(id, updatedProductData) {
+  updateProduct(id, fieldToUpdate, updatedValue) {
     const productIndex = this.products.findIndex((producto) => producto.id === id);
     if (productIndex === -1) {
       console.log("Producto no encontrado");
       return;
     }
 
-    const updatedProduct = { ...this.products[productIndex], ...updatedProductData };
-    this.products[productIndex] = updatedProduct;
-    console.log(`Producto con ID ${id} actualizado`);
-    this.saveProducts(); 
+    const product = this.products[productIndex];
+    product[fieldToUpdate] = updatedValue;
+
+    this.saveProducts(); // Guardar productos en el archivo después de la actualización.
+    console.log(`Campo "${fieldToUpdate}" del producto con ID ${id} actualizado`);
   }
 
   deleteProduct(id) {
@@ -71,7 +72,7 @@ class ProductManager {
 
     this.products.splice(productIndex, 1);
     console.log(`Producto con ID ${id} eliminado`);
-    this.saveProducts(); 
+    this.saveProducts(); // Guardar productos en el archivo después de eliminar uno.
   }
 
   loadProducts() {
@@ -98,9 +99,23 @@ class ProductManager {
     const product = products.find((producto) => producto.id === id);
     return product;
   }
+
+  deleteProductByIdFromFile(id) {
+    const products = this.loadProducts();
+    const productIndex = products.findIndex((producto) => producto.id === id);
+    
+    if (productIndex === -1) {
+      console.log("Producto no encontrado");
+      return;
+    }
+
+    products.splice(productIndex, 1);
+    this.saveProducts(); // Guarda la lista actualizada de productos en el archivo.
+    console.log(`Producto con ID ${id} eliminado del archivo`);
+  }
 }
 
-const productmanager = new ProductManager('productos.json'); 
+const productmanager = new ProductManager('productos.json'); // Especifica el nombre del archivo para almacenar los productos.
 
 console.log(productmanager.getProducts());
 
@@ -137,13 +152,13 @@ productmanager.addProduct({
 
 productmanager.getProductsById(2);
 
-productmanager.updateProduct(1, { price: 15, stock: 550 });
+productmanager.updateProduct(1, 'price', 20);
 
-productmanager.deleteProduct(3);
+productmanager.deleteProductByIdFromFile(3);
 
 console.log(productmanager.getProducts());
 
-const productId = 2; 
+const productId = 2; // Reemplaza con el ID deseado
 const productById = productmanager.getProductByIdFromFile(productId);
 
 if (productById) {
@@ -151,7 +166,5 @@ if (productById) {
 } else {
   console.log(`Producto con ID ${productId} no encontrado`);
 }
-
-
 
       
