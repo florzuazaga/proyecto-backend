@@ -45,7 +45,7 @@ class ProductManager {
     product.id = ++ProductManager.id;
 
     this.products.push(product);
-    this.saveProducts(); // Guardar productos en el archivo después de agregar uno nuevo.
+    this.saveProducts();
     console.log(`Producto con ID ${product.id} agregado`);
   }
 
@@ -59,7 +59,7 @@ class ProductManager {
     const product = this.products[productIndex];
     product[fieldToUpdate] = updatedValue;
 
-    this.saveProducts(); // Guardar productos en el archivo después de la actualización.
+    this.saveProducts(); 
     console.log(`Campo "${fieldToUpdate}" del producto con ID ${id} actualizado`);
   }
 
@@ -72,7 +72,7 @@ class ProductManager {
 
     this.products.splice(productIndex, 1);
     console.log(`Producto con ID ${id} eliminado`);
-    this.saveProducts(); // Guardar productos en el archivo después de eliminar uno.
+    this.saveProducts(); 
   }
 
   loadProducts() {
@@ -110,12 +110,12 @@ class ProductManager {
     }
 
     products.splice(productIndex, 1);
-    this.saveProducts(); // Guarda la lista actualizada de productos en el archivo.
+    this.saveProducts(); 
     console.log(`Producto con ID ${id} eliminado del archivo`);
   }
 }
 
-const productmanager = new ProductManager('productos.json'); // Especifica el nombre del archivo para almacenar los productos.
+const productmanager = new ProductManager('productos.json'); 
 
 console.log(productmanager.getProducts());
 
@@ -158,7 +158,7 @@ productmanager.deleteProductByIdFromFile(3);
 
 console.log(productmanager.getProducts());
 
-const productId = 2; // Reemplaza con el ID deseado
+const productId = 2; 
 const productById = productmanager.getProductByIdFromFile(productId);
 
 if (productById) {
