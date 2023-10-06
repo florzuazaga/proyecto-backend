@@ -1,1 +1,37 @@
-[{"title":"feng shui","price":57.75,"id":1}]
+[
+  {
+    "title": "feng shui",
+    "price": 20,
+    "id": 1
+  },
+  {
+    "title": "product1",
+    "description": "description1",
+    "image": "imagen1",
+    "price": 12,
+    "thumbnail": "url",
+    "code": "code1",
+    "stock": 500,
+    "id": 1
+  },
+  {
+    "title": "product2",
+    "description": "description2",
+    "image": "imagen2",
+    "price": 13,
+    "thumbnail": "url",
+    "code": "code2",
+    "stock": 600,
+    "id": 2
+  },
+  {
+    "title": "product3",
+    "description": "description3",
+    "image": "imagen3",
+    "price": 13,
+    "thumbnail": "url",
+    "code": "code3",
+    "stock": 700,
+    "id": 3
+  }
+]
