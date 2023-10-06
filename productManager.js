@@ -41,7 +41,7 @@ class ProductManager {
       return;
     }
 
-    // Asignar automáticamente un ID
+    
     product.id = ++ProductManager.id;
 
     this.products.push(product);
