@@ -10,14 +10,14 @@ class ProductManager {
   static id = 0;
 
   initializeId() {
-    // Encuentra el máximo ID actual entre los productos existentes
+    
     const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
 
-    // Inicializa el ID estático a un valor mayor que el máximo encontrado
+    
     ProductManager.id = maxId + 1;
   }
 
-  // Métodos para operar con productos
+  
   getProducts = () => this.products;
 
   addProduct(product) {
@@ -28,7 +28,7 @@ class ProductManager {
       return;
     }
 
-    // Asignar automáticamente un ID usando el ID estático
+   
     product.id = ProductManager.id++;
 
     this.products.push(product);
@@ -45,7 +45,7 @@ class ProductManager {
       return;
     }
 
-    // Actualizar los campos proporcionados en el objeto de actualización
+    
     Object.assign(product, updatedFields);
 
     this.saveProducts();
@@ -94,7 +94,7 @@ class ProductManager {
   }
 }
 
-const productmanager = new ProductManager('productos.json'); // Especifica el nombre del archivo para almacenar los productos.
+const productmanager = new ProductManager('productos.json'); 
 
 console.log(productmanager.getProducts());
 
