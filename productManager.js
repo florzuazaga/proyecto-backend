@@ -153,6 +153,12 @@ app.get('/mi-ruta', (req, res) => {
   res.send('¡Esta es mi ruta personalizada!');
 });
 
+// Ruta para obtener todos los productos desde el archivo
+app.get('/products', (req, res) => {
+  const products = productmanager.getProductsFromFile();
+  res.json({ products });
+});
+
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
