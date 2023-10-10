@@ -4,33 +4,19 @@ class ProductManager {
   constructor(path) {
     this.path = path;
     this.products = this.loadProducts();
+    this.initializeId();
   }
+
   static id = 0;
 
-  getProducts = () => {
-    return this.products;
-  };
+  // ...
 
-  aparece(id) {
-    return this.products.find((producto) => producto.id === id);
-  }
+  initializeId() {
+    // Encuentra el máximo ID actual entre los productos existentes
+    const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
 
-  getProductsById(id) {
-    const product = this.aparece(id);
-    if (!product) {
-      console.log("Producto no encontrado");
-    } else {
-      console.log(product);
-    }
-  }
-
-  findProductsByCode(code) {
-    const foundProducts = this.products.filter((producto) => producto.code === code);
-    return foundProducts;
-  }
-
-  hasProductWithCode(code) {
-    return this.products.some((producto) => producto.code === code);
+    // Inicializa el ID estático a un valor mayor que el máximo encontrado
+    ProductManager.id = maxId + 1;
   }
 
   addProduct(product) {
@@ -41,81 +27,22 @@ class ProductManager {
       return;
     }
 
-    
-    product.id = ++ProductManager.id;
+    // Asignar automáticamente un ID usando el ID estático
+    product.id = ProductManager.id++;
 
     this.products.push(product);
-    this.saveProducts();
+    this.saveProducts(); // Guardar productos en el archivo después de agregar uno nuevo.
     console.log(`Producto con ID ${product.id} agregado`);
   }
 
-  updateProduct(id, fieldToUpdate, updatedValue) {
-    const productIndex = this.products.findIndex((producto) => producto.id === id);
-    if (productIndex === -1) {
-      console.log("Producto no encontrado");
-      return;
-    }
+  // ...
 
-    const product = this.products[productIndex];
-    product[fieldToUpdate] = updatedValue;
+  // Resto del código (getProductById, updateProduct, deleteProduct, etc.)
 
-    this.saveProducts(); 
-    console.log(`Campo "${fieldToUpdate}" del producto con ID ${id} actualizado`);
-  }
-
-  deleteProduct(id) {
-    const productIndex = this.products.findIndex((producto) => producto.id === id);
-    if (productIndex === -1) {
-      console.log("Producto no encontrado");
-      return;
-    }
-
-    this.products.splice(productIndex, 1);
-    console.log(`Producto con ID ${id} eliminado`);
-    this.saveProducts(); 
-  }
-
-  loadProducts() {
-    try {
-      const data = fs.readFileSync(this.path, 'utf8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.error(`Error al cargar el archivo de productos: ${error.message}`);
-      return [];
-    }
-  }
-
-  saveProducts() {
-    try {
-      fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
-      console.log('Productos guardados en el archivo.');
-    } catch (error) {
-      console.error(`Error al guardar los productos en el archivo: ${error.message}`);
-    }
-  }
-
-  getProductByIdFromFile(id) {
-    const products = this.loadProducts();
-    const product = products.find((producto) => producto.id === id);
-    return product;
-  }
-
-  deleteProductByIdFromFile(id) {
-    const products = this.loadProducts();
-    const productIndex = products.findIndex((producto) => producto.id === id);
-    
-    if (productIndex === -1) {
-      console.log("Producto no encontrado");
-      return;
-    }
-
-    products.splice(productIndex, 1);
-    this.saveProducts(); 
-    console.log(`Producto con ID ${id} eliminado del archivo`);
-  }
+  // ...
 }
 
-const productmanager = new ProductManager('productos.json'); 
+const productmanager = new ProductManager('productos.json'); // Especifica el nombre del archivo para almacenar los productos.
 
 console.log(productmanager.getProducts());
 
@@ -158,7 +85,7 @@ productmanager.deleteProductByIdFromFile(3);
 
 console.log(productmanager.getProducts());
 
-const productId = 2; 
+const productId = 2; // Reemplaza con el ID deseado
 const productById = productmanager.getProductByIdFromFile(productId);
 
 if (productById) {
@@ -166,5 +93,6 @@ if (productById) {
 } else {
   console.log(`Producto con ID ${productId} no encontrado`);
 }
+
 
       
