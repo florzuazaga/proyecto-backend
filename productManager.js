@@ -104,8 +104,14 @@ const productmanager = new ProductManager('productos.json'); // Asegúrate de qu
 
 // Rutas para consultar productos
 app.get('/api/products', (req, res) => {
+  const limit = req.query.limit;
   const products = productmanager.getProducts();
-  res.json(products);
+  if (limit) {
+    const limitedProducts = products.slice(0, parseInt(limit));
+    res.json(limitedProducts);
+  } else {
+    res.json(products);
+  }
 });
 
 // Ruta para consultar un producto por su ID
@@ -142,10 +148,9 @@ app.delete('/api/products/:id', (req, res) => {
   res.json({ message: 'Producto eliminado' });
 });
 
-// Ruta para obtener todos los productos desde el archivo
-app.get('/products', (req, res) => {
-  const products = productmanager.getProductsFromFile();
-  res.json({ products });
+// Ruta personalizada '/mi-ruta'
+app.get('/mi-ruta', (req, res) => {
+  res.send('¡Esta es mi ruta personalizada!');
 });
 
 // Iniciar el servidor
