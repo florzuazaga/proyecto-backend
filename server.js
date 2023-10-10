@@ -29,7 +29,37 @@ app.get('/api/products/:id', (req, res) => {
   }
 });
 
-// Agrega más rutas según sea necesario (actualización, eliminación, etc.)
+app.get('/api/products', (req, res) => {
+    const products = productmanager.getProducts();
+    res.json(products);
+  });
+  app.get('/api/products/:id', (req, res) => {
+    const productId = parseInt(req.params.id);
+    const product = productmanager.getProductById(productId);
+  
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: 'Producto no encontrado' });
+    }
+  });
+  app.post('/api/products', (req, res) => {
+    const productData = req.body;
+    productmanager.addProduct(productData);
+    res.status(201).json({ message: 'Producto creado' });
+  });
+  app.put('/api/products/:id', (req, res) => {
+    const productId = parseInt(req.params.id);
+    const updatedFields = req.body;
+    productmanager.updateProduct({ id: productId, ...updatedFields });
+    res.json({ message: 'Producto actualizado' });
+  });
+  app.delete('/api/products/:id', (req, res) => {
+    const productId = parseInt(req.params.id);
+    productmanager.deleteProduct(productId);
+    res.json({ message: 'Producto eliminado' });
+  });
+          
 
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
