@@ -1,8 +1,9 @@
 [
   {
     "title": "feng shui",
-    "price": 20,
-    "id": 1
+    "price": 15,
+    "id": 1,
+    "stock": 550
   },
   {
     "title": "product1",
@@ -23,15 +24,5 @@
     "code": "code2",
     "stock": 600,
     "id": 2
-  },
-  {
-    "title": "product3",
-    "description": "description3",
-    "image": "imagen3",
-    "price": 13,
-    "thumbnail": "url",
-    "code": "code3",
-    "stock": 700,
-    "id": 3
   }
 ]
