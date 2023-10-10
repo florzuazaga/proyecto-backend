@@ -56,18 +56,21 @@ class ProductManager {
      console.log(`Producto con ID ${product.id} agregado`);
   }
 
-  updateProduct(id, fieldToUpdate, updatedValue) {
+  updateProduct(updateData) {
+    const { id, ...updatedFields } = updateData;
     const productIndex = this.products.findIndex((producto) => producto.id === id);
+
     if (productIndex === -1) {
       console.log("Producto no encontrado");
       return;
     }
 
     const product = this.products[productIndex];
-    product[fieldToUpdate] = updatedValue;
+    
+    Object.assign(product, updatedFields);
 
     this.saveProducts(); 
-    console.log(`Campo "${fieldToUpdate}" del producto con ID ${id} actualizado`);
+    console.log(`Producto con ID ${id} actualizado`);
   }
 
   deleteProduct(id) {
