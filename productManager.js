@@ -49,11 +49,11 @@ class ProductManager {
     }
 
     
-    product.id = ++ProductManager.id;
+     product.id = ProductManager.id++;
 
-    this.products.push(product);
-    this.saveProducts();
-    console.log(`Producto con ID ${product.id} agregado`);
+     this.products.push(product);
+     this.saveProducts(); 
+     console.log(`Producto con ID ${product.id} agregado`);
   }
 
   updateProduct(id, fieldToUpdate, updatedValue) {
