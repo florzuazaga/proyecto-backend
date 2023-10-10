@@ -1,3 +1,9 @@
+// Ruta para obtener todos los productos desde el archivo
+app.get('/products', (req, res) => {
+  const products = productmanager.getProductsFromFile();
+  res.json({ products });
+});
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
@@ -7,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-// Configura la clase ProductManager (código previo)
+// Configura la clase ProductManager 
 const ProductManager = require('./productManager'); 
 
 const productmanager = new ProductManager('productos.json'); 

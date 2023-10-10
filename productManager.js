@@ -19,6 +19,9 @@ class ProductManager {
   getProducts = () => {
     return this.products;
   };
+  getProductsFromFile() {
+    return this.loadProducts();
+  }
 
   initializeId() {
     const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
@@ -105,6 +108,7 @@ app.get('/api/products', (req, res) => {
   res.json(products);
 });
 
+// Ruta para consultar un producto por su ID
 app.get('/api/products/:id', (req, res) => {
   const productId = parseInt(req.params.id);
   const product = productmanager.getProductById(productId);
@@ -136,6 +140,12 @@ app.delete('/api/products/:id', (req, res) => {
   const productId = parseInt(req.params.id);
   productmanager.deleteProduct(productId);
   res.json({ message: 'Producto eliminado' });
+});
+
+// Ruta para obtener todos los productos desde el archivo
+app.get('/products', (req, res) => {
+  const products = productmanager.getProductsFromFile();
+  res.json({ products });
 });
 
 // Iniciar el servidor
