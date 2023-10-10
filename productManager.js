@@ -165,7 +165,7 @@ productmanager.deleteProductByIdFromFile(3);
 
 console.log(productmanager.getProducts());
 
-const productId = 2; 
+const productId = 2; // Reemplaza con el ID deseado
 const productById = productmanager.getProductByIdFromFile(productId);
 
 if (productById) {
