@@ -93,6 +93,7 @@ class ProductManager {
     }
   }
 }
+module.exports = ProductManager;
 
 const productmanager = new ProductManager('productos.json'); 
 
