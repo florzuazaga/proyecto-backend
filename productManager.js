@@ -1,4 +1,11 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const fs = require('fs');
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(bodyParser.json());
 
 class ProductManager {
   constructor(path) {
@@ -9,16 +16,14 @@ class ProductManager {
 
   static id = 0;
 
-  initializeId() {
-    
-    const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
+  getProducts = () => {
+    return this.products;
+  };
 
-    
+  initializeId() {
+    const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
     ProductManager.id = maxId + 1;
   }
-
-  
-  getProducts = () => this.products;
 
   addProduct(product) {
     const { code } = product;
@@ -28,9 +33,7 @@ class ProductManager {
       return;
     }
 
-   
     product.id = ProductManager.id++;
-
     this.products.push(product);
     this.saveProducts();
     console.log(`Producto con ID ${product.id} agregado`);
@@ -38,14 +41,14 @@ class ProductManager {
 
   updateProduct(updateData) {
     const { id, ...updatedFields } = updateData;
-    const product = this.products.find((producto) => producto.id === id);
+    const productIndex = this.products.findIndex((producto) => producto.id === id);
 
-    if (!product) {
+    if (productIndex === -1) {
       console.log("Producto no encontrado");
       return;
     }
 
-    
+    const product = this.products[productIndex];
     Object.assign(product, updatedFields);
 
     this.saveProducts();
@@ -65,7 +68,6 @@ class ProductManager {
     console.log(`Producto con ID ${id} eliminado`);
   }
 
-  // Métodos auxiliares
   findProductsByCode(code) {
     return this.products.filter((producto) => producto.code === code);
   }
@@ -95,50 +97,53 @@ class ProductManager {
 }
 module.exports = ProductManager;
 
-const productmanager = new ProductManager('productos.json'); 
+const productmanager = new ProductManager('productos.json'); // Asegúrate de que la ruta sea correcta
 
-console.log(productmanager.getProducts());
-
-productmanager.addProduct({
-  title: "product1",
-  description: "description1",
-  image: "imagen1",
-  price: 12,
-  thumbnail: "url",
-  code: "code1",
-  stock: 500
-});
-productmanager.addProduct({
-  title: "product2",
-  description: "description2",
-  image: "imagen2",
-  price: 13,
-  thumbnail: "url",
-  code: "code2",
-  stock: 600
+// Rutas para consultar productos
+app.get('/api/products', (req, res) => {
+  const products = productmanager.getProducts();
+  res.json(products);
 });
 
-console.log(productmanager.getProducts());
+app.get('/api/products/:id', (req, res) => {
+  const productId = parseInt(req.params.id);
+  const product = productmanager.getProductById(productId);
 
-productmanager.addProduct({
-  title: "product3",
-  description: "description3",
-  image: "imagen3",
-  price: 13,
-  thumbnail: "url",
-  code: "code3",
-  stock: 700
+  if (product) {
+    res.json(product);
+  } else {
+    res.status(404).json({ message: 'Producto no encontrado' });
+  }
 });
 
-productmanager.updateProduct({
-  id: 1,
-  price: 15,
-  stock: 550
+// Ruta para agregar un nuevo producto
+app.post('/api/products', (req, res) => {
+  const productData = req.body;
+  productmanager.addProduct(productData);
+  res.status(201).json({ message: 'Producto creado' });
 });
 
-productmanager.deleteProduct(3);
+// Ruta para actualizar un producto existente
+app.put('/api/products/:id', (req, res) => {
+  const productId = parseInt(req.params.id);
+  const updatedFields = req.body;
+  productmanager.updateProduct({ id: productId, ...updatedFields });
+  res.json({ message: 'Producto actualizado' });
+});
 
-console.log(productmanager.getProducts());
+// Ruta para eliminar un producto existente
+app.delete('/api/products/:id', (req, res) => {
+  const productId = parseInt(req.params.id);
+  productmanager.deleteProduct(productId);
+  res.json({ message: 'Producto eliminado' });
+});
+
+// Iniciar el servidor
+app.listen(port, () => {
+  console.log(`Servidor Express escuchando en el puerto ${port}`);
+});
+
+
 
 
 
