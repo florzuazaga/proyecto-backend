@@ -1,8 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+
 const app = express();
 const port = process.env.PORT || 3001;
+
+app.use(bodyParser.json());
 
 // Ruta para obtener todos los productos desde el archivo
 app.get('/products', (req, res) => {
@@ -10,7 +13,7 @@ app.get('/products', (req, res) => {
   res.json({ products });
 });
 
-app.use(bodyParser.json());
+
 
 // Configura la clase ProductManager 
 const ProductManager = require('./productManager'); 
