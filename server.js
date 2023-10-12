@@ -1,15 +1,14 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const app = express();
+const port = process.env.PORT || 3000;
+
 // Ruta para obtener todos los productos desde el archivo
 app.get('/products', (req, res) => {
   const products = productmanager.getProductsFromFile();
   res.json({ products });
 });
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-
-const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
