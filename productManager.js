@@ -148,6 +148,9 @@ app.delete('/api/products/:id', (req, res) => {
   res.json({ message: 'Producto eliminado' });
 });
 
+
+
+
 // Ruta personalizada '/mi-ruta'
 app.get('/mi-ruta', (req, res) => {
   res.send('¡Esta es mi ruta personalizada!');
