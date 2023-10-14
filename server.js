@@ -106,12 +106,13 @@ app.get('/api/products', (req, res) => {
   const limit = req.query.limit;
   const products = productmanager.getProducts();
   if (limit) {
-    const limitedProducts = products.slice(0, parseInt(limit));
+    const limitedProducts = products.slice(0, 5);
     res.json(limitedProducts);
   } else {
     res.json(products);
   }
 });
+
 
 // Define las rutas para consultar productos
 app.get('/api/products', (req, res) => {
