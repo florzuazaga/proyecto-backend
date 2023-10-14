@@ -19,7 +19,8 @@ app.get('/products', (req, res) => {
 const ProductManager = require('./productManager'); 
 
 const productmanager = new ProductManager('productos.json'); 
-// Agregar siete productos
+
+// Agregar ocho productos
 productmanager.addProduct({
   title: "Product 1",
   description: "Description 1",
@@ -84,10 +85,19 @@ productmanager.addProduct({
   title: "Product 7",
   description: "Description 7",
   image: "Image 7",
+  price: 45,
+  thumbnail: "URL 8",
+  code: "Code 8",
+  stock: 400
+});
+productmanager.addProduct({
+  title: "Product 8",
+  description: "Description 8",
+  image: "Image 8",
   price: 40,
   thumbnail: "URL 7",
   code: "Code 7",
-  stock: 400
+  stock: 450
 });
 
 // Rutas para consultar productos
