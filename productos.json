@@ -94,5 +94,15 @@
     "code": "Code 7",
     "stock": 400,
     "id": 9
+  },
+  {
+    "title": "Product 7",
+    "description": "Description 7",
+    "image": "Image 7",
+    "price": 45,
+    "thumbnail": "URL 8",
+    "code": "Code 8",
+    "stock": 400,
+    "id": 10
   }
 ]
