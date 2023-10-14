@@ -100,8 +100,90 @@ class ProductManager {
 }
 module.exports = ProductManager;
 
-const productmanager = new ProductManager('productos.json'); // Asegúrate de que la ruta sea correcta
+const productmanager = new ProductManager('productos.json'); 
 
+// Agregar siete productos
+productmanager.addProduct({
+  title: "Product 1",
+  description: "Description 1",
+  image: "Image 1",
+  price: 10,
+  thumbnail: "URL 1",
+  code: "Code 1",
+  stock: 100
+});
+
+productmanager.addProduct({
+  title: "Product 2",
+  description: "Description 2",
+  image: "Image 2",
+  price: 15,
+  thumbnail: "URL 2",
+  code: "Code 2",
+  stock: 150
+});
+
+productmanager.addProduct({
+  title: "Product 3",
+  description: "Description 3",
+  image: "Image 3",
+  price: 20,
+  thumbnail: "URL 3",
+  code: "Code 3",
+  stock: 200
+});
+
+productmanager.addProduct({
+  title: "Product 4",
+  description: "Description 4",
+  image: "Image 4",
+  price: 25,
+  thumbnail: "URL 4",
+  code: "Code 4",
+  stock: 250
+});
+
+productmanager.addProduct({
+  title: "Product 5",
+  description: "Description 5",
+  image: "Image 5",
+  price: 30,
+  thumbnail: "URL 5",
+  code: "Code 5",
+  stock: 300
+});
+
+productmanager.addProduct({
+  title: "Product 6",
+  description: "Description 6",
+  image: "Image 6",
+  price: 35,
+  thumbnail: "URL 6",
+  code: "Code 6",
+  stock: 350
+});
+
+productmanager.addProduct({
+  title: "Product 7",
+  description: "Description 7",
+  image: "Image 7",
+  price: 40,
+  thumbnail: "URL 7",
+  code: "Code 7",
+  stock: 400
+});
+
+// Rutas para consultar productos
+app.get('/api/products', (req, res) => {
+  const limit = req.query.limit;
+  const products = productmanager.getProducts();
+  if (limit) {
+    const limitedProducts = products.slice(0, parseInt(limit));
+    res.json(limitedProducts);
+  } else {
+    res.json(products);
+  }
+});
 // Rutas para consultar productos
 app.get('/api/products', (req, res) => {
   const limit = req.query.limit;
