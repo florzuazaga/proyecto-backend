@@ -87,8 +87,8 @@ productmanager.addProduct({
   description: "Description 7",
   image: "Image 7",
   price: 45,
-  thumbnail: "URL 8",
-  code: "Code 8",
+  thumbnail: "URL 7",
+  code: "Code 7",
   stock: 400
 });
 productmanager.addProduct({
@@ -96,8 +96,8 @@ productmanager.addProduct({
   description: "Description 8",
   image: "Image 8",
   price: 40,
-  thumbnail: "URL 7",
-  code: "Code 7",
+  thumbnail: "URL 8",
+  code: "Code 8",
   stock: 450
 });
 

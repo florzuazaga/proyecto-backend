@@ -19,11 +19,12 @@ class ProductManager {
   getProducts = () => {
     return this.products;
   };
-  getProductById(id) {
-    return this.products.find((producto) => producto.id === id);
-  }
+
   getProductsFromFile() {
     return this.loadProducts();
+  }
+  getProductById(id) {
+    return this.products.find((producto) => producto.id === id);
   }
 
   initializeId() {
