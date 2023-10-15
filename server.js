@@ -86,7 +86,7 @@ productmanager.addProduct({
   title: "Product 7",
   description: "Description 7",
   image: "Image 7",
-  price: 45,
+  price: 40,
   thumbnail: "URL 7",
   code: "Code 7",
   stock: 400
@@ -95,10 +95,28 @@ productmanager.addProduct({
   title: "Product 8",
   description: "Description 8",
   image: "Image 8",
-  price: 40,
+  price: 45,
   thumbnail: "URL 8",
   code: "Code 8",
   stock: 450
+});
+productmanager.addProduct({
+  title: "Product 9",
+  description: "Description 9",
+  image: "Image 9",
+  price: 50,
+  thumbnail: "URL 9",
+  code: "Code 9",
+  stock: 500
+});
+productmanager.addProduct({
+  title: "Product 10",
+  description: "Description 10",
+  image: "Image 10",
+  price: 55,
+  thumbnail: "URL 10",
+  code: "Code 10",
+  stock: 550
 });
 
 // Rutas para consultar productos
