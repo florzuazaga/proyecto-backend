@@ -104,5 +104,25 @@
     "code": "Code 8",
     "stock": 400,
     "id": 10
+  },
+  {
+    "title": "Product 9",
+    "description": "Description 9",
+    "image": "Image 9",
+    "price": 50,
+    "thumbnail": "URL 9",
+    "code": "Code 9",
+    "stock": 500,
+    "id": 11
+  },
+  {
+    "title": "Product 10",
+    "description": "Description 10",
+    "image": "Image 10",
+    "price": 55,
+    "thumbnail": "URL 10",
+    "code": "Code 10",
+    "stock": 550,
+    "id": 12
   }
 ]
