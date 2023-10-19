@@ -24,6 +24,10 @@ class ProductManager {
     const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
     ProductManager.id = maxId + 1;
   }
+    // Agregue el método getProductById para obtener un producto por su ID
+    getProductById(id) {
+      return this.products.find((producto) => producto.id === id);
+    }
 
   // ... Otros métodos de la clase ProductManager
 
@@ -100,9 +104,11 @@ app.get('/mi-ruta', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
-//Este código combina las operaciones CRUD relacionadas con los productos en dos rutas principales: 
-///api/products para listar productos y crear nuevos productos, y /api/products/:id para realizar operaciones CRUD en un producto específico según su ID. 
-//También conserva una ruta personalizada en: /mi-ruta
+//Se testea con:
+//http://localhost:8080/api/products?limit=5(cinco productos:feng shui,id1,id2,id3,id4)
+//http://localhost:8080/api/products(trece productos:feng shui,id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11,id12)
+//
+
 
 
 
