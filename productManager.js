@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 8080; 
+const port = process.env.PORT || 8080; // Cambiar el puerto a 8080
 
 app.use(bodyParser.json());
 
@@ -15,17 +15,17 @@ class ProductManager {
   }
 
   static id = 0;
-  
+
   getProducts = () => {
     return this.products;
   };
-  
+
   initializeId() {
     const maxId = this.products.reduce((max, producto) => (producto.id > max ? producto.id : max), 0);
     ProductManager.id = maxId + 1;
   }
 
- 
+  // ... Otros métodos de la clase ProductManager
 
   loadProducts() {
     try {
@@ -47,63 +47,60 @@ class ProductManager {
   }
 }
 
-const productmanager = new ProductManager('productos.json'); 
+const productmanager = new ProductManager('productos.json');
 
+// Ruta para consultar productos y realizar operaciones CRUD
+app.route('/api/products')
+  .get((req, res) => {
+    const limit = req.query.limit;
+    let products = productmanager.getProducts();
 
-app.get('/api/products', (req, res) => {
-  const limit = req.query.limit;
-  let products = productmanager.getProducts();
+    if (limit) {
+      products = products.slice(0, parseInt(limit));
+    }
 
-  if (limit) {
-    products = products.slice(0, parseInt(limit));
-  }
+    res.json(products);
+  })
+  .post((req, res) => {
+    const productData = req.body;
+    productmanager.addProduct(productData);
+    res.status(201).json({ message: 'Producto creado' });
+  });
 
-  res.json(products);
-});
+// Ruta para realizar operaciones CRUD en un producto específico
+app.route('/api/products/:id')
+  .get((req, res) => {
+    const productId = parseInt(req.params.id);
+    const product = productmanager.getProductById(productId);
 
-app.get('/api/products/:id', (req, res) => {
-  const productId = parseInt(req.params.id);
-  const product = productmanager.getProductById(productId);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: 'Producto no encontrado' });
+    }
+  })
+  .put((req, res) => {
+    const productId = parseInt(req.params.id);
+    const updatedFields = req.body;
+    productmanager.updateProduct({ id: productId, ...updatedFields });
+    res.json({ message: 'Producto actualizado' });
+  })
+  .delete((req, res) => {
+    const productId = parseInt(req.params.id);
+    productmanager.deleteProduct(productId);
+    res.json({ message: 'Producto eliminado' });
+  });
 
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({ message: 'Producto no encontrado' });
-  }
-});
-
-app.post('/api/products', (req, res) => {
-  const productData = req.body;
-  productmanager.addProduct(productData);
-  res.status(201).json({ message: 'Producto creado' });
-});
-
-app.put('/api/products/:id', (req, res) => {
-  const productId = parseInt(req.params.id);
-  const updatedFields = req.body;
-  productmanager.updateProduct({ id: productId, ...updatedFields });
-  res.json({ message: 'Producto actualizado' });
-});
-
-app.delete('/api/products/:id', (req, res) => {
-  const productId = parseInt(req.params.id);
-  productmanager.deleteProduct(productId);
-  res.json({ message: 'Producto eliminado' });
-});
-
+// Ruta personalizada '/mi-ruta'
 app.get('/mi-ruta', (req, res) => {
   res.send('¡Esta es mi ruta personalizada!');
 });
 
-
-app.get('/products', (req, res) => {
-  const products = productmanager.getProductsFromFile();
-  res.json({ products });
-});
-
+// Iniciar el servidor en el puerto 8080
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
+
 
 
 
