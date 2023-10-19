@@ -100,7 +100,9 @@ app.get('/mi-ruta', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
-
+//Este código combina las operaciones CRUD relacionadas con los productos en dos rutas principales: 
+///api/products para listar productos y crear nuevos productos, y /api/products/:id para realizar operaciones CRUD en un producto específico según su ID. 
+//También conserva una ruta personalizada en: /mi-ruta
 
 
 
