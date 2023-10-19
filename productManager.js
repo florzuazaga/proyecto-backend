@@ -104,10 +104,11 @@ app.get('/mi-ruta', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
-//Se testea con:
-//http://localhost:8080/api/products?limit=5(cinco productos:feng shui,id1,id2,id3,id4)
-//http://localhost:8080/api/products(trece productos:feng shui,id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11,id12)
-//
+//Se testea en Postman con:
+//http://localhost:8080/api/products?limit=5 (cinco productos:feng shui,id1,id2,id3,id4)
+//http://localhost:8080/api/products (trece productos:feng shui,id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11,id12)
+//http://localhost:8080/api/products/numerodelid (muestra solo el producto pedido)
+//http://localhost:8080/api/products/numerodeidinexistente (muestra mensaje no encontrado)
 
 
 
