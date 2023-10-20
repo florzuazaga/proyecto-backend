@@ -11,7 +11,7 @@ router.get('/products', (req, res) => {
     res.json(products);
 });
 
-router.get('/products/:id', (req, res) => {
+router.get('/:pid', (req, res) => {
   //Se implementa la lógica para obtener un producto específico por ID
   const productId = parseInt(req.params.id);
 
