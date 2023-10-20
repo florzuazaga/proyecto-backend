@@ -4,12 +4,17 @@ const router = express.Router();
 //Se importa la instancia de productManager
 const productmanager = require('./productManager'); // ruta correcta de  archivo principal
 
-// Rutas para /products
-router.get('/products', (req, res) => {
-  // método adecuado de productManager
-    const products = productmanager.getProducts();
+// Ruta raíz para obtener todos los productos
+router.get('/', (req, res) => {
+    const limit = req.query.limit;
+    let products = productmanager.getProducts();
+  
+    if (limit) {
+      products = products.slice(0, parseInt(limit));
+    }
+  
     res.json(products);
-});
+  });
 
 router.get('/:pid', (req, res) => {
   //Se implementa la lógica para obtener un producto específico por ID
