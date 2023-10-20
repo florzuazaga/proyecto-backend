@@ -1,11 +1,17 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const routes = require('./routes'); 
 
 const app = express();
-const port = process.env.PORT || 8080; // Cambiar el puerto a 8080
+const port = process.env.PORT || 8080; // Cambio en el puerto a 8080
 
 app.use(bodyParser.json());
+
+// Se asigna el router a las rutas base /products y /carts
+app.use('/products', routes); // Rutas para productos
+app.use('/carts', routes); // Rutas para carritos
 
 class ProductManager {
   constructor(path) {
