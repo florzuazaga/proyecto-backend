@@ -1,27 +1,28 @@
 // routes.js
 const express = require('express');
 const router = express.Router();
+//Se importa la instancia de productManager
+const productmanager = require('./productManager'); // ruta correcta de  archivo principal
 
 // Rutas para /products
 router.get('/products', (req, res) => {
-  // Implementa la lógica para obtener productos
-  res.json({ message: 'Rutas de productos' });
+  // método adecuado de productManager
+    const products = productmanager.getProducts();
+    res.json(products);
 });
 
 router.get('/products/:id', (req, res) => {
-  // Implementa la lógica para obtener un producto específico por ID
-  res.json({ message: 'Ruta de un producto específico' });
-});
+  //Se implementa la lógica para obtener un producto específico por ID
+  const productId = parseInt(req.params.id);
 
-// Rutas para /carts
-router.get('/carts', (req, res) => {
-  // Implementa la lógica para obtener carritos
-  res.json({ message: 'Rutas de carritos' });
-});
+const product = productmanager.getProductById(productId);
 
-router.get('/carts/:id', (req, res) => {
-  // Implementa la lógica para obtener un carrito específico por ID
-  res.json({ message: 'Ruta de un carrito específico' });
+if (product) {
+    res.json(product);
+  } else {
+    // Si el producto no se encuentra, devuelve un error 404
+    res.status(404).json({ message: 'Producto no encontrado' });
+  }
 });
 
 module.exports = router;
