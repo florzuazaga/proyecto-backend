@@ -29,6 +29,7 @@ router.get('/:pid', (req, res) => {
   }
 });
 
+
 // Ruta raíz para crear un nuevo producto con una solicitud POST
 router.post('/', (req, res) => {
   // Obtén los datos del producto del cuerpo de la solicitud
@@ -81,9 +82,25 @@ router.put('/:pid', (req, res) => {
   if (!product) {
     return res.status(404).json({ message: 'Producto no encontrado' });
   }
+  // Ruta raíz para eliminar un producto existente con una solicitud DELETE
+router.delete('/:pid', (req, res) => {
+  const productId = parseInt(req.params.pid);
 
-  // Actualiza los campos del producto con los valores proporcionados
-  // desde el cuerpo de la solicitud (excepto el ID)
+  // Busca el índice del producto correspondiente en la base de datos
+  const productIndex = productManager.getProducts().findIndex((product) => product.id === productId);
+
+  if (productIndex === -1) {
+    return res.status(404).json({ message: 'Producto no encontrado' });
+  }
+
+  // Elimina el producto del arreglo en la base de datos
+  productManager.getProducts().splice(productIndex, 1);
+
+  res.json({ message: 'Producto eliminado', productId });
+});
+
+
+  // Actualiza los campos del producto con los valores proporcionados desde el cuerpo de la solicitud (excepto el ID)
   if ('id' in updatedFields) {
     // Elimina el campo 'id' para asegurarse de que no se actualice
     delete updatedFields.id;
