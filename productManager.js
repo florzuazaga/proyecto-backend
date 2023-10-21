@@ -35,7 +35,7 @@ class ProductManager {
       return this.products.find((producto) => producto.id === id);
     }
 
-  // ... Otros métodos de la clase ProductManager
+  
 
   loadProducts() {
     try {
