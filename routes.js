@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-// Importa el módulo productManager 
-const productManager = require('./productManager'); 
+// Importa el módulo productManager
+const productManager = require('./productManager');
 
 // Ruta raíz para obtener todos los productos
 router.get('/', (req, res) => {
@@ -39,8 +39,8 @@ router.post('/', (req, res) => {
     return res.status(400).json({ message: 'Faltan campos obligatorios' });
   }
 
-  // Se genera un ID único 
-  const newProductId = generateUniqueId(); 
+  // Se genera un ID único
+  const newProductId = generateUniqueId();
 
   // Se verifica si el ID generado ya existe en la base de datos
   const productWithIdExists = productManager.getProducts().some((product) => product.id === newProductId);
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
     description: productData.description,
     code: productData.code,
     price: productData.price,
-    status: true, 
+    status: true,
     stock: productData.stock || 0,
     category: productData.category || 'Sin categoría',
     thumbnails: productData.thumbnails || [],
@@ -70,4 +70,29 @@ router.post('/', (req, res) => {
   res.status(201).json({ message: 'Producto creado', product: newProduct });
 });
 
+// Ruta raíz para actualizar un producto existente con una solicitud PUT
+router.put('/:pid', (req, res) => {
+  const productId = parseInt(req.params.pid);
+  const updatedFields = req.body;
+
+  // Busca el producto correspondiente en la base de datos
+  const product = productManager.getProductById(productId);
+
+  if (!product) {
+    return res.status(404).json({ message: 'Producto no encontrado' });
+  }
+
+  // Actualiza los campos del producto con los valores proporcionados
+  // desde el cuerpo de la solicitud (excepto el ID)
+  if ('id' in updatedFields) {
+    // Elimina el campo 'id' para asegurarse de que no se actualice
+    delete updatedFields.id;
+  }
+
+  Object.assign(product, updatedFields);
+
+  res.json({ message: 'Producto actualizado', product });
+});
+
 module.exports = router;
+
