@@ -1,6 +1,50 @@
 const express = require('express');
 const router = express.Router();
 
+// Estructura de un carrito
+const Cart = {
+  id: '', // El ID del carrito, se autogenera
+  products: [], // Un arreglo de productos en el carrito
+};
+
+// Arreglo para almacenar los carritos
+const carts = [];
+
+// Ruta raíz para crear un nuevo carrito
+router.post('/', (req, res) => {
+  // Obtén los datos del carrito del cuerpo de la solicitud
+  const cartData = req.body;
+
+  // Validación de datos
+  if (!cartData.products || !Array.isArray(cartData.products)) {
+    return res.status(400).json({ message: 'El campo "products" es obligatorio y debe ser un arreglo.' });
+  }
+
+// Genera un ID único para el carrito (implementa esta función)
+const newCartId = generateUniqueId();
+
+// Verifica si el ID generado ya existe
+const cartWithIdExists = carts.some((cart) => cart.id === newCartId);
+
+if (cartWithIdExists) {
+  // Si el ID ya existe, genera otro hasta que encuentres uno único
+  do {
+    newCartId = generateUniqueId();
+  } while (carts.some((cart) => cart.id === newCartId));
+}
+
+// Crea un nuevo carrito con los datos proporcionados
+const newCart = {
+  id: newCartId,
+  products: cartData.products,
+};
+
+// Agrega el nuevo carrito al arreglo
+carts.push(newCart);
+
+res.status(201).json({ message: 'Carrito creado', cart: newCart });
+});
+
 // Importa el módulo productManager
 const productManager = require('./productManager');
 
