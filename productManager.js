@@ -59,6 +59,13 @@ class ProductManager {
 
 const productmanager = new ProductManager('productos.json');
 
+// Rutas de carritos
+const cartRoutes = require('./cartRoutes');
+app.use('/api/carts', cartRoutes);
+
+app.listen(port, () => {
+  console.log(`Servidor Express escuchando en el puerto ${port}`);
+});
 // Ruta para consultar productos y realizar operaciones CRUD
 app.route('/api/products')
   .get((req, res) => {
