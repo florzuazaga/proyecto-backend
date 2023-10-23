@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const productManager = require('./productManager');
 
 // Estructura de un carrito
 const Cart = {
@@ -72,7 +73,21 @@ router.get('/:pid', (req, res) => {
     res.status(404).json({ message: 'Producto no encontrado' });
   }
 });
+// Ruta para obtener los productos de un carrito por su ID (cid)
+router.get('/:cid', (req, res) => {
+  const carritoId = req.params.cid;
+  // Verifica si el carrito existe
+  const carrito = carritoManager.getCarritoById(carritoId);
 
+  if (!carrito) {
+    // Si el carrito no se encuentra, devuelve un error 404
+    return res.status(404).json({ message: 'Carrito no encontrado' });
+  }
+   // Si el carrito existe, obtén la lista de productos asociados a ese carrito
+   const productosEnCarrito = carrito.productos;
+     // Ahora tienes la lista de productos en el carrito
+  res.json(productosEnCarrito);
+});
 
 // Ruta raíz para crear un nuevo producto con una solicitud POST
 router.post('/', (req, res) => {

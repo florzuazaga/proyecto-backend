@@ -66,6 +66,7 @@ app.use('/api/carts', cartRoutes);
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
+
 // Ruta para consultar productos y realizar operaciones CRUD
 app.route('/api/products')
   .get((req, res) => {
