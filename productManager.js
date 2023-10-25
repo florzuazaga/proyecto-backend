@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const routes = require('./routes'); 
 
+
 const app = express();
 const port = process.env.PORT || 8080; // Cambio en el puerto a 8080
 
@@ -56,8 +57,18 @@ class ProductManager {
     }
   }
 }
+this.products = this.loadProducts();
+
+// Cargar datos de productos desde el archivo
+const productosJSON = fs.readFileSync('productos.json', 'utf8');
+const productosData = JSON.parse(productosJSON);
+
+// Cargar datos de carrito desde el archivo
+const carritoJSON = fs.readFileSync('carrito.json', 'utf8');
+const carritoData = JSON.parse(carritoJSON);
 
 const productmanager = new ProductManager('productos.json');
+const carritomanger = new CarritoManger('carrito.json', productosData);
 
 // Rutas de carritos
 const cartRoutes = require('./cartRoutes');
