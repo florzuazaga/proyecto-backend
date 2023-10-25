@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const cartManager = require('./carritoManger');
-const cartManager = new CartManager();
+
 
 router.post('/:cid/product/:pid', (req, res) => {
   // Obtén el ID del carrito y el ID del producto de los parámetros de la URL
