@@ -4,6 +4,39 @@ const router = express.Router();
 const cartManager = require('./carritoManger');
 const cartManager = new CartManager();
 
+router.post('/:cid/product/:pid', (req, res) => {
+  // Obtén el ID del carrito y el ID del producto de los parámetros de la URL
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+
+  // Valida que el carrito y el producto existan
+  const cart = cartManager.getCartById(cartId);
+  const product = productManager.getProductById(productId);
+
+  if (!cart || !product) {
+    return res.status(404).json({ message: 'Carrito o producto no encontrado' });
+  }
+
+  // Busca si el producto ya existe en el carrito
+  const existingProduct = cart.products.find((cartProduct) => cartProduct.product === productId);
+
+  if (existingProduct) {
+    // Si el producto ya existe en el carrito, incrementa la cantidad
+    existingProduct.quantity++;
+  } else {
+    // Si el producto no existe en el carrito, agrégalo con cantidad 1
+    const productToAdd = {
+      product: productId,
+      quantity: 1,
+    };
+    cart.products.push(productToAdd);
+  }
+
+  res.status(201).json({ message: 'Producto agregado al carrito' });
+});
+
+
+
 // Ruta raíz para crear un nuevo carrito
 router.post('/', (req, res) => {
   // Obtén los datos del carrito del cuerpo de la solicitud
