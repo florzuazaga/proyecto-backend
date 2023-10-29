@@ -25,7 +25,136 @@ app.get('/', (req, res) => {
 
 // Ruta para verificar la conexión en tiempo real
 app.get('/realtimeproducts', (req, res) => {
-  res.sendFile(__dirname + '/realtimeproducts.html');
+  const productosArray = [
+    {
+    "title": "feng shui",
+    "price": 15,
+    "id": 1,
+    "stock": 550
+  },
+  {
+    "title": "product1",
+    "description": "description1",
+    "image": "imagen1",
+    "price": 12,
+    "thumbnail": "url",
+    "code": "code1",
+    "stock": 500,
+    "id": 1
+  },
+  {
+    "title": "product2",
+    "description": "description2",
+    "image": "imagen2",
+    "price": 13,
+    "thumbnail": "url",
+    "code": "code2",
+    "stock": 600,
+    "id": 2
+  },
+  {
+    "title": "Product 1",
+    "description": "Description 1",
+    "image": "Image 1",
+    "price": 10,
+    "thumbnail": "URL 1",
+    "code": "Code 1",
+    "stock": 100,
+    "id": 3
+  },
+  {
+    "title": "Product 2",
+    "description": "Description 2",
+    "image": "Image 2",
+    "price": 15,
+    "thumbnail": "URL 2",
+    "code": "Code 2",
+    "stock": 150,
+    "id": 4
+  },
+  {
+    "title": "Product 3",
+    "description": "Description 3",
+    "image": "Image 3",
+    "price": 20,
+    "thumbnail": "URL 3",
+    "code": "Code 3",
+    "stock": 200,
+    "id": 5
+  },
+  {
+    "title": "Product 4",
+    "description": "Description 4",
+    "image": "Image 4",
+    "price": 25,
+    "thumbnail": "URL 4",
+    "code": "Code 4",
+    "stock": 250,
+    "id": 6
+  },
+  {
+    "title": "Product 5",
+    "description": "Description 5",
+    "image": "Image 5",
+    "price": 30,
+    "thumbnail": "URL 5",
+    "code": "Code 5",
+    "stock": 300,
+    "id": 7
+  },
+  {
+    "title": "Product 6",
+    "description": "Description 6",
+    "image": "Image 6",
+    "price": 35,
+    "thumbnail": "URL 6",
+    "code": "Code 6",
+    "stock": 350,
+    "id": 8
+  },
+  {
+    "title": "Product 7",
+    "description": "Description 7",
+    "image": "Image 7",
+    "price": 40,
+    "thumbnail": "URL 7",
+    "code": "Code 7",
+    "stock": 400,
+    "id": 9
+  },
+  {
+    "title": "Product 7",
+    "description": "Description 7",
+    "image": "Image 7",
+    "price": 45,
+    "thumbnail": "URL 8",
+    "code": "Code 8",
+    "stock": 400,
+    "id": 10
+  },
+  {
+    "title": "Product 9",
+    "description": "Description 9",
+    "image": "Image 9",
+    "price": 50,
+    "thumbnail": "URL 9",
+    "code": "Code 9",
+    "stock": 500,
+    "id": 11
+  },
+  {
+    "title": "Product 10",
+    "description": "Description 10",
+    "image": "Image 10",
+    "price": 55,
+    "thumbnail": "URL 10",
+    "code": "Code 10",
+    "stock": 550,
+    "id": 12
+  }];
+  
+  // Renderiza la vista "realtimeproducts" y pasa los productos como datos
+  res.render('realtimeproducts', { products: productosArray });
 });
 
 // Se asigna el router a las rutas base /products y /carts
