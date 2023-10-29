@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Realtime Products</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io(); // Crea una conexión con el servidor
-
-    socket.on('connect', () => {
-      console.log('Conexión exitosa con el servidor');
-    });
-
-    // Aquí puedes agregar lógica para interactuar con el servidor en tiempo real
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Products</title>
 </head>
 <body>
-  <h1>Lista de Productos en Tiempo Real</h1>
-  <ul>
-    {{#each products}}
-      <li>
-        <strong>{{title}}</strong>
-        <p>Precio: ${{price}}</p>
-        <p>Stock: {{stock}}</p>
-      </li>
-    {{/each}}
-  </ul>
+    <h1>Real-Time Products</h1>
+
+    
+    <ul id="productList"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('/realtimeproducts'); // Conéctate al servidor de WebSockets en /realtimeproducts
+
+        // Maneja el evento "products" para recibir la lista de productos
+        socket.on('products', (data) => {
+            console.log('Lista de productos recibida:', data);
+
+            //  muestra la lista de productos en la página web
+            const productList = document.getElementById('productList');
+            data.forEach((product) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Title: ${product.title}, Price: $${product.price}`;
+                productList.appendChild(listItem);
+            });
+        });
+    </script>
 </body>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-
-  // Manejo del evento de conexión del socket
-  socket.on('connect', () => {
-    console.log('Conexión WebSocket establecida.');
-  });
-</script>
-
 </html>
+

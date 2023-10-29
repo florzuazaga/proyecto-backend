@@ -31,12 +31,12 @@ app.get('/realtimeproducts', (req, res) => {
 io.on('connection', (socket) => {
   console.log('Cliente conectado en /realtimeproducts');
 
-  // Aquí puedes agregar lógica para interactuar con el cliente en tiempo real
-  const products = cargarProductos(); // Cargar productos para enviar al cliente
+  // lógica para interactuar con el cliente en tiempo real
+  const products = productmanager.getProducts();
   socket.emit('products', products);
 
-  // Escuchar eventos del cliente y responder a ellos
-  socket.on('customEvent', (data) => {
+   // Escucha eventos del cliente y responde a ellos
+   socket.on('customEvent', (data) => {
     console.log('Evento personalizado del cliente:', data);
   });
 });
