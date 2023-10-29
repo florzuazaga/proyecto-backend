@@ -1,11 +1,15 @@
 
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io'); // Importa socket.io
 const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const fs = require('fs');
 const routes = require('./routes');
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server); // Configura socket.io para utilizar el servidor HTTP
 const port = process.env.PORT || 8080; // Cambio en el puerto a 8080
 
 app.use(bodyParser.json());
@@ -17,6 +21,11 @@ app.set('view engine', 'handlebars');
 // Ruta raíz para renderizar la vista index.handlebars
 app.get('/', (req, res) => {
   res.render('index');
+});
+
+// Ruta para verificar la conexión en tiempo real
+app.get('/realtimeproducts', (req, res) => {
+  res.sendFile(__dirname + '/realtimeproducts.html');
 });
 
 // Se asigna el router a las rutas base /products y /carts
@@ -132,6 +141,13 @@ app.route('/api/products/:id')
 // Ruta personalizada '/mi-ruta'
 app.get('/mi-ruta', (req, res) => {
   res.send('¡Esta es mi ruta personalizada!');
+});
+
+// Configuración para conexiones en tiempo real
+io.on('connection', (socket) => {
+  console.log('Cliente conectado en /realtimeproducts');
+
+  // Aquí puedes agregar lógica para interactuar con el cliente en tiempo real
 });
 
 // Iniciar el servidor en el puerto 8080

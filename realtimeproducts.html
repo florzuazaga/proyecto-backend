@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Realtime Products</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io(); // Crea una conexión con el servidor
+
+    socket.on('connect', () => {
+      console.log('Conexión exitosa con el servidor');
+    });
+
+    // Aquí puedes agregar lógica para interactuar con el servidor en tiempo real
+  </script>
+</head>
+<body>
+  <h1>Realtime Products</h1>
+</body>
+</html>
