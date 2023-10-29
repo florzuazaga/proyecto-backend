@@ -230,11 +230,6 @@ app.route('/api/products')
   .get((req, res) => {
     const limit = req.query.limit;
     let products = productmanager.getProducts();
-
-    if (limit) {
-      products = products.slice(0, parseInt(limit));
-    }
-
     res.json(products);
   })
   .post((req, res) => {
@@ -277,6 +272,13 @@ io.on('connection', (socket) => {
   console.log('Cliente conectado en /realtimeproducts');
 
   // Aquí puedes agregar lógica para interactuar con el cliente en tiempo real
+  const products = productmanager.getProducts();
+  socket.emit('products', products);
+
+   //  escucha eventos del cliente y responde a ellos
+   socket.on('customEvent', (data) => {
+    console.log('Evento personalizado del cliente:', data);
+  });
 });
 
 // Iniciar el servidor en el puerto 8080
