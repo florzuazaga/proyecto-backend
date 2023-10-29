@@ -1,14 +1,23 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars');
 const fs = require('fs');
-const routes = require('./routes'); 
-
+const routes = require('./routes');
 
 const app = express();
 const port = process.env.PORT || 8080; // Cambio en el puerto a 8080
 
 app.use(bodyParser.json());
+
+// Configura Handlebars como motor de vistas
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
+
+// Ruta raíz para renderizar la vista index.handlebars
+app.get('/', (req, res) => {
+  res.render('index');
+});
 
 // Se asigna el router a las rutas base /products y /carts
 app.use('/products', routes); // Rutas para productos
@@ -129,11 +138,7 @@ app.get('/mi-ruta', (req, res) => {
 app.listen(port, () => {
   console.log(`Servidor Express escuchando en el puerto ${port}`);
 });
-//Se testea en Postman con:
-//http://localhost:8080/api/products?limit=5 (cinco productos:feng shui,id1,id2,id3,id4)
-//http://localhost:8080/api/products (trece productos:feng shui,id1,id2,id3,id4,id5,id6,id7,id8,id9,id10,id11,id12)
-//http://localhost:8080/api/products/numerodelid (muestra solo el producto pedido)
-//http://localhost:8080/api/products/numerodeidinexistente (muestra mensaje no encontrado)
+
 
 
 
