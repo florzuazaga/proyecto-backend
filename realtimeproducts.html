@@ -1,33 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Products</title>
-</head>
-<body>
-    <h1>Real-Time Products</h1>
-
-    
-    <ul id="productList"></ul>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io('/realtimeproducts'); // Conéctate al servidor de WebSockets en /realtimeproducts
-
-        // Maneja el evento "products" para recibir la lista de productos
-        socket.on('products', (data) => {
-            console.log('Lista de productos recibida:', data);
-
-            //  muestra la lista de productos en la página web
-            const productList = document.getElementById('productList');
-            data.forEach((product) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `Title: ${product.title}, Price: $${product.price}`;
-                productList.appendChild(listItem);
-            });
-        });
-    </script>
-</body>
-</html>
+<!-- En 'realTimeProducts.handlebars' -->
+<form id="add-product-form">
+    <input type="text" id="product-title" placeholder="Title">
+    <input type="text" id="product-description" placeholder="Description">
+    <!-- Otros campos del producto -->
+    <button type="submit">Add Product</button>
+  </form>
+  
+  <script>
+    const socket = io();
+  
+    document.getElementById('add-product-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('product-title').value;
+      const description = document.getElementById('product-description').value;
+      // Recopila otros campos del producto
+  
+      // Emitir un evento al servidor para agregar un nuevo producto
+      socket.emit('new-product', { title, description });
+    });
+  </script>
+  
 
