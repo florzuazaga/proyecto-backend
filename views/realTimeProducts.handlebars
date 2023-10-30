@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Productos en Tiempo Real</title>
+</head>
+<body>
+    <h1>Lista de Productos en Tiempo Real</h1>
+    <ul>
+        {{#each products}}
+            <li>
+                <h2>{{title}}</h2>
+                <p>{{description}}</p>
+                <p>Precio: ${{price}}</p>
+                <p>Stock: {{stock}}</p>
+                <img src="{{thumbnail}}" alt="{{title}}">
+            </li>
+        {{/each}}
+    </ul>
+
+    <!-- Formulario para agregar productos en tiempo real -->
+    <form id="addProductForm">
+        <label for="title">Título:</label>
+        <input type="text" name="title" required>
+        <br>
+        <label for="description">Descripción:</label>
+        <input type="text" name="description" required>
+        <br>
+        <label for="price">Precio:</label>
+        <input type="number" name="price" required>
+        <br>
+        <label for="stock">Stock:</label>
+        <input type="number" name="stock" required>
+        <br>
+        <label for="thumbnail">URL de la imagen:</label>
+        <input type="text" name="thumbnail" required>
+        <br>
+        <label for="code">Código:</label>
+        <input type="text" name="code" required>
+        <br>
+        <button type="submit">Agregar Producto</button>
+    </form>
+</body>
+</html>
