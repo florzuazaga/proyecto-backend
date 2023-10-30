@@ -30,13 +30,13 @@ app.get('/realtimeproducts', (req, res) => {
 io.on('connection', (socket) => {
   socket.on('new-product', (product) => {
     // Lógica para agregar un nuevo producto a la lista de productos y emitirlo a la vista en tiempo real
-    // Ejemplo: products.push(product);
+    //products.push(product);
     io.emit('update-products', getAllProducts());
   });
 
   socket.on('delete-product', (productId) => {
     // Lógica para eliminar un producto de la lista y emitir la actualización a la vista en tiempo real
-    // Ejemplo: products = products.filter(p => p.id !== productId);
+    //products = products.filter(p => p.id !== productId);
     io.emit('update-products', getAllProducts());
   });
 });
