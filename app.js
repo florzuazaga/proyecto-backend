@@ -1,7 +1,7 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const exphbs = require('express-handlebars');
+const handlebars = require('express-handlebars');
 const path = require('path');
 const fs = require('fs');
 
@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 8080;
 
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
+
+
+
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
