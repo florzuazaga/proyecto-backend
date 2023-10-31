@@ -12,7 +12,7 @@ const io = socketIo(server);
 const PORT = process.env.PORT || 8080;
 
 // Configuración de Handlebars
-app.engine('handlebars', exphbs());
+app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
