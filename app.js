@@ -4,6 +4,10 @@ const socketIo = require('socket.io');
 const handlebars = require('express-handlebars');
 const path = require('path');
 const fs = require('fs');
+const routes = require('./routes');
+
+// Importa la clase ProductManager
+const ProductManager = require('./ProductManager');
 
 const app = express();
 const server = http.createServer(app);
@@ -13,81 +17,13 @@ const PORT = process.env.PORT || 8080;
 
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
-
-
-
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Rutas para productos
+// Rutas para productos y carritos
 const productsFilePath = path.join(__dirname, 'productos.json');
 const cartsFilePath = path.join(__dirname, 'carrito.json');
 
-class ProductManager {
-  constructor(filePath) {
-    this.filePath = filePath;
-  }
-
-  readProductsFile() {
-    const fileData = fs.readFileSync(this.filePath, 'utf-8');
-    return JSON.parse(fileData);
-  }
-
-  writeProductsFile(data) {
-    fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
-  }
-
-  getProducts(limit = null) {
-    const products = this.readProductsFile();
-    if (limit) {
-      return products.slice(0, limit);
-    }
-    return products;
-  }
-
-  getProductById(productId) {
-    const products = this.readProductsFile();
-    const product = products.find((p) => p.id == productId);
-    if (product) {
-      return product;
-    } else {
-      throw new Error('Product not found');
-    }
-  }
-
-  addProduct(newProduct) {
-    const products = this.readProductsFile();
-    const newId = products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-    newProduct.id = newId;
-    products.push(newProduct);
-    this.writeProductsFile(products);
-    return newProduct;
-  }
-
-  updateProduct(productId, updatedFields) {
-    const products = this.readProductsFile();
-    const productIndex = products.findIndex((p) => p.id == productId);
-    if (productIndex !== -1) {
-      products[productIndex] = { ...products[productIndex], ...updatedFields };
-      this.writeProductsFile(products);
-      return products[productIndex];
-    } else {
-      throw new Error('Product not found');
-    }
-  }
-
-  deleteProduct(productId) {
-    const products = this.readProductsFile();
-    const productIndex = products.findIndex((p) => p.id == productId);
-    if (productIndex !== -1) {
-      const deletedProduct = products.splice(productIndex, 1);
-      this.writeProductsFile(products);
-      return deletedProduct[0];
-    } else {
-      throw new Error('Product not found');
-    }
-  }
-}
 
 class CartManager {
   constructor(filePath) {
@@ -140,6 +76,8 @@ class CartManager {
     }
   }
 }
+// Utiliza el enrutador definido en routes.js
+app.use('/api/products', routes);
 
 const productManager = new ProductManager(productsFilePath);
 const cartManager = new CartManager(cartsFilePath);
