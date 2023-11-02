@@ -5,6 +5,7 @@ const handlebars = require('express-handlebars');
 const path = require('path');
 const fs = require('fs');
 const routes = require('./routes');
+const CartManager = require('./CartManager');
 
 // Importa la clase ProductManager
 const ProductManager = require('./ProductManager');
@@ -98,35 +99,6 @@ app.delete('/api/products/:pid', (req, res) => {
     const deletedProduct = productManager.deleteProduct(productId);
     res.json(deletedProduct);
     io.emit('update-products', productManager.getProducts());
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
-});
-
-// Rutas para carritos
-app.post('/api/carts', (req, res) => {
-  const newCart = cartManager.createCart();
-  res.status(201).json(newCart);
-});
-
-app.get('/api/carts/:cid', (req, res) => {
-  const cartId = req.params.cid;
-  try {
-    const cart = cartManager.getCartById(cartId);
-    res.json(cart);
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
-});
-
-app.post('/api/carts/:cid/product/:pid', (req, res) => {
-  const cartId = req.params.cid;
-  const productId = req.params.pid;
-  const { quantity } = req.body;
-
-  try {
-    const cart = cartManager.addProductToCart(cartId, productId, quantity);
-    res.json(cart);
   } catch (error) {
     res.status(404).json({ error: error.message });
   }

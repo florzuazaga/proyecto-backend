@@ -6,12 +6,22 @@ class ProductManager {
     }
   
     readProductsFile() {
-      const fileData = fs.readFileSync(this.filePath, 'utf-8');
-      return JSON.parse(fileData);
+      try {
+        const fileData = fs.readFileSync(this.filePath, 'utf-8');
+        return JSON.parse(fileData);
+      } catch (error) {
+        // Maneja el error de lectura del archivo, si el archivo no existe
+        return [];
+      }
     }
   
     writeProductsFile(data) {
-      fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+      try {
+        fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
+      } catch (error) {
+        // Maneja el error de escritura del archivo, si no se puede escribir
+        throw new Error('Error al escribir en el archivo JSON');
+      }
     }
   
     getProducts(limit = null) {
