@@ -7,6 +7,27 @@ const ProductManager = require('./ProductManager'); // Asegúrate de que la impo
 // Crear una instancia de ProductManager
 const productManager = new ProductManager(/* ruta al archivo de productos */);
 
+// Ruta para obtener todos los productos con límite opcional
+router.get('/', (req, res) => {
+  const { limit } = req.query;
+  const products = productManager.getProducts();
+
+  if (limit) {
+    const limitNumber = parseInt(limit, 10);
+
+    if (!isNaN(limitNumber) && limitNumber > 0) {
+      // Si el parámetro 'limit' es un número válido y mayor que cero, aplica el límite
+      const limitedProducts = products.slice(0, limitNumber);
+      res.json(limitedProducts);
+    } else {
+      res.status(400).json({ error: 'El parámetro "limit" debe ser un número válido mayor que cero.' });
+    }
+  } else {
+    // Si no se proporciona el parámetro 'limit', devuelve todos los productos
+    res.json(products);
+  }
+});
+
 // Ruta para crear un nuevo producto
 router.post('/', (req, res) => {
   try {
