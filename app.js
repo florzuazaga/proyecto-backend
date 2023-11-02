@@ -4,11 +4,11 @@ const socketIo = require('socket.io');
 const handlebars = require('express-handlebars');
 const path = require('path');
 const fs = require('fs');
-const routes = require('./routes');
-const CartManager = require('./CartManager');
+const routes = require('./routes/routes');
+const CartManager = require('./managers/CartManager');
 
 // Importa la clase ProductManager
-const ProductManager = require('./ProductManager');
+const ProductManager = require('./managers/ProductManager');
 
 const app = express();
 const server = http.createServer(app);
