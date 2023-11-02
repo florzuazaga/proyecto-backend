@@ -51,6 +51,28 @@ router.post('/', (req, res) => {
   }
 });
 
+// Ruta para agregar un producto al carrito
+router.post('/:cid/product/:pid', (req, res) => {
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+  const { quantity } = req.body;
+
+  try {
+    // Verificar si el producto existe antes de agregarlo al carrito
+    const product = productManager.getProductById(productId);
+
+    // Si el producto no existe, lanzar un error
+    if (!product) {
+      return res.status(404).json({ error: 'El producto no existe.' });
+    }
+
+    const cart = cartManager.addProductToCart(cartId, productId, quantity);
+    res.json(cart);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
 // Definir rutas
 router.get('/', (req, res) => {
   // Ruta para mostrar todos los productos
