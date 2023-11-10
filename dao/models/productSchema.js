@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   thumbnail: String,
   code: String,
   stock: Number,
-  // Otros campos relevantes para tu modelo Product
+  
 });
 
 module.exports = mongoose.model('Product', productSchema);

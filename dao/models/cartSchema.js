@@ -10,7 +10,7 @@ const cartSchema = new mongoose.Schema({
       quantity: Number,
     },
   ],
-  // Otros campos relevantes para tu modelo Cart
+  
 });
 
 module.exports = mongoose.model('Cart', cartSchema);

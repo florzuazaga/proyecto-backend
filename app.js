@@ -7,10 +7,11 @@ const fs = require('fs');
 const routes = require('./routes/routes');
 const CartManager = require('./managers/CartManager');
 const mongoose = require('mongoose');
-const Product = require('./dao/models/productSchema');
-const Cart = require('./dao/models/cartSchema');
-const Message = require('./dao/models/messageSchema');
 
+// Importa los modelos de Mongoose
+const Product = require('./dao/models/productschema');
+const Cart = require('./dao/models/cartschema');
+const Message = require('./dao/models/messageschema');
 
 // Conecta a la base de datos MongoDB
 mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecommerce', {
@@ -18,14 +19,8 @@ mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecomme
   useUnifiedTopology: true,
 });
 
-// Define los modelos de Mongoose
-const Product = mongoose.model('Product', productSchema);
-const Cart = mongoose.model('Cart', cartSchema);
-const Message = mongoose.model('Message', messageSchema);
 
 
-// Importa la clase ProductManager
-const ProductManager = require('./managers/ProductManager');
 
 const app = express();
 const server = http.createServer(app);
@@ -46,6 +41,9 @@ const cartsFilePath = path.join(__dirname, 'carrito.json');
 // Utiliza el enrutador definido en routes.js
 app.use('/api/products', routes);
 
+// Importa la clase ProductManager
+const ProductManager = require('./managers/ProductManager');
+
 const productManager = new ProductManager(productsFilePath);
 const cartManager = new CartManager(cartsFilePath);
 
@@ -62,22 +60,41 @@ app.get('/realtimeproducts', (req, res) => {
 // Socket.io
 io.on('connection', (socket) => {
   socket.on('new-product', (product) => {
-    const newProduct = productManager.addProduct(product);
-    io.emit('update-products', productManager.getProducts());
+    // Crear un nuevo producto en la base de datos MongoDB
+    Product.create(product, (err, newProduct) => {
+      if (err) {
+        console.error(err);
+      } else {
+        io.emit('update-products', newProduct);
+      }
+    });
   });
 
   socket.on('delete-product', (productId) => {
-    productManager.deleteProduct(productId);
-    io.emit('update-products', productManager.getProducts());
+    // Eliminar el producto de la base de datos MongoDB
+    Product.findByIdAndRemove(productId, (err, deletedProduct) => {
+      if (err) {
+        console.error(err);
+      } else {
+        io.emit('update-products', deletedProduct);
+      }
+    });
   });
 });
 
 // Rutas API para productos
 app.get('/api/products', (req, res) => {
   const { limit } = req.query;
-  const products = productManager.getProducts(limit);
-  res.json(products);
+  // Obtener productos de la base de datos MongoDB
+  Product.find({}).limit(limit).exec((err, products) => {
+    if (err) {
+      res.status(500).json({ error: 'Error al obtener productos' });
+    } else {
+      res.json(products);
+    }
+  });
 });
+
 
 app.get('/api/products/:pid', (req, res) => {
   const productId = req.params.pid;
