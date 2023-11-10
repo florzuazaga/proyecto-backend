@@ -95,48 +95,64 @@ app.get('/api/products', (req, res) => {
   });
 });
 
-
+//Obtener un producto por ID:
 app.get('/api/products/:pid', (req, res) => {
   const productId = req.params.pid;
-  try {
-    const product = productManager.getProductById(productId);
-    res.json(product);
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
+  // Busca el producto en la base de datos MongoDB por su ID
+  Product.findById(productId, (err, product) => {
+    if (err) {
+      res.status(500).json({ error: 'Error al obtener el producto' });
+    } else if (!product) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+    } else {
+      res.json(product);
+    }
+  });
 });
 
+//Agregar un nuevo producto:
 app.post('/api/products', (req, res) => {
-  try {
-    const newProduct = productManager.addProduct(req.body);
-    res.status(201).json(newProduct);
-    io.emit('update-products', productManager.getProducts());
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+  const newProductData = req.body;
+  // Crea un nuevo producto en la base de datos MongoDB
+  Product.create(newProductData, (err, newProduct) => {
+    if (err) {
+      res.status(400).json({ error: 'Error al crear el producto' });
+    } else {
+      io.emit('update-products', newProduct);
+      res.status(201).json(newProduct);
+    }
+  });
 });
 
+//Actualizar un producto existente:
 app.put('/api/products/:pid', (req, res) => {
   const productId = req.params.pid;
-  try {
-    const updatedProduct = productManager.updateProduct(productId, req.body);
-    res.json(updatedProduct);
-    io.emit('update-products', productManager.getProducts());
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
+  const updatedProductData = req.body;
+  // Actualiza el producto en la base de datos MongoDB por su ID
+  Product.findByIdAndUpdate(productId, updatedProductData, { new: true }, (err, updatedProduct) => {
+    if (err) {
+      res.status(404).json({ error: 'Error al actualizar el producto' });
+    } else {
+      io.emit('update-products', updatedProduct);
+      res.json(updatedProduct);
+    }
+  });
 });
 
+//Eliminar un producto:
 app.delete('/api/products/:pid', (req, res) => {
   const productId = req.params.pid;
-  try {
-    const deletedProduct = productManager.deleteProduct(productId);
-    res.json(deletedProduct);
-    io.emit('update-products', productManager.getProducts());
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
+  // Elimina el producto de la base de datos MongoDB por su ID
+  Product.findByIdAndRemove(productId, (err, deletedProduct) => {
+    if (err) {
+      res.status(404).json({ error: 'Error al eliminar el producto' });
+    } else {
+      io.emit('update-products', deletedProduct);
+      res.json(deletedProduct);
+    }
+  });
 });
+
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
