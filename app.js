@@ -6,6 +6,23 @@ const path = require('path');
 const fs = require('fs');
 const routes = require('./routes/routes');
 const CartManager = require('./managers/CartManager');
+const mongoose = require('mongoose');
+const Product = require('./dao/models/productSchema');
+const Cart = require('./dao/models/cartSchema');
+const Message = require('./dao/models/messageSchema');
+
+
+// Conecta a la base de datos MongoDB
+mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecommerce', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Define los modelos de Mongoose
+const Product = mongoose.model('Product', productSchema);
+const Cart = mongoose.model('Cart', cartSchema);
+const Message = mongoose.model('Message', messageSchema);
+
 
 // Importa la clase ProductManager
 const ProductManager = require('./managers/ProductManager');
