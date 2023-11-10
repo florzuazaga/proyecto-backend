@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+</head>
+<body>
+  <h1>Chat en tiempo real</h1>
+  <div id="chat-box">
+    <!-- Aquí se mostrarán los mensajes del chat -->
+  </div>
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="Escribe un mensaje">
+    <button type="submit">Enviar</button>
+  </form>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    const socket = io();
+
+    // Escuchar eventos del servidor
+    socket.on('chat-message', (data) => {
+      // Agregar el mensaje al chat-box
+      $('#chat-box').append(`<p><strong>${data.user}:</strong> ${data.message}</p>`);
+    });
+
+    // Enviar mensajes al servidor
+    $('#chat-form').submit((e) => {
+      e.preventDefault();
+      const message = $('#message').val();
+      socket.emit('send-message', { user: 'Nombre de usuario', message }); // Cambia 'Nombre de usuario' por el nombre del usuario actual
+      $('#message').val('');
+    });
+  </script>
+</body>
+</html>

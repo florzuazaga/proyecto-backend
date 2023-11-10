@@ -7,6 +7,9 @@ const fs = require('fs');
 const routes = require('./routes/routes');
 const CartManager = require('./managers/CartManager');
 const mongoose = require('mongoose');
+const Message = require('./models/message'); // Importa el modelo Message
+
+
 
 // Importa los modelos de Mongoose
 const Product = require('./dao/models/productschema');
@@ -18,8 +21,6 @@ mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecomme
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
-
 
 
 const app = express();
@@ -59,6 +60,7 @@ app.get('/realtimeproducts', (req, res) => {
 
 // Socket.io
 io.on('connection', (socket) => {
+  console.log('Usuario conectado');
   socket.on('new-product', (product) => {
     // Crear un nuevo producto en la base de datos MongoDB
     Product.create(product, (err, newProduct) => {
@@ -71,6 +73,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('delete-product', (productId) => {
+    console.log('Nuevo mensaje:', data.message);
     // Eliminar el producto de la base de datos MongoDB
     Product.findByIdAndRemove(productId, (err, deletedProduct) => {
       if (err) {
@@ -80,6 +83,20 @@ io.on('connection', (socket) => {
       }
     });
   });
+});
+
+// Guardar el mensaje en la base de datos
+const newMessage = new Message({
+  user: data.user,
+  message: data.message,
+});
+newMessage.save((err, message) => {
+  if (err) {
+    console.error('Error al guardar el mensaje:', err);
+  } else {
+    // Emitir el mensaje a todos los clientes
+    io.emit('chat-message', { user: data.user, message: data.message });
+  }
 });
 
 // Rutas API para productos
