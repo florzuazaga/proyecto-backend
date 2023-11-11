@@ -4,9 +4,12 @@ const socketIo = require('socket.io');
 const handlebars = require('express-handlebars');
 const path = require('path');
 const mongoose = require('mongoose'); // Importa Mongoose
+
+// Importa los modelos de Mongoose
 const Product = require('./dao/models/productschema'); // Importa el modelo de productos
 const Cart = require('./dao/models/cartschema'); // Importa el modelo de carritos
 const Message = require('./dao/models/messageschema'); // Importa el modelo de mensajes
+
 const routes = require('./routes/routes');
 const CartManager = require('./managers/CartManager');
 const ProductManager = require('./managers/ProductManager');
@@ -27,10 +30,6 @@ app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Importa los modelos de Mongoose
-const Product = require('./dao/models/productschema');
-const Cart = require('./dao/models/cartschema');
-const Message = require('./dao/models/messageschema');
 
 // Rutas para productos 
 const productsFilePath = path.join(__dirname, 'productos.json');
