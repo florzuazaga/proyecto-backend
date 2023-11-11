@@ -3,36 +3,34 @@ const http = require('http');
 const socketIo = require('socket.io');
 const handlebars = require('express-handlebars');
 const path = require('path');
-const fs = require('fs');
+const mongoose = require('mongoose'); // Importa Mongoose
+const Product = require('./dao/models/productschema'); // Importa el modelo de productos
+const Cart = require('./dao/models/cartschema'); // Importa el modelo de carritos
+const Message = require('./dao/models/messageschema'); // Importa el modelo de mensajes
 const routes = require('./routes/routes');
 const CartManager = require('./managers/CartManager');
-const mongoose = require('mongoose');
-const Message = require('./models/message'); // Importa el modelo Message
-
-
-
-// Importa los modelos de Mongoose
-const Product = require('./dao/models/productschema');
-const Cart = require('./dao/models/cartschema');
-const Message = require('./dao/models/messageschema');
-
-// Conecta a la base de datos MongoDB
-mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecommerce', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-
+const ProductManager = require('./managers/ProductManager');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
 const PORT = process.env.PORT || 8080;
 
+// Configura la conexión a MongoDB y Conecta a la base de datos MongoDB
+mongoose.connect('mongodb+srv://<username>:<password>@cluster.mongodb.net/ecommerce', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
+
+// Importa los modelos de Mongoose
+const Product = require('./dao/models/productschema');
+const Cart = require('./dao/models/cartschema');
+const Message = require('./dao/models/messageschema');
 
 // Rutas para productos 
 const productsFilePath = path.join(__dirname, 'productos.json');
@@ -42,11 +40,10 @@ const cartsFilePath = path.join(__dirname, 'carrito.json');
 // Utiliza el enrutador definido en routes.js
 app.use('/api/products', routes);
 
-// Importa la clase ProductManager
-const ProductManager = require('./managers/ProductManager');
-
 const productManager = new ProductManager(productsFilePath);
 const cartManager = new CartManager(cartsFilePath);
+
+
 
 app.use(express.json());
 
