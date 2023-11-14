@@ -69,7 +69,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('delete-product', (productId) => {
-    console.log('Nuevo mensaje:', data.message);
     // Eliminar el producto de la base de datos MongoDB
     Product.findByIdAndRemove(productId, (err, deletedProduct) => {
       if (err) {
@@ -82,17 +81,23 @@ io.on('connection', (socket) => {
 });
 
 // Guardar el mensaje en la base de datos
-const newMessage = new Message({
-  user: data.user,
-  message: data.message,
+socket.on('chat-message', (data) => {
+  const newMessage = new Message({
+    user: data.user,
+    message: data.message,
+  });
+  newMessage.save((err, message) => {
+    if (err) {
+      console.error('Error al guardar el mensaje:', err);
+    } else {
+      // Emitir el mensaje a todos los clientes
+      io.emit('chat-message', { user: data.user, message: data.message });
+    }
+  });
 });
-newMessage.save((err, message) => {
-  if (err) {
-    console.error('Error al guardar el mensaje:', err);
-  } else {
-    // Emitir el mensaje a todos los clientes
-    io.emit('chat-message', { user: data.user, message: data.message });
-  }
+// Manejar desconexiones de usuarios
+socket.on('disconnect', () => {
+  console.log('Usuario desconectado');
 });
 
 // Rutas API para productos
