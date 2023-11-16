@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
+const { Server } = require('socket.io'); // Importa Server desde socket.io
 const handlebars = require('express-handlebars');
 const path = require('path');
 const mongoose = require('mongoose'); // Importa Mongoose
@@ -15,7 +15,7 @@ const CartManager = require('./managers/CartManager');
 const ProductManager = require('./managers/ProductManager');
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = new Server(server); // Usa Server desde socket.io
 
 const PORT = process.env.PORT || 8080;
 
