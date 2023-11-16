@@ -57,6 +57,7 @@ app.get('/realtimeproducts', (req, res) => {
 // Socket.io
 io.on('connection', (socket) => {
   console.log('Usuario conectado');
+
   socket.on('new-product', (product) => {
     // Crear un nuevo producto en la base de datos MongoDB
     Product.create(product, (err, newProduct) => {
@@ -78,26 +79,26 @@ io.on('connection', (socket) => {
       }
     });
   });
-});
 
-// Guardar el mensaje en la base de datos
-socket.on('chat-message', (data) => {
-  const newMessage = new Message({
-    user: data.user,
-    message: data.message,
+  // Guardar el mensaje en la base de datos
+  socket.on('chat-message', (data) => {
+    const newMessage = new Message({
+      user: data.user,
+      message: data.message,
+    });
+    newMessage.save((err, message) => {
+      if (err) {
+        console.error('Error al guardar el mensaje:', err);
+      } else {
+        // Emitir el mensaje a todos los clientes
+        io.emit('chat-message', { user: data.user, message: data.message });
+      }
+    });
   });
-  newMessage.save((err, message) => {
-    if (err) {
-      console.error('Error al guardar el mensaje:', err);
-    } else {
-      // Emitir el mensaje a todos los clientes
-      io.emit('chat-message', { user: data.user, message: data.message });
-    }
-  });
-});
-// Manejar desconexiones de usuarios
+  // Manejar desconexiones de usuarios
 socket.on('disconnect', () => {
   console.log('Usuario desconectado');
+});
 });
 
 // Rutas API para productos
