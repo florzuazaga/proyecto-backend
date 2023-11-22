@@ -20,7 +20,7 @@ const io = new Server(server); // Usa Server desde socket.io
 const PORT = process.env.PORT || 8080;
 
 // Configura la conexión a MongoDB y Conecta a la base de datos MongoDB
-mongoose.connect('mongodb+srv://<florenciazuazaga36>:<qisFwvR2GBLwJL4h>@cluster.mongodb.net/Cluster0', {
+mongoose.connect('mongodb+srv://florenciazuazaga36:<password>@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
