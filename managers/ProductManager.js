@@ -1,10 +1,38 @@
 const fs = require('fs');
+const fs = require('fs');
+const Product = require('./dao/models/productschema');
 
 class ProductManager {
     constructor(filePath) {
       this.filePath = filePath;
     }
-  
+   // Métodos para operar con la base de datos MongoDB
+   static async getAllProducts() {
+    try {
+      const products = await Product.find({});
+      return products;
+    } catch (error) {
+      throw new Error('Error al obtener los productos');
+    }
+  }
+
+  static async getProductById(productId) {
+    try {
+      const product = await Product.findById(productId);
+      return product;
+    } catch (error) {
+      throw new Error('Error al obtener el producto');
+    }
+  }
+
+  static async createProduct(productData) {
+    try {
+      const newProduct = await Product.create(productData);
+      return newProduct;
+    } catch (error) {
+      throw new Error('Error al crear el producto');
+    }
+  }
     readProductsFile() {
       try {
         const fileData = fs.readFileSync(this.filePath, 'utf-8');

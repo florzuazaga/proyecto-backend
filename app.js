@@ -46,12 +46,13 @@ const cartManager = new CartManager(cartsFilePath);
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.render('home', { products: productManager.getProducts() });
-});
-
-app.get('/realtimeproducts', (req, res) => {
-  res.render('realTimeProducts', { products: productManager.getProducts() });
+app.get('/', async (req, res) => {
+  try {
+    const products = await ProductManager.getAllProducts();
+    res.render('home', { products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Socket.io
@@ -102,74 +103,124 @@ socket.on('disconnect', () => {
 });
 
 // Rutas API para productos
-app.get('/api/products', (req, res) => {
-  const { limit } = req.query;
-  // Obtener productos de la base de datos MongoDB
-  Product.find({}).limit(limit).exec((err, products) => {
-    if (err) {
-      res.status(500).json({ error: 'Error al obtener productos' });
-    } else {
-      res.json(products);
+app.get('/api/products', async (req, res) => {
+  try {
+    const { limit = 10, page = 1, sort, query } = req.query;
+    const skip = (page - 1) * limit;
+
+    let filter = {};
+    if (query) {
+      // Aplicar filtro por categoría o disponibilidad si se proporciona el parámetro query
+      filter = {
+        $or: [
+          { category: { $regex: query, $options: 'i' } }, // Búsqueda por categoría (insensible a mayúsculas/minúsculas)
+          { availability: { $regex: query, $options: 'i' } }, // Búsqueda por disponibilidad
+        ],
+      };
     }
-  });
+
+    const sortOptions = {};
+    if (sort === 'asc' || sort === 'desc') {
+      sortOptions.price = sort === 'asc' ? 1 : -1;
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(Number(limit));
+
+    const result = {
+      status: 'success',
+      payload: products,
+      totalPages,
+      prevPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null,
+      page: Number(page),
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages,
+      prevLink: page > 1 ? `/api/products?limit=${limit}&page=${page - 1}` : null,
+      nextLink: page < totalPages ? `/api/products?limit=${limit}&page=${page + 1}` : null,
+    };
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los productos' });
+  }
 });
 
-//Obtener un producto por ID:
-app.get('/api/products/:pid', (req, res) => {
-  const productId = req.params.pid;
-  // Busca el producto en la base de datos MongoDB por su ID
-  Product.findById(productId, (err, product) => {
-    if (err) {
-      res.status(500).json({ error: 'Error al obtener el producto' });
-    } else if (!product) {
+// Obtener un producto por ID:
+app.get('/api/products/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+    // Busca el producto en la base de datos MongoDB por su ID
+    const product = await Product.findById(productId);
+    
+    if (!product) {
       res.status(404).json({ error: 'Producto no encontrado' });
     } else {
       res.json(product);
     }
-  });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el producto' });
+  }
 });
 
-//Agregar un nuevo producto:
+
+// Agregar un nuevo producto:
 app.post('/api/products', (req, res) => {
   const newProductData = req.body;
   // Crea un nuevo producto en la base de datos MongoDB
-  Product.create(newProductData, (err, newProduct) => {
-    if (err) {
-      res.status(400).json({ error: 'Error al crear el producto' });
-    } else {
+  Product.create(newProductData)
+    .then(newProduct => {
       io.emit('update-products', newProduct);
       res.status(201).json(newProduct);
-    }
-  });
+    })
+    .catch(error => {
+      res.status(400).json({ error: 'Error al crear el producto' });
+    });
 });
 
-//Actualizar un producto existente:
-app.put('/api/products/:pid', (req, res) => {
-  const productId = req.params.pid;
-  const updatedProductData = req.body;
-  // Actualiza el producto en la base de datos MongoDB por su ID
-  Product.findByIdAndUpdate(productId, updatedProductData, { new: true }, (err, updatedProduct) => {
-    if (err) {
+// Actualizar un producto existente:
+app.put('/api/products/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+    const updatedProductData = req.body;
+
+    // Actualiza el producto en la base de datos MongoDB por su ID
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+
+    if (!updatedProduct) {
       res.status(404).json({ error: 'Error al actualizar el producto' });
     } else {
       io.emit('update-products', updatedProduct);
       res.json(updatedProduct);
     }
-  });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el producto' });
+  }
 });
 
-//Eliminar un producto:
-app.delete('/api/products/:pid', (req, res) => {
-  const productId = req.params.pid;
-  // Elimina el producto de la base de datos MongoDB por su ID
-  Product.findByIdAndRemove(productId, (err, deletedProduct) => {
-    if (err) {
+
+// Eliminar un producto:
+app.delete('/api/products/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+
+    // Elimina el producto de la base de datos MongoDB por su ID
+    const deletedProduct = await Product.deleteOne({ _id: productId });
+
+    if (deletedProduct.deletedCount === 0) {
       res.status(404).json({ error: 'Error al eliminar el producto' });
     } else {
-      io.emit('update-products', deletedProduct);
-      res.json(deletedProduct);
+      io.emit('update-products', productId);
+      res.json({ message: 'Producto eliminado exitosamente' });
     }
-  });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el producto' });
+  }
 });
 
 
