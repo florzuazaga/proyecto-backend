@@ -6,7 +6,7 @@ const path = require('path');
 const mongoose = require('mongoose'); // Importa Mongoose
 
 // Importa los modelos de Mongoose
-const Product = require('./dao/models/productschema'); // Importa el modelo de productos
+const Product = require('./dao/models/productSchema'); // Importa el modelo de productos
 const Cart = require('./dao/models/cartschema'); // Importa el modelo de carritos
 const Message = require('./dao/models/messageschema'); // Importa el modelo de mensajes
 

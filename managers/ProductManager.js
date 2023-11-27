@@ -1,6 +1,5 @@
 const fs = require('fs');
-const fs = require('fs');
-const Product = require('./dao/models/productschema');
+const Product = require('./dao/models/productSchema');
 
 class ProductManager {
     constructor(filePath) {
