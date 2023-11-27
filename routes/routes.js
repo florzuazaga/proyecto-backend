@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const ProductManager = require('../managers/ProductManager'); // Asegúrate de que la importación sea correcta
+const Product = require('../dao/models/ProductSchema');
 
 // Crear una instancia de ProductManager
 const productManager = new ProductManager(/* ruta al archivo de productos */);
