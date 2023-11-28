@@ -223,6 +223,28 @@ app.delete('/api/products/:pid', async (req, res) => {
   }
 });
 
+// Función de prueba que acepta un callback como argumento y luego lo llama
+function testCallback(callback) {
+  // Realiza alguna operación (simulada con un setTimeout)
+  setTimeout(() => {
+    const result = Math.random() > 0.5 ? 'success' : 'error';
+    // Llama al callback con el resultado
+    callback(result === 'error' ? 'Ocurrió un error' : null, result);
+  }, 1000); // Simula una operación asíncrona con setTimeout
+}
+
+// Función callback
+function myCallback(error, result) {
+  if (error) {
+    console.error('Error:', error);
+  } else {
+    console.log('Resultado:', result);
+  }
+}
+
+// Llamada a la función de prueba con el callback
+testCallback(myCallback);
+
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
