@@ -1,11 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const CartManager = require('../managers/CartManager');
-const Product = require('../dao/models/Product'); // Reemplaza con la ubicación correcta y nombre del modelo Product
-const Cart = require('../dao/models/Cart'); // Reemplaza con la ubicación correcta y nombre del modelo Cart
+const Product = require('../dao/models/Product'); 
+const Cart = require('../dao/models/Cart'); 
 
 // Crear instancia de CartManager
-const cartManager = new CartManager('../managers/CartManager');
+const cartManager = new CartManager(); 
+
+
+
+router.post('/:cid/products/:pid', (req, res) => {
+  const cartId = req.params.cid;
+  const productId = req.params.pid;
+  const { quantity } = req.body;
+
+  try {
+    // lógica para encontrar el carrito por ID
+    const cart = cartManager.findCartById(cartId);
+
+    // Comprueba si el producto ya está en el carrito
+    const existingProductIndex = cart.products.findIndex(product => product.productId === productId);
+
+    if (existingProductIndex !== -1) {
+      // Si el producto ya está en el carrito, aumenta la cantidad
+      cart.products[existingProductIndex].quantity += parseInt(quantity);
+    } else {
+      // Si no está en el carrito, agrégalo con la cantidad proporcionada
+      cart.products.push({ productId, quantity: parseInt(quantity) });
+    }
+
+
+    // Luego, envía una respuesta exitosa
+    res.status(200).json({ message: 'Producto agregado al carrito exitosamente.' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.get('/:cid', (req, res) => {
   // Obtener un carrito específico con sus productos completos mediante "populate"

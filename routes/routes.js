@@ -2,30 +2,46 @@
 
 const express = require('express');
 const router = express.Router();
-const ProductManager = require('../managers/ProductManager'); // Asegúrate de que la importación sea correcta
+const ProductManager = require('../managers/ProductManager'); 
+const CartManager = require('../managers/CartManager'); 
 const Product = require('../dao/models/ProductSchema');
+const Cart = require('../dao/models/cartSchema');
 
 // Crear una instancia de ProductManager
-const productManager = new ProductManager(/* ruta al archivo de productos */);
+const productManager = new ProductManager();
+const cartManager = new CartManager();
+
+
+// Ruta para visualizar todos los productos con paginación
+router.get('/products', async (req, res) => {
+  try {
+    const products = await ProductManager.getAllProducts();
+    res.render('products', { products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Ruta para obtener todos los productos con límite opcional
-router.get('/', (req, res) => {
-  const { limit } = req.query;
-  const products = productManager.getProducts();
+router.get('/api/products', (req, res) => {
+  try {
+    const { limit } = req.query;
+    let products = productManager.getProducts();
 
-  if (limit) {
-    const limitNumber = parseInt(limit, 10);
+    if (limit) {
+      const limitNumber = parseInt(limit, 10);
 
-    if (!isNaN(limitNumber) && limitNumber > 0) {
-      // Si el parámetro 'limit' es un número válido y mayor que cero, aplica el límite
-      const limitedProducts = products.slice(0, limitNumber);
-      res.json(limitedProducts);
-    } else {
-      res.status(400).json({ error: 'El parámetro "limit" debe ser un número válido mayor que cero.' });
+      if (!isNaN(limitNumber) && limitNumber > 0) {
+        products = products.slice(0, limitNumber);
+      } else {
+        return res.status(400).json({ error: 'El parámetro "limit" debe ser un número válido mayor que cero.' });
+      }
     }
-  } else {
-    // Si no se proporciona el parámetro 'limit', devuelve todos los productos
+
     res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -70,7 +86,7 @@ router.post('/:cid/product/:pid', (req, res) => {
     const cart = cartManager.addProductToCart(cartId, productId, quantity);
     res.json(cart);
   } catch (error) {
-    res.status(404).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito</title>
+</head>
+<body>
+  <h1>Carrito de Compras</h1>
+  {{#each cartProducts}}
+    <div>
+      <h2>{{name}}</h2>
+      <p>Precio: {{price}}</p>
+      <p>Cantidad: {{quantity}}</p>
+      <p>Categoría: {{category}}</p>
+    </div>
+  {{/each}}
+</body>
+</html>
