@@ -1,66 +1,85 @@
-const fs = require('fs');
+const Cart = require('../dao/models/cartSchema'); // Importa el modelo Cart definido anteriormente
 
 class CartManager {
-  constructor(filePath) {
-    this.filePath = filePath;
-  }
-
-  // Método para leer datos del archivo carrito.json
-  readCartsFile() {
+  // Método para crear un nuevo carrito
+  async createCart(products) {
     try {
-      const fileData = fs.readFileSync(this.filePath, 'utf-8');
-      return JSON.parse(fileData);
+      const newCart = await Cart.create({ products });
+      return newCart;
     } catch (error) {
-      // Maneja el error de lectura del archivo, por ejemplo, si el archivo no existe
-      return [];
+      throw new Error('Error al crear el carrito');
     }
   }
 
-  writeCartsFile(data) {
+  // Método para obtener un carrito por su ID
+  async getCartById(cartId) {
     try {
-      fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (error) {
-      // Maneja el error de escritura del archivo, por ejemplo, si no se puede escribir
-      throw new Error('Error al escribir en el archivo carrito.json');
-    }
-  }
-
-  createCart() {
-    const carts = this.readCartsFile();
-    const newId = carts.length > 0 ? Math.max(...carts.map((c) => c.id)) + 1 : 1;
-    const newCart = { id: newId, products: [] };
-    carts.push(newCart);
-    this.writeCartsFile(carts);
-    return newCart;
-  }
-
-  getCartById(cartId) {
-    const carts = this.readCartsFile();
-    const cart = carts.find((c) => c.id == cartId);
-    if (cart) {
+      const cart = await Cart.findById(cartId).populate('products.product');
       return cart;
-    } else {
-      throw new Error('Cart not found');
+    } catch (error) {
+      throw new Error('Error al obtener el carrito por ID');
     }
   }
 
-  addProductToCart(cartId, productId, quantity = 1) {
-    const carts = this.readCartsFile();
-    const cartIndex = carts.findIndex((c) => c.id == cartId);
-    if (cartIndex !== -1) {
-      const cart = carts[cartIndex];
-      const existingProduct = cart.products.find((p) => p.id == productId);
-      if (existingProduct) {
-        existingProduct.quantity += quantity;
-      } else {
-        cart.products.push({ id: productId, quantity });
+  // Método para agregar un producto al carrito
+  async addProductToCart(cartId, productId, quantity) {
+    try {
+      const cart = await Cart.findById(cartId);
+      if (!cart) {
+        throw new Error('Carrito no encontrado');
       }
-      this.writeCartsFile(carts);
+
+      // Agrega el producto con la cantidad proporcionada al carrito
+      cart.products.push({ product: productId, quantity });
+      await cart.save();
+
       return cart;
-    } else {
-        throw new Error('Cart not found');
+    } catch (error) {
+      throw new Error('Error al agregar producto al carrito');
     }
   }
+
+  // Otros métodos para actualizar y eliminar productos del carrito
+  async updateProductQuantity(cartId, productId, newQuantity) {
+    try {
+      const cart = await Cart.findById(cartId);
+      if (!cart) {
+        throw new Error('Carrito no encontrado');
+      }
+  
+      const productIndex = cart.products.findIndex(
+        (product) => product.product.toString() === productId
+      );
+      if (productIndex === -1) {
+        throw new Error('Producto no encontrado en el carrito');
+      }
+  
+      cart.products[productIndex].quantity = newQuantity;
+      await cart.save();
+  
+      return cart;
+    } catch (error) {
+      throw new Error('Error al actualizar la cantidad del producto en el carrito');
+    }
+  }
+  async removeProductFromCart(cartId, productId) {
+    try {
+      const cart = await Cart.findById(cartId);
+      if (!cart) {
+        throw new Error('Carrito no encontrado');
+      }
+  
+      cart.products = cart.products.filter(
+        (product) => product.product.toString() !== productId
+      );
+      await cart.save();
+  
+      return cart;
+    } catch (error) {
+      throw new Error('Error al eliminar el producto del carrito');
+    }
+  }
+  
 }
 
 module.exports = CartManager;
