@@ -5,6 +5,7 @@ const handlebars = require('express-handlebars');
 const path = require('path');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const fs = require('fs');
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
@@ -36,6 +37,53 @@ mongoose.connect(MONGODB_URI, {
 
 // Rutas
 app.use('/api/products', routes);
+
+// Middleware para analizar el cuerpo JSON
+app.use(express.json());
+
+// Cargar datos de archivos JSON
+const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
+const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
+
+// Endpoint GET para la paginación y manejo de parámetros de consulta
+app.get('/api/products', (req, res) => {
+  const { page = 1, limit = 10, sort, query } = req.query;
+
+  limit = parseInt(limit);
+  page = parseInt(page);
+
+  let filteredData = productosData;
+
+   // Aplica el filtrado por tipo de elemento si hay un parámetro de tipo
+   if (type) {
+    filteredData = filteredData.filter(product => product.tipo.toLowerCase() === type.toLowerCase());
+  }
+
+  // Aplica el filtrado si hay un parámetro de consulta
+  if (query) {
+    filteredData = filteredData.filter(product => product.nombre.toLowerCase().includes(query.toLowerCase()));
+  }
+  
+  // Aplica el ordenamiento si se especifica
+  if (sort === 'asc') {
+    filteredData.sort((a, b) => (a.precio > b.precio) ? 1 : -1);
+  } else if (sort === 'desc') {
+    filteredData.sort((a, b) => (a.precio < b.precio) ? 1 : -1);
+  }
+
+// Realiza la paginación de los datos
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  res.json({
+    totalProducts: filteredData.length,
+    totalPages: Math.ceil(filteredData.length / limit),
+    currentPage: page,
+    products: paginatedData,
+  });
+});
 
 
 // Manejo de eventos en Socket.IO
