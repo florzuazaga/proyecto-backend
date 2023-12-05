@@ -75,14 +75,27 @@ app.get('/api/products', (req, res) => {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  const paginatedData = filteredData.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredData.length / limit);
+  const hasNextPage = endIndex < filteredData.length;
+  const hasPrevPage = startIndex > 0;
 
-  res.json({
-    totalProducts: filteredData.length,
-    totalPages: Math.ceil(filteredData.length / limit),
-    currentPage: page,
-    products: paginatedData,
-  });
+  const prevLink = hasPrevPage ? `/api/products?page=${page - 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
+  const nextLink = hasNextPage ? `/api/products?page=${page + 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
+
+  const result = {
+    status: 'success',
+    payload: paginatedData,
+    totalPages,
+    prevPage: hasPrevPage ? page - 1 : null,
+    nextPage: hasNextPage ? page + 1 : null,
+    page,
+    hasPrevPage,
+    hasNextPage,
+    prevLink,
+    nextLink,
+  };
+
+  res.json(result);
 });
 
 
