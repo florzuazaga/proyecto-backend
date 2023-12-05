@@ -38,21 +38,23 @@ router.post('/:cid/products/:pid', (req, res) => {
   }
 });
 
-router.get('/:cid', (req, res) => {
-  // Obtener un carrito específico con sus productos completos mediante "populate"
+router.get('/:cid', async (req, res) => {
   const cartId = req.params.cid;
   
   try {
-    Cart.findById(cartId).populate('products').exec((err, cart) => {
-      if (err || !cart) {
-        return res.status(404).json({ error: 'Carrito no encontrado.' });
-      }
-      res.json(cart);
-    });
+    // Encuentra el carrito por su ID y popula la propiedad 'products' para traer los productos completos
+    const cart = await Cart.findById(cartId).populate('products');
+
+    if (!cart) {
+      return res.status(404).json({ error: 'Carrito no encontrado.' });
+    }
+    
+    res.json(cart);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el carrito.' });
   }
 });
+
 
 router.delete('/:cid/products/:pid', (req, res) => {
   // Eliminar del carrito el producto seleccionado
@@ -80,14 +82,38 @@ router.put('/:cid', (req, res) => {
   }
 });
 
+router.put('/:cid', async (req, res) => {
+  const cartId = req.params.cid;
+  const updatedProducts = req.body.products;
+
+  try {
+    // Encuentra el carrito por su ID
+    const cart = await Cart.findById(cartId);
+
+    // Actualiza la lista de productos del carrito con los nuevos productos
+    cart.products = updatedProducts;
+
+    // Guarda el carrito actualizado en la base de datos
+    const updatedCart = await cart.save();
+    
+
+    // Envía la respuesta con el carrito actualizado
+    res.json(updatedCart);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 router.put('/:cid/products/:pid', (req, res) => {
-  // Actualizar la cantidad de ejemplares del producto en el carrito
   const cartId = req.params.cid;
   const productId = req.params.pid;
   const { quantity } = req.body;
 
   try {
+    // Aquí se podría implementar la lógica para actualizar la cantidad del producto en el carrito
     const updatedCart = cartManager.updateProductQuantity(cartId, productId, quantity);
+
+    // Envía la respuesta con el carrito actualizado
     res.json(updatedCart);
   } catch (error) {
     res.status(400).json({ error: error.message });
