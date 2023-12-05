@@ -45,6 +45,24 @@ app.use(express.json());
 const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
 const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
 
+// Ruta para mostrar los productos
+app.get('/products', (req, res) => {
+  // Obtener los productos desde  archivo JSON
+  const products = obtenerProductos(); // Aquí debes obtener los productos de tu lógica de negocio
+
+  // Renderizar la vista de productos y pasar los datos
+  res.render('products', { products });
+});
+
+// Ruta para mostrar el carrito de compras
+app.get('/cart', (req, res) => {
+  // Obtener los productos del carrito desde tu lógica de negocio
+  const cartItems = obtenerProductosDelCarrito(); // Aquí debes obtener los productos del carrito
+
+  // Renderizar la vista del carrito y pasar los datos
+  res.render('cart', { items: cartItems });
+});
+
 // Endpoint GET para la paginación y manejo de parámetros de consulta
 app.get('/api/products', (req, res) => {
   const { page = 1, limit = 10, sort, query } = req.query;
