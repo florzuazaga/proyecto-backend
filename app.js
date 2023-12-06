@@ -64,16 +64,13 @@ app.get('/cart', (req, res) => {
 });
 
 // Endpoint GET para la paginación y manejo de parámetros de consulta
-app.get('/api/products', (req, res) => {
-  const { page = 1, limit = 10, sort, query } = req.query;
-
-  limit = parseInt(limit);
-  page = parseInt(page);
+app.get('/api/store/products', (req, res) => {
+  const { page = 1, limit = 10, sort, query, type } = req.query;
 
   let filteredData = productosData;
 
-   // Aplica el filtrado por tipo de elemento si hay un parámetro de tipo
-   if (type) {
+  // Aplica el filtrado por tipo de elemento si hay un parámetro de tipo
+  if (type) {
     filteredData = filteredData.filter(product => product.tipo.toLowerCase() === type.toLowerCase());
   }
 
@@ -89,7 +86,7 @@ app.get('/api/products', (req, res) => {
     filteredData.sort((a, b) => (a.precio < b.precio) ? 1 : -1);
   }
 
-// Realiza la paginación de los datos
+  // Realiza la paginación de los datos
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
@@ -97,8 +94,10 @@ app.get('/api/products', (req, res) => {
   const hasNextPage = endIndex < filteredData.length;
   const hasPrevPage = startIndex > 0;
 
-  const prevLink = hasPrevPage ? `/api/products?page=${page - 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
-  const nextLink = hasNextPage ? `/api/products?page=${page + 1}&limit=${limit}&sort=${sort}&query=${query}` : null;
+  const prevLink = hasPrevPage ? `/api/store/products?page=${page - 1}&limit=${limit}&sort=${sort}&query=${query}&type=${type || ''}` : null;
+  const nextLink = hasNextPage ? `/api/store/products?page=${page + 1}&limit=${limit}&sort=${sort}&query=${query}&type=${type || ''}` : null;
+
+  const paginatedData = filteredData.slice(startIndex, endIndex);
 
   const result = {
     status: 'success',
@@ -106,7 +105,7 @@ app.get('/api/products', (req, res) => {
     totalPages,
     prevPage: hasPrevPage ? page - 1 : null,
     nextPage: hasNextPage ? page + 1 : null,
-    page,
+    page: parseInt(page),
     hasPrevPage,
     hasNextPage,
     prevLink,
@@ -115,6 +114,7 @@ app.get('/api/products', (req, res) => {
 
   res.json(result);
 });
+
 
 
 // Manejo de eventos en Socket.IO
