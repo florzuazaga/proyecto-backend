@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión</title>
+</head>
+<body>
+  <h1>Iniciar Sesión</h1>
+  <form action="/login" method="POST">
+    <label for="username">Nombre de usuario:</label>
+    <input type="text" id="username" name="username" required><br><br>
+    
+    <label for="password">Contraseña:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    
+    <input type="submit" value="Iniciar Sesión">
+  </form>
+  <title>Registro</title>
+  <h2>Registro</h2>
+  <form action="/register" method="POST">
+    <label for="username">Nombre de usuario:</label>
+    <input type="text" id="username" name="username" required><br><br>
+    
+    <label for="password">Contraseña:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    
+    <input type="submit" value="Registrarse">
+  </form>
+  <!-- Botón de logout -->
+<button id="logoutButton">Logout</button>
+</body>
+<script>
+  // Manejar clic en el botón de logout
+  document.getElementById('logoutButton').addEventListener('click', async () => {
+    try {
+      // Realizar una solicitud POST para cerrar sesión
+      const response = await fetch('/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Redirigir a la vista de inicio de sesión después de cerrar sesión correctamente
+        window.location.href = '/login';
+      } else {
+        // Manejar el caso si hay un error al cerrar sesión
+        console.error('Error al cerrar sesión');
+      }
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  });
+</script>
+</html>

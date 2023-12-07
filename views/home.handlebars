@@ -19,6 +19,11 @@
       <a href="/products/{{_id}}">Ver detalles</a>
     </div>
   {{/each}}
+  <!-- Botón de logout -->
+<form action="/logout" method="POST">
+  <button type="submit">Logout</button>
+</form>
+
 
   <script>
     function addToCart(productId) {

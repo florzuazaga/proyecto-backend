@@ -6,6 +6,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const fs = require('fs');
+const session = require('express-session');
+const authRoutes = require('./routes/authRoutes');
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
@@ -115,7 +117,56 @@ app.get('/api/store/products', (req, res) => {
   res.json(result);
 });
 
+// Middleware para verificar si el usuario está autenticado
+function authenticate(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ message: 'Acceso no autorizado' });
+  }
+}
 
+// Middleware para verificar roles de usuario
+function checkRole(role) {
+  return (req, res, next) => {
+    if (req.session.user.role === role) {
+      next();
+    } else {
+      res.status(403).json({ message: 'No tienes permiso para acceder a esta ruta' });
+    }
+  };
+}
+
+//  Protección de ruta para la vista de productos solo para usuarios autenticados
+app.get('/products', authenticate, (req, res) => {
+  const { username, role } = req.session.user;
+  res.render('products', { username, role });
+});
+
+// Usar las rutas de autenticación
+app.use('/auth', authRoutes);
+
+// Configuración de sesión
+app.use(session({
+  secret: 'secreto', // Clave para firmar la cookie de sesión
+  resave: false,
+  saveUninitialized: true
+}));
+
+const roles = {
+  ADMIN: 'admin',
+  USUARIO: 'usuario',
+};
+
+// Proteger rutas específicas para roles particulares (para el rol de administrador)
+app.get('/admin-panel', authenticate, checkRole(roles.ADMIN), (req, res) => {
+  // lógica para el panel de administrador
+  res.render('admin-panel', { user: req.session.user });
+});
+
+app.listen(3000, () => {
+  console.log('Servidor en funcionamiento en el puerto 3000');
+});
 
 // Manejo de eventos en Socket.IO
 io.on('connection', (socket) => {
