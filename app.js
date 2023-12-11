@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const authRoutes = require('./routes/authRoutes');
 
 // Cargar variables de entorno desde un archivo .env
@@ -145,6 +146,16 @@ app.get('/products', authenticate, (req, res) => {
 
 // Usar las rutas de autenticación
 app.use('/auth', authRoutes);
+
+// Configuración de sesión con el file store
+app.use(session({
+  secret: 'secreto',
+  resave: false,
+  saveUninitialized: true,
+  store: new FileStore({
+    path: path.join(__dirname, 'sessions'), // Directorio donde se almacenarán las sesiones
+  }),
+}));
 
 // Configuración de sesión
 app.use(session({
