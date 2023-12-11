@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticateUser } = require('../controllers/authController');
 const router = express.Router();
 
+
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
