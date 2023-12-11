@@ -38,18 +38,30 @@ mongoose.connect(MONGODB_URI, {
   .catch((error) => {
     console.error('Error al conectar a MongoDB:', error);
   });
-
-  // Conexión a MongoDB usando Mongoose
-mongoose.connect('URL_de_conexión_a_tu_base_de_datos_MongoDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
+// Configuración de la sesión con MongoDBStore
 const store = new MongoDBStore({
-  uri: 'URL_de_conexión_a_tu_base_de_datos_MongoDB',
+  uri: MONGODB_URI,
   collection: 'sessions',
   expires: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos (opcional)
+  connectionOptions: {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
 });
+
+store.on('error', function(error) {
+  console.error('Error en MongoDBStore:', error);
+});
+
+app.use(session({
+  secret: 'secreto',
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos (opcional)
+  },
+}));
 
 // Capturar errores de conexión a la base de datos
 store.on('error', function (error) {
