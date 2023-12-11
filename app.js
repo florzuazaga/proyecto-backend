@@ -147,22 +147,18 @@ app.get('/products', authenticate, (req, res) => {
 // Usar las rutas de autenticación
 app.use('/auth', authRoutes);
 
-// Configuración de sesión con el file store
+// Configuración de sesión con el file store, configuración de sesión, opciones de TTL y retries 
 app.use(session({
   secret: 'secreto',
   resave: false,
   saveUninitialized: true,
   store: new FileStore({
     path: path.join(__dirname, 'sessions'), // Directorio donde se almacenarán las sesiones
+    ttl: 100, // Tiempo de vida de la sesión en segundos (por ejemplo, 1 día)
+    retries: 0, // Número de intentos para escribir una sesión antes de fallar
   }),
 }));
 
-// Configuración de sesión
-app.use(session({
-  secret: 'secreto', // Clave para firmar la cookie de sesión
-  resave: false,
-  saveUninitialized: true
-}));
 
 const roles = {
   ADMIN: 'admin',
