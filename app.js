@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
+const MongoDBStore = require('connect-mongodb-session')(session);
 const authRoutes = require('./routes/authRoutes');
 
 // Cargar variables de entorno desde un archivo .env
@@ -38,8 +39,36 @@ mongoose.connect(MONGODB_URI, {
     console.error('Error al conectar a MongoDB:', error);
   });
 
+  // Conexión a MongoDB usando Mongoose
+mongoose.connect('URL_de_conexión_a_tu_base_de_datos_MongoDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const store = new MongoDBStore({
+  uri: 'URL_de_conexión_a_tu_base_de_datos_MongoDB',
+  collection: 'sessions',
+  expires: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos (opcional)
+});
+
+// Capturar errores de conexión a la base de datos
+store.on('error', function (error) {
+  console.error('Error al establecer la conexión de la sesión:', error);
+});
+
+app.use(session({
+  secret: 'secreto',
+  resave: false,
+  saveUninitialized: false,
+  store: store,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos (opcional)
+  },
+}));
+
 // Rutas
 app.use('/api/products', routes);
+app.use('/auth', authRoutes);
 
 // Middleware para analizar el cuerpo JSON
 app.use(express.json());
