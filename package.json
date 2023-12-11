@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test-watch": "nodemon app.js'"
+    "test-watch": "nodemon app.js'",
+    "dev": "node app.js"
   },
   "author": "",
   "license": "ISC",

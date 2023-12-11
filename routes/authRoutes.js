@@ -13,6 +13,12 @@ router.post('/login', async (req, res) => {
     }
 
     req.session.user = authResult.user;
+    
+    // Inicializar el contador en la sesión si no existe
+    if (!req.session.counter) {
+      req.session.counter = 1;
+    }
+
     res.json({ message: 'Inicio de sesión exitoso' });
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión' });
