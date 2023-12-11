@@ -11,6 +11,8 @@ const FileStore = require('session-file-store')(session);
 const MongoDBStore = require('connect-mongodb-session')(session);
 const authRoutes = require('./routes/authRoutes');
 
+
+
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
 
@@ -59,7 +61,7 @@ app.use(session({
   saveUninitialized: false,
   store: store,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos (opcional)
+    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos 
   },
 }));
 
@@ -79,6 +81,10 @@ app.use(session({
 }));
 
 // Rutas
+app.get('/', (req, res) => {
+  // Código para manejar la solicitud de la URL raíz '/'
+  res.send('¡Hola desde la página de inicio!');
+});
 app.use('/api/products', routes);
 app.use('/auth', authRoutes);
 
@@ -195,7 +201,7 @@ app.use(session({
   saveUninitialized: true,
   store: new FileStore({
     path: path.join(__dirname, 'sessions'), // Directorio donde se almacenarán las sesiones
-    ttl: 100, // Tiempo de vida de la sesión en segundos (por ejemplo, 1 día)
+    ttl: 100, // Tiempo de vida de la sesión en segundos 
     retries: 0, // Número de intentos para escribir una sesión antes de fallar
   }),
 }));
@@ -222,7 +228,7 @@ io.on('connection', (socket) => {
 
   // Evento para recibir un nuevo producto
   socket.on('new-product', (productData) => {
-    // Aquí puedes manejar la lógica para guardar el nuevo producto en la base de datos
+    //  manejar la lógica para guardar el nuevo producto en la base de datos
     console.log('Nuevo producto recibido:', productData);
 
     // Emite un evento a todos los clientes para actualizar los productos
@@ -231,7 +237,7 @@ io.on('connection', (socket) => {
 
   // Evento para eliminar un producto
   socket.on('delete-product', (productId) => {
-    // Aquí puedes manejar la lógica para eliminar el producto de la base de datos
+    //  manejar la lógica para eliminar el producto de la base de datos
     console.log('Eliminar producto con ID:', productId);
 
     // Emite un evento a todos los clientes para actualizar los productos después de eliminar
@@ -240,7 +246,7 @@ io.on('connection', (socket) => {
 
   // Evento para el chat
   socket.on('chat-message', (message) => {
-    // Aquí puedes manejar la lógica para guardar el mensaje en la base de datos o hacer otras operaciones
+    //  manejar la lógica para guardar el mensaje en la base de datos 
     console.log('Nuevo mensaje en el chat:', message);
 
     // Emite un evento a todos los clientes para mostrar el mensaje en el chat
