@@ -9,6 +9,7 @@ const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const MongoDBStore = require('connect-mongodb-session')(session);
+const { store, client } = require('./db'); // Ruta al archivo donde has configurado la base de datos
 const authRoutes = require('./routes/authRoutes');
 
 
@@ -40,6 +41,7 @@ mongoose.connect(MONGODB_URI, {
   .catch((error) => {
     console.error('Error al conectar a MongoDB:', error);
   });
+
 // Configuración de la sesión con MongoDBStore
 const store = new MongoDBStore({
   uri: MONGODB_URI,
@@ -65,20 +67,13 @@ app.use(session({
   },
 }));
 
-// Capturar errores de conexión a la base de datos
-store.on('error', function (error) {
-  console.error('Error al establecer la conexión de la sesión:', error);
+// Middleware para manejar los errores de conexión a la base de datos
+app.use((req, res, next) => {
+  if (!store.client) {
+    return next(new Error('No se pudo conectar a la base de datos'));
+  }
+  next();
 });
-
-app.use(session({
-  secret: 'secreto',
-  resave: false,
-  saveUninitialized: false,
-  store: store,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos (opcional)
-  },
-}));
 
 // Rutas
 app.get('/', (req, res) => {
@@ -94,6 +89,12 @@ app.use(express.json());
 // Cargar datos de archivos JSON
 const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
 const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
+
+// Esta función lee el archivo 'productos.json' y devuelve los productos
+function obtenerProductos() {
+  const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
+  return productosData; // Devuelve los productos obtenidos del archivo JSON
+}
 
 // Ruta para mostrar los productos
 app.get('/products', (req, res) => {
