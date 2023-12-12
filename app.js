@@ -8,7 +8,8 @@ const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const authRoutes = require('./routes/authRoutes');
-const store = require('./db/db'); 
+const Store = require('./db/db');
+const { initializePassport, sessionPassport } = require('./db/auth'); // Importa las configuraciones de Passport
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
@@ -25,31 +26,15 @@ app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Rutas
-app.get('/', (req, res) => {
-  res.render('index'); // Renderiza la vista 'index.handlebars'
-});
-app.get('/about', (req, res) => {
-  res.render('about'); // Renderiza la vista 'about.handlebars'
-});
-app.get('/home', (req, res) => {
-  res.render('home'); // Renderiza la vista 'home.handlebars'
-});
-app.get('/cart', (req, res) => {
-  res.render('cart'); // Renderiza la vista 'cart.handlebars'
-});
-app.get('/realtime-products', (req, res) => {
-  res.render('realtimeproducts'); // Renderiza la vista 'realtimeproducts.handlebars'
-});
-app.get('/chat', (req, res) => {
-  res.render('chat'); // Renderiza la vista 'chat.handlebars'
-});
-
+const store = Store;
 app.use(session({
   secret: 'secreto',
   resave: false,
   saveUninitialized: false,
-  store: store,
+  store: new FileStore({
+    path: 'sessions-directory', // Directorio donde se almacenarán las sesiones
+    ttl: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos 
+  }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos 
   },
@@ -57,12 +42,18 @@ app.use(session({
 
 // Middleware para manejar los errores de conexión a la base de datos
 app.use((req, res, next) => {
-  if (!store.client) {
-    return next(new Error('No se pudo conectar a la base de datos'));
+  if (!store || !store.connected) {
+    const error = new Error('No se pudo conectar a la base de datos');
+    error.status = 500; // Establece el código de estado del error
+    return next(error);
   }
   next();
 });
+app.use('/auth', authRoutes);
 
+app.get('/', (req, res) => {
+  res.render('index');
+});
 
 // Rutas de autenticación
 app.use('/auth', authRoutes);
@@ -196,7 +187,8 @@ app.use(session({
     retries: 0, // Número de intentos para escribir una sesión antes de fallar
   }),
 }));
-
+app.use(initializePassport());
+app.use(sessionPassport());
 
 const roles = {
   ADMIN: 'admin',
