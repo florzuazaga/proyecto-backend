@@ -3,16 +3,12 @@ const http = require('http');
 const { Server } = require('socket.io');
 const handlebars = require('express-handlebars');
 const path = require('path');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
-const MongoDBStore = require('connect-mongodb-session')(session);
-const { store, client } = require('./db'); // Ruta al archivo donde has configurado la base de datos
 const authRoutes = require('./routes/authRoutes');
-
-
+const store = require('./db/db'); 
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
@@ -23,38 +19,30 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 8080;
-const MONGODB_URI = process.env.MONGODB_URI;
 
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Conexión a MongoDB
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => {
-    console.log('Conexión a MongoDB establecida');
-  })
-  .catch((error) => {
-    console.error('Error al conectar a MongoDB:', error);
-  });
-
-// Configuración de la sesión con MongoDBStore
-const store = new MongoDBStore({
-  uri: MONGODB_URI,
-  collection: 'sessions',
-  expires: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos (opcional)
-  connectionOptions: {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
+// Rutas
+app.get('/', (req, res) => {
+  res.render('index'); // Renderiza la vista 'index.handlebars'
 });
-
-store.on('error', function(error) {
-  console.error('Error en MongoDBStore:', error);
+app.get('/about', (req, res) => {
+  res.render('about'); // Renderiza la vista 'about.handlebars'
+});
+app.get('/home', (req, res) => {
+  res.render('home'); // Renderiza la vista 'home.handlebars'
+});
+app.get('/cart', (req, res) => {
+  res.render('cart'); // Renderiza la vista 'cart.handlebars'
+});
+app.get('/realtime-products', (req, res) => {
+  res.render('realtimeproducts'); // Renderiza la vista 'realtimeproducts.handlebars'
+});
+app.get('/chat', (req, res) => {
+  res.render('chat'); // Renderiza la vista 'chat.handlebars'
 });
 
 app.use(session({
@@ -75,13 +63,17 @@ app.use((req, res, next) => {
   next();
 });
 
+
+// Rutas de autenticación
+app.use('/auth', authRoutes);
+
 // Rutas
 app.get('/', (req, res) => {
   // Código para manejar la solicitud de la URL raíz '/'
   res.send('¡Hola desde la página de inicio!');
 });
 app.use('/api/products', routes);
-app.use('/auth', authRoutes);
+app.use(authRoutes);
 
 // Middleware para analizar el cuerpo JSON
 app.use(express.json());
@@ -192,8 +184,6 @@ app.get('/products', authenticate, (req, res) => {
   res.render('products', { username, role });
 });
 
-// Usar las rutas de autenticación
-app.use('/auth', authRoutes);
 
 // Configuración de sesión con el file store, configuración de sesión, opciones de TTL y retries 
 app.use(session({
