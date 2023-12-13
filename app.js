@@ -8,7 +8,7 @@ const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const authRoutes = require('./routes/authRoutes');
-const Store = require('./db/db');
+const store = require('./db/db');
 const { initializePassport, sessionPassport } = require('./db/auth'); // Importa las configuraciones de Passport
 
 // Cargar variables de entorno desde un archivo .env
@@ -26,7 +26,7 @@ app.engine('handlebars', handlebars.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-const store = Store;
+
 app.use(session({
   secret: 'secreto',
   resave: false,
@@ -187,8 +187,7 @@ app.use(session({
     retries: 0, // Número de intentos para escribir una sesión antes de fallar
   }),
 }));
-app.use(initializePassport());
-app.use(sessionPassport());
+
 
 const roles = {
   ADMIN: 'admin',

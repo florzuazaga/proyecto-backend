@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 
-const { User } = require('./models'); // Suponiendo que tienes un modelo de usuario definido en models.js
+const { User } = require('./models'); //  Modelo de usuario definido en models.js
 const { store } = require('./db'); // El store para las sesiones MongoDB
 
 // Configuración de la estrategia local para Passport (registro e inicio de sesión)
@@ -39,16 +39,28 @@ passport.use(
       callbackURL: 'http://localhost:3000/auth/github/callback',
     },
     async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Aquí deberías buscar o crear un usuario en tu base de datos utilizando la información del perfil de GitHub
-        // Luego, retorna el usuario a través de done
-      } catch (error) {
-        return done(error);
-      }
-    }
-  )
-);
-
+        try {
+            // Busca el usuario en la base de datos usando el 'profile' de GitHub
+            const user = await User.findOne({ githubId: profile.id });
+    
+            if (user) {
+              // Si el usuario existe, lo devuelve
+              return done(null, user);
+            } else {
+              // Si el usuario no existe, crea un nuevo usuario con la información del 'profile' de GitHub
+              const newUser = await User.create({
+                githubId: profile.id,
+                username: profile.username, 
+              });
+    
+              return done(null, newUser);
+            }
+          } catch (error) {
+            return done(error);
+          }
+        }
+      )
+    );
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
