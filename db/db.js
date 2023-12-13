@@ -8,12 +8,12 @@ mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => {
-  console.log('Conexión a MongoDB establecida');
-})
-.catch((error) => {
-  console.error('Error al conectar a MongoDB:', error);
-});
+  .then(() => {
+    console.log('Conexión a MongoDB establecida');
+  })
+  .catch((error) => {
+    console.error('Error al conectar a MongoDB:', error);
+  });
 
 const store = new MongoDBStore({
   uri: MONGODB_URI,
@@ -25,11 +25,12 @@ const store = new MongoDBStore({
   },
 });
 
-store.on('error', function(error) {
+store.on('error', function (error) {
   console.error('Error en MongoDBStore:', error);
 });
 
 module.exports = { mongoose, store };
+
 
 
 
