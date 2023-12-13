@@ -1,9 +1,8 @@
-// db.js
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
-const MONGODB_URI = 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority'; // Define tu URI aquí
+const MONGODB_URI = 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
@@ -30,7 +29,7 @@ store.on('error', function(error) {
   console.error('Error en MongoDBStore:', error);
 });
 
-module.exports = { store };
+module.exports = { mongoose, store };
 
 
 

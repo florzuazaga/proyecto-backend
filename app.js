@@ -8,8 +8,8 @@ const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const authRoutes = require('./routes/authRoutes');
-const store = require('./db/db');
-const { initializePassport, sessionPassport } = require('./db/auth'); // Importa las configuraciones de Passport
+const { mongoose, store } = require('./db/db')
+
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
@@ -27,18 +27,7 @@ app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
 
-app.use(session({
-  secret: 'secreto',
-  resave: false,
-  saveUninitialized: false,
-  store: new FileStore({
-    path: 'sessions-directory', // Directorio donde se almacenarán las sesiones
-    ttl: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos 
-  }),
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos 
-  },
-}));
+
 
 // Middleware para manejar los errores de conexión a la base de datos
 app.use((req, res, next) => {
@@ -180,19 +169,29 @@ app.get('/products', authenticate, (req, res) => {
 app.use(session({
   secret: 'secreto',
   resave: false,
-  saveUninitialized: true,
-  store: new FileStore({
-    path: path.join(__dirname, 'sessions'), // Directorio donde se almacenarán las sesiones
-    ttl: 100, // Tiempo de vida de la sesión en segundos 
-    retries: 0, // Número de intentos para escribir una sesión antes de fallar
-  }),
+  saveUninitialized: false,
+  store: store, // Utiliza el almacén de sesiones configurado con MongoDB
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos 
+  },
 }));
 
-
+// Definir roles antes de su uso en la función checkRole
 const roles = {
   ADMIN: 'admin',
   USUARIO: 'usuario',
 };
+
+// Middleware para verificar roles de usuario
+function checkRole(role) {
+  return (req, res, next) => {
+    if (req.session.user.role === role) {
+      next();
+    } else {
+      res.status(403).json({ message: 'No tienes permiso para acceder a esta ruta' });
+    }
+  };
+}
 
 // Proteger rutas específicas para roles particulares (para el rol de administrador)
 app.get('/admin-panel', authenticate, checkRole(roles.ADMIN), (req, res) => {
