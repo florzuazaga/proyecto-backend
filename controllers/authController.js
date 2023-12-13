@@ -1,3 +1,4 @@
+//authController.js
 const User = require('../dao/models/userSchema');
 
 async function authenticateUser(username, password) {

@@ -1,3 +1,4 @@
+//app.js
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -31,17 +32,12 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Middleware para manejar los errores de conexión a la base de datos
 app.use((req, res, next) => {
-  if (!store || !store.connected) {
+  if (mongoose.connection.readyState !== 1) {
     const error = new Error('No se pudo conectar a la base de datos');
     error.status = 500; // Establece el código de estado del error
     return next(error);
   }
   next();
-});
-app.use('/auth', authRoutes);
-
-app.get('/', (req, res) => {
-  res.render('index');
 });
 
 // Rutas de autenticación

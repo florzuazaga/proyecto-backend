@@ -1,3 +1,4 @@
+//CartManager.js
 const Cart = require('../dao/models/cartSchema'); // Importa el modelo Cart definido anteriormente
 
 class CartManager {
