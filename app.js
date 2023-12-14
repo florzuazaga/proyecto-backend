@@ -9,13 +9,18 @@ const fs = require('fs');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const authRoutes = require('./routes/authRoutes');
-const { mongoose, store } = require('./db/db')
+const { mongoose, store } = require('./db/db');
+const cookieParser = require('cookie-parser'); // Importa cookie-parser
+const passport = require('passport');
+const { initializePassport, sessionPassport } = require('./db/auth');
+const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 
 
 // Cargar variables de entorno desde un archivo .env
 dotenv.config();
 
 const routes = require('./routes/routes');
+// Inicializar la aplicación de Express
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -28,8 +33,6 @@ app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
 
-
-
 // Middleware para manejar los errores de conexión a la base de datos
 app.use((req, res, next) => {
   if (mongoose.connection.readyState !== 1) {
@@ -39,6 +42,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Agrega cookie-parser como middleware 
+app.use(cookieParser());
 
 // Rutas de autenticación
 app.use('/auth', authRoutes);
@@ -50,6 +56,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/products', routes);
 app.use(authRoutes);
+
 
 // Middleware para analizar el cuerpo JSON
 app.use(express.json());
@@ -83,76 +90,61 @@ app.get('/cart', (req, res) => {
 });
 
 // Endpoint GET para la paginación y manejo de parámetros de consulta
-app.get('/api/store/products', (req, res) => {
+app.get('/combined-api', async (req, res) => {
   const { page = 1, limit = 10, sort, query, type } = req.query;
 
-  let filteredData = productosData;
+  try {
+    let filteredData = productosData; // Supongamos que tienes los datos de productos aquí
 
-  // Aplica el filtrado por tipo de elemento si hay un parámetro de tipo
-  if (type) {
-    filteredData = filteredData.filter(product => product.tipo.toLowerCase() === type.toLowerCase());
+    // Aplica el filtrado por tipo de elemento si hay un parámetro de tipo
+    if (type) {
+      filteredData = filteredData.filter(product => product.tipo.toLowerCase() === type.toLowerCase());
+    }
+
+    // Aplica el filtrado si hay un parámetro de consulta
+    if (query) {
+      filteredData = filteredData.filter(product => product.nombre.toLowerCase().includes(query.toLowerCase()));
+    }
+    
+    // Aplica el ordenamiento si se especifica
+    if (sort === 'asc') {
+      filteredData.sort((a, b) => (a.precio > b.precio) ? 1 : -1);
+    } else if (sort === 'desc') {
+      filteredData.sort((a, b) => (a.precio < b.precio) ? 1 : -1);
+    }
+
+    // Realiza la paginación de los datos
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const totalPages = Math.ceil(filteredData.length / limit);
+    const hasNextPage = endIndex < filteredData.length;
+    const hasPrevPage = startIndex > 0;
+
+    const paginatedData = filteredData.slice(startIndex, endIndex);
+
+    const result = {
+      status: 'success',
+      payload: paginatedData,
+      totalPages,
+      prevPage: hasPrevPage ? page - 1 : null,
+      nextPage: hasNextPage ? page + 1 : null,
+      page: parseInt(page),
+      hasPrevPage,
+      hasNextPage,
+    };
+
+    // Realizar la solicitud a la API externa usando Axios
+    const externalData = await axios.get('https://api.example.com/data');
+
+    res.json({ ...result, externalData: externalData.data });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Error en la solicitud combinada' });
   }
-
-  // Aplica el filtrado si hay un parámetro de consulta
-  if (query) {
-    filteredData = filteredData.filter(product => product.nombre.toLowerCase().includes(query.toLowerCase()));
-  }
-  
-  // Aplica el ordenamiento si se especifica
-  if (sort === 'asc') {
-    filteredData.sort((a, b) => (a.precio > b.precio) ? 1 : -1);
-  } else if (sort === 'desc') {
-    filteredData.sort((a, b) => (a.precio < b.precio) ? 1 : -1);
-  }
-
-  // Realiza la paginación de los datos
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-
-  const totalPages = Math.ceil(filteredData.length / limit);
-  const hasNextPage = endIndex < filteredData.length;
-  const hasPrevPage = startIndex > 0;
-
-  const prevLink = hasPrevPage ? `/api/store/products?page=${page - 1}&limit=${limit}&sort=${sort}&query=${query}&type=${type || ''}` : null;
-  const nextLink = hasNextPage ? `/api/store/products?page=${page + 1}&limit=${limit}&sort=${sort}&query=${query}&type=${type || ''}` : null;
-
-  const paginatedData = filteredData.slice(startIndex, endIndex);
-
-  const result = {
-    status: 'success',
-    payload: paginatedData,
-    totalPages,
-    prevPage: hasPrevPage ? page - 1 : null,
-    nextPage: hasNextPage ? page + 1 : null,
-    page: parseInt(page),
-    hasPrevPage,
-    hasNextPage,
-    prevLink,
-    nextLink,
-  };
-
-  res.json(result);
 });
 
-// Middleware para verificar si el usuario está autenticado
-function authenticate(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    res.status(401).json({ message: 'Acceso no autorizado' });
-  }
-}
 
-// Middleware para verificar roles de usuario
-function checkRole(role) {
-  return (req, res, next) => {
-    if (req.session.user.role === role) {
-      next();
-    } else {
-      res.status(403).json({ message: 'No tienes permiso para acceder a esta ruta' });
-    }
-  };
-}
 
 //  Protección de ruta para la vista de productos solo para usuarios autenticados
 app.get('/products', authenticate, (req, res) => {
@@ -177,7 +169,19 @@ const roles = {
   ADMIN: 'admin',
   USUARIO: 'usuario',
 };
+// Inicialización y configuración de Passport
+initializePassport(); // Llama a la función que inicializa Passport
+app.use(sessionPassport()); // Usa la sesión configurada por Passport
 
+
+// Middleware para verificar si el usuario está autenticado
+function authenticate(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    res.status(401).json({ message: 'Acceso no autorizado' });
+  }
+}
 // Middleware para verificar roles de usuario
 function checkRole(role) {
   return (req, res, next) => {
@@ -190,14 +194,22 @@ function checkRole(role) {
 }
 
 // Proteger rutas específicas para roles particulares (para el rol de administrador)
-app.get('/admin-panel', authenticate, checkRole(roles.ADMIN), (req, res) => {
+app.get('/admin-panel', ensureLoggedIn('/ruta-de-login'), checkRole(roles.ADMIN), (req, res) => {
   // lógica para el panel de administrador
   res.render('admin-panel', { user: req.session.user });
 });
 
+// Protección de ruta para la vista de productos solo para usuarios autenticados
+app.get('/products', ensureLoggedIn('/ruta-de-login'), (req, res) => {
+  const { username, role } = req.session.user;
+  res.render('products', { username, role });
+});
+
+// Escuchar en el puerto 3000
 app.listen(3000, () => {
   console.log('Servidor en funcionamiento en el puerto 3000');
 });
+
 
 // Manejo de eventos en Socket.IO
 io.on('connection', (socket) => {
