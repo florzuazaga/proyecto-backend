@@ -77,7 +77,7 @@ app.get('/products', (req, res) => {
   const products = obtenerProductos(); // Aquí debes obtener los productos de tu lógica de negocio
 
   // Renderizar la vista de productos y pasar los datos
-  res.render('products', { products });
+  res.render('home', { products });
 });
 
 // Ruta para mostrar el carrito de compras
@@ -159,9 +159,14 @@ app.get('/setcookie', (req, res) => {
 //  Protección de ruta para la vista de productos solo para usuarios autenticados
 app.get('/products', authenticate, (req, res) => {
   const { username, role } = req.session.user;
-  res.render('products', { username, role });
+  res.render('home', { username, role });
 });
 
+// Ruta para mostrar el formulario de inicio de sesión
+app.get('/login', (req, res) => {
+  // Renderiza la vista del formulario de inicio de sesión
+  res.render('login'); // Aquí renderiza el formulario de inicio de sesión (puede variar según tu lógica)
+});
 
 // Configuración de sesión con el file store, configuración de sesión, opciones de TTL y retries 
 app.use(session({
@@ -210,7 +215,7 @@ app.get('/admin-panel', ensureLoggedIn('/ruta-de-login'), checkRole(roles.ADMIN)
 });
 
 // Protección de ruta para la vista de productos solo para usuarios autenticados
-app.get('/products', ensureLoggedIn('/ruta-de-login'), (req, res) => {
+app.get('/products', ensureLoggedIn('/auth/login'), (req, res) => {
   const { username, role } = req.session.user;
   res.render('products', { username, role });
 });

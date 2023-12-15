@@ -8,7 +8,6 @@ const { store } = require('./db'); // El store para las sesiones MongoDB
 const jwt = require('jsonwebtoken');
 
 
-
 passport.use(new GitHubStrategy({
   clientID: 'tu_client_id',
   clientSecret: 'tu_client_secret',
