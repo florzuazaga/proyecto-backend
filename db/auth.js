@@ -5,26 +5,9 @@ const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const { User } = require('./models'); // Modelo de usuario definido en models.js
 const { store } = require('./db'); // El store para las sesiones MongoDB
+const jwt = require('jsonwebtoken');
 
-passport.use(new LocalStrategy(async (username, password, done) => {
-  try {
-    const user = await User.findOne({ username });
 
-    if (!user) {
-      return done(null, false, { message: 'Usuario no encontrado' });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return done(null, false, { message: 'Contraseña incorrecta' });
-    }
-
-    return done(null, user);
-  } catch (error) {
-    return done(error);
-  }
-}));
 
 passport.use(new GitHubStrategy({
   clientID: 'tu_client_id',
@@ -61,7 +44,39 @@ passport.deserializeUser(async (id, done) => {
     done(error);
   }
 });
+// Configuración para generar tokens JWT
+function generateJWT(user) {
+  const payload = {
+    id: user.id, // Puedes incluir cualquier dato relevante aquí
+    username: user.username // Por ejemplo, incluimos el nombre de usuario en el token
+  };
+  const options = {
+    expiresIn: '1h' // Tiempo de expiración del token (opcional)
+  };
+  return jwt.sign(payload, 'secretKey', options); // 'secretKey' debe ser una clave segura
+}
+// Estrategia Local
+passport.use(new LocalStrategy(async (username, password, done) => {
+  try {
+    const user = await User.findOne({ username });
 
+    if (!user) {
+      return done(null, false, { message: 'Usuario no encontrado' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return done(null, false, { message: 'Contraseña incorrecta' });
+    }
+
+     // Si el usuario y contraseña son correctos, generamos un token JWT
+     const token = generateJWT(user);
+     return done(null, user, { token }); // Pasamos el token al usuario autenticado
+   } catch (error) {
+     return done(error);
+   }
+}));
 module.exports = {
   initializePassport: () => {
     return passport.initialize();
