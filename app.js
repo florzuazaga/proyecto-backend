@@ -165,7 +165,7 @@ app.get('/products', authenticate, (req, res) => {
 // Ruta para mostrar el formulario de inicio de sesión
 app.get('/login', (req, res) => {
   // Renderiza la vista del formulario de inicio de sesión
-  res.render('login'); // Aquí renderiza el formulario de inicio de sesión (puede variar según tu lógica)
+  res.render('login'); // Aquí renderiza el formulario de inicio de sesión 
 });
 
 // Configuración de sesión con el file store, configuración de sesión, opciones de TTL y retries 
@@ -209,7 +209,7 @@ function checkRole(role) {
 }
 
 // Proteger rutas específicas para roles particulares (para el rol de administrador)
-app.get('/admin-panel', ensureLoggedIn('/ruta-de-login'), checkRole(roles.ADMIN), (req, res) => {
+app.get('/admin-panel', ensureLoggedIn('/login'), checkRole(roles.ADMIN), (req, res) => {
   // lógica para el panel de administrador
   res.render('admin-panel', { user: req.session.user });
 });
