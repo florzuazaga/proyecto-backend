@@ -215,7 +215,7 @@ app.get('/admin-panel', ensureLoggedIn('/ruta-de-login'), checkRole(roles.ADMIN)
 });
 
 // Protección de ruta para la vista de productos solo para usuarios autenticados
-app.get('/products', ensureLoggedIn('/auth/login'), (req, res) => {
+app.get('/products', ensureLoggedIn('/login'), (req, res) => {
   const { username, role } = req.session.user;
   res.render('products', { username, role });
 });
