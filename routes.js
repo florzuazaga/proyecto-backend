@@ -4,17 +4,9 @@ const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const { obtenerProductosDelCarrito } = require('./controllers/productsController');
-const exphbs = require('express-handlebars'); // Importa express-handlebars
-
+const authRoutes = require('./db/auth');
 
 const router = express.Router();
-
-
-// Configuración de Handlebars
-router.engine('handlebars', exphbs());
-router.set('view engine', 'handlebars');
-router.set('views', path.join(__dirname, 'views'));
-
 
 
 // Middleware para analizar el cuerpo JSON
@@ -33,7 +25,7 @@ function obtenerProductos() {
 }
 
 // Ruta para mostrar los productos
-app.get('/products', (req, res) => {
+router.get('/products', (req, res) => {
   // Obtener los productos desde  archivo JSON
   const products = obtenerProductos(); // Aquí debes obtener los productos de tu lógica de negocio
 
@@ -42,7 +34,7 @@ app.get('/products', (req, res) => {
 });
 
 // Ruta para mostrar el carrito de compras
-app.get('/cart', (req, res) => {
+router.get('/cart', (req, res) => {
   // Obtener los productos del carrito desde tu lógica de negocio
   const cartItems = obtenerProductosDelCarrito(); // Aquí debes obtener los productos del carrito
 
@@ -50,10 +42,7 @@ app.get('/cart', (req, res) => {
   res.render('cart', { items: cartItems });
 });
 
-// Rutas de autenticación
-app.use('/auth', authRoutes);
-app.use('/api/products', routes);
-app.use(authRoutes);
+
 
 // Rutas
 router.use(cookieParser());
@@ -105,6 +94,11 @@ router.get('/products', authenticate, (req, res) => {
   router.get('/login', (req, res) => {
     res.render('login');
   });
+  
+  const roles = {
+    ADMIN: 'admin',
+    USER: 'usuario',
+  };
   
   router.get('/admin-panel', authenticate, checkRole(roles.ADMIN), (req, res) => {
     res.render('admin-panel', { user: req.session.user });

@@ -1,6 +1,8 @@
 // app.js
 
 const express = require('express');
+const session = require('express-session');
+const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const dotenv = require('dotenv');
@@ -19,8 +21,9 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Configuración de Handlebars
-app.engine('handlebars', exphbs());
+app.engine('handlebars', exphbs.engine);
 app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
 
 // Configuración del middleware de sesión
 app.use(session({

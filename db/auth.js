@@ -1,12 +1,13 @@
 //auth.js
+const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
-const { User } = require('./models'); // Modelo de usuario definido en models.js
+const { User } = require('../dao/models/userSchema'); // Modelo de usuario definido en models.js
 const { store } = require('./db'); // El store para las sesiones MongoDB
 const jwt = require('jsonwebtoken');
-
+const router = express.Router();
 
 passport.use(new GitHubStrategy({
   clientID: 'tu_client_id',
