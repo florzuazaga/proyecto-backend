@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
-const { obtenerProductosDelCarrito } = require('./controllers/productsController');
+const {  obtenerProductos,obtenerProductosDelCarrito } = require('./controllers/productsController');
 const authRoutes = require('./db/auth');
 
 const router = express.Router();
@@ -24,44 +24,31 @@ function obtenerProductos() {
   return productosData; // Devuelve los productos obtenidos del archivo JSON
 }
 
-// Ruta para mostrar los productos
-router.get('/products', (req, res) => {
-  // Obtener los productos desde  archivo JSON
-  const products = obtenerProductos(); // Aquí debes obtener los productos de tu lógica de negocio
-
-  // Renderizar la vista de productos y pasar los datos
-  res.render('home', { products });
-});
-
-// Ruta para mostrar el carrito de compras
-router.get('/cart', (req, res) => {
-  // Obtener los productos del carrito desde tu lógica de negocio
-  const cartItems = obtenerProductosDelCarrito(); // Aquí debes obtener los productos del carrito
-
-  // Renderizar la vista del carrito y pasar los datos
-  res.render('cart', { items: cartItems });
-});
-
-
-
 // Rutas
 router.use(cookieParser());
 router.use('/auth', require('./routes/authRoutes'));
 
 router.get('/', (req, res) => {
-  res.send('¡Hola desde la página de inicio!');
+  if (req.session.user) {
+    // Si el usuario está autenticado, muestra un mensaje de bienvenida
+    res.send('¡Hola desde la página de inicio!');
+  } else {
+    // Si el usuario no está autenticado, redirige a la página de inicio de sesión
+    res.redirect('/login');
+  }
 });
-
-// Ruta para renderizar la página de inicio de sesión
 router.get('/login', (req, res) => {
-  res.render('login'); // Renderiza la plantilla de inicio de sesión (login.handlebars)
+  res.render('login');
 });
 
+// Ruta para mostrar los productos
 router.get('/products', (req, res) => {
-  const products = obtenerProductos();
+// Obtener los productos desde  archivo JSON
+  const products = obtenerProductos();// Aquí debes obtener los productos de tu lógica de negocio
+  // Renderizar la vista de productos y pasar los datos
   res.render('home', { products });
 });
-
+// Ruta para mostrar el carrito de compras
 router.get('/cart', (req, res) => {
   const cartItems = obtenerProductosDelCarrito();
   res.render('cart', { items: cartItems });
@@ -87,19 +74,6 @@ function checkRole(role) {
     };
   }
 // Otras rutas y lógica de Express específicas
-router.get('/products', authenticate, (req, res) => {
-    const { username, role } = req.session.user;
-    res.render('products', { username, role });
-  });
-  
-  router.get('/', (req, res) => {
-    res.redirect('/login');
-  });
-  
-  router.get('/login', (req, res) => {
-    res.render('login');
-  });
-  
   const roles = {
     ADMIN: 'admin',
     USER: 'usuario',

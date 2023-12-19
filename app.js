@@ -9,7 +9,6 @@ const dotenv = require('dotenv');
 const { connectToDatabase } = require('./db/databaseConfig');
 const { initializePassport, sessionPassport } = require('./db/auth');
 const routes = require('./routes');
-const { obtenerProductos } = require('./dataUtils'); // Importa la función desde el archivo dataUtils.js
 const exphbs = require('express-handlebars');
 
 

@@ -1,4 +1,6 @@
 // productsController.js
+const fs = require('fs');
+const path = require('path');
 
 // Imagina que tienes una variable que contiene datos de productos
 const productosData = [
@@ -9,7 +11,8 @@ const productosData = [
   
   // Función para obtener todos los productos
   function obtenerProductos() {
-    return productosData; // Devuelve todos los productos
+    const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
+  return productosData;
   }
   
   // Función para obtener un producto por su ID
@@ -29,11 +32,16 @@ const productosData = [
       productosData.splice(index, 1);
     }
   }
+  function obtenerProductosDelCarrito() {
+    const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
+    return carritoData;
+  }
   
   // Exporta las funciones para que puedan ser utilizadas en otros archivos
   module.exports = {
     obtenerProductos,
     obtenerProductoPorId,
+    obtenerProductosDelCarrito,
     agregarProducto,
     eliminarProducto,
   };
