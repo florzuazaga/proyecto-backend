@@ -43,11 +43,7 @@ app.use('/auth', authRoutes);
 // Otras rutas de la aplicación
 app.use('/', routes);
 
-// Manejo de eventos en Socket.IO
-io.on('connection', (socket) => {
-  console.log('Usuario conectado');
-  // ... Lógica de eventos de Socket.IO ...
-});
+
 
 // Middleware para manejar los errores de conexión a la base de datos
 const handleDatabaseConnection = async () => {

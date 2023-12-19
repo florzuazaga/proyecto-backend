@@ -52,6 +52,11 @@ router.get('/', (req, res) => {
   res.send('¡Hola desde la página de inicio!');
 });
 
+// Ruta para renderizar la página de inicio de sesión
+router.get('/login', (req, res) => {
+  res.render('login'); // Renderiza la plantilla de inicio de sesión (login.handlebars)
+});
+
 router.get('/products', (req, res) => {
   const products = obtenerProductos();
   res.render('home', { products });

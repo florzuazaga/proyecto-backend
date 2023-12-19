@@ -25,6 +25,7 @@ app.engine('handlebars', exphbs.engine);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
+
 // Configuración del middleware de sesión
 app.use(session({
   secret: 'your-secret-key', // Cambia por una clave secreta más segura
