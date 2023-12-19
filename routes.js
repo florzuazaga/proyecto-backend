@@ -16,14 +16,6 @@ router.use(express.json());
 const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
 const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
 
-
-  
-// Esta función lee el archivo 'productos.json' y devuelve los productos
-function obtenerProductos() {
-  const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
-  return productosData; // Devuelve los productos obtenidos del archivo JSON
-}
-
 // Rutas
 router.use(cookieParser());
 router.use('/auth', require('./routes/authRoutes'));
