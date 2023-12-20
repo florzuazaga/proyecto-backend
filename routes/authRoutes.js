@@ -15,12 +15,8 @@ router.post('/login', async (req, res) => {
 
     req.session.user = authResult.user;
     
-    // Inicializar el contador en la sesión si no existe
-    if (!req.session.counter) {
-      req.session.counter = 1;
-    }
-
-    res.json({ message: 'Inicio de sesión exitoso' });
+    // Redirección después del inicio de sesión
+    res.redirect('/dashboard'); // Cambia '/dashboard' por la ruta a la que quieres redirigir al usuario
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
@@ -36,6 +32,9 @@ router.post('/logout', (req, res) => {
 });
 
 module.exports = router;
+
+
+
 
 
   

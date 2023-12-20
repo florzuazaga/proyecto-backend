@@ -20,6 +20,9 @@ const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', '
 router.use(cookieParser());
 router.use('/auth', require('./routes/authRoutes'));
 
+router.get('/login', (req, res) => {
+  res.render('login');
+});
 router.get('/', (req, res) => {
   if (req.session.user) {
     // Si el usuario está autenticado, muestra un mensaje de bienvenida
@@ -29,9 +32,7 @@ router.get('/', (req, res) => {
     res.redirect('/login');
   }
 });
-router.get('/login', (req, res) => {
-  res.render('login');
-});
+
 
 // Ruta para mostrar los productos
 router.get('/products', (req, res) => {

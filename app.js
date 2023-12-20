@@ -10,7 +10,7 @@ const { connectToDatabase } = require('./db/databaseConfig');
 const { initializePassport, sessionPassport } = require('./db/auth');
 const routes = require('./routes');
 const exphbs = require('express-handlebars');
-
+const cookieParser = require('cookie-parser');
 
 
 dotenv.config();
@@ -24,18 +24,42 @@ app.engine('handlebars', exphbs.engine);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-
-// Configuración del middleware de sesión
+app.use(cookieParser());
 app.use(session({
-  secret: 'your-secret-key', // Cambia por una clave secreta más segura
+  secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24, // Tiempo de vida de la cookie de sesión en milisegundos (1 día)
-    secure: false, // Si es true, solo se enviará la cookie en conexiones HTTPS
-    httpOnly: true, // La cookie solo es accesible a través del protocolo HTTP
+    maxAge: 1000 * 60 * 60 * 24,
+    secure: false,
+    httpOnly: true,
   },
 }));
+
+function isAuthenticated(req) {
+  return req.session.user !== undefined;
+}
+
+app.get('/', (req, res) => {
+  const miCookie = req.cookies.miCookie;
+  if (isAuthenticated(req)) {
+    res.send('¡Hola desde la página de inicio!');
+  } else if (miCookie) {
+    res.send(`Valor de miCookie: ${miCookie}`);
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+app.get('/setcookie', (req, res) => {
+  res.cookie('miCookie', 'Hola, cookie!');
+  res.send('Cookie establecida correctamente');
+});
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
