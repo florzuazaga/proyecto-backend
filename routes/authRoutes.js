@@ -3,6 +3,10 @@ const express = require('express');
 const { authenticateUser } = require('../controllers/authController');
 const router = express.Router();
 
+// Rutas de autenticación y autorización
+router.get('/login', (req, res) => {
+  res.render('login');
+});
 
 router.post('/login', async (req, res) => {
   try {
