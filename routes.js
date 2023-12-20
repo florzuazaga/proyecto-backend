@@ -12,9 +12,6 @@ const router = express.Router();
 // Middleware para analizar el cuerpo JSON
 router.use(express.json());
 
-// Cargar datos de archivos JSON
-const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
-const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
 
 // Rutas
 router.use(cookieParser());

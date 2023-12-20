@@ -33,7 +33,7 @@ const productosData = [
     }
   }
   function obtenerProductosDelCarrito() {
-    const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'carrito.json'), 'utf8'));
+    const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname,'..', 'files', 'carrito.json'), 'utf8'));
     return carritoData;
   }
   

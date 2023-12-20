@@ -143,23 +143,6 @@ module.exports = { app, io };
 
 
 
-//cookie
-app.get('/', (req, res) => {
-  // Acceder a una cookie llamada 'miCookie'
-  const miCookie = req.cookies.miCookie;
-  res.send(`Valor de miCookie: ${miCookie}`);
-});
-app.get('/setcookie', (req, res) => {
-  // Establecer una cookie llamada 'miCookie' con el valor 'Hola, cookie!'
-  res.cookie('miCookie', 'Hola, cookie!');
-  res.send('Cookie establecida correctamente');
-});
-
-
-
-
-
-
 
 
 
