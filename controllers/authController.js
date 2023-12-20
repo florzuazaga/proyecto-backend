@@ -1,55 +1,44 @@
-//authController.js
-const User = require('../dao/models/userSchema');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
-const saltRounds = 10; // Número de rondas de sal para bcrypt
+const passport = require('passport');
+const GitHubStrategy = require('passport-github').Strategy;
+const User = require('../models/User'); // Importa tu modelo de usuario aquí
 
 
-async function authenticateUser(username, password) {
-  try {
-    const user = await User.findOne({ username });
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET,
+      callbackURL: 'http://localhost:8080/auth/github/callback', // Coloca tu URL de callback
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ githubId: profile.id });
 
-    if (!user) {
-      return { success: false, message: 'Usuario no encontrado' };
+        if (!user) {
+          // Si el usuario no existe, crea uno nuevo
+          user = new User({
+            githubId: profile.id,
+            username: profile.username,
+            // Otras propiedades que quieras guardar en tu base de datos
+          });
+          await user.save();
+        }
+
+        // Llama a "done" con el usuario para indicar éxito en la autenticación
+        done(null, user);
+      } catch (error) {
+        done(error); // En caso de error, pasa el error a "done"
+      }
     }
+  )
+);
 
-    // Comparación segura de contraseñas usando bcrypt
-    const passwordMatch = await bcrypt.compare(password, user.password);
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
 
-    if (!passwordMatch) {
-      return { success: false, message: 'Contraseña incorrecta' };
-    }
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
-    // Generar un token de autenticación
-    const token = jwt.sign({ userId: user._id, username: user.username }, 'secreto_del_token', { expiresIn: '1h' });
-    
-   // Retornar el token junto con el usuario autenticado
-   return { success: true, user, token }; // Incluir el token en la respuesta
-  } catch (error) {
-    return { success: false, message: 'Error al autenticar el usuario' };
-  }
-}
-
-
-async function createUser(username, email, password) {
-  try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Crear un nuevo usuario con la contraseña hasheada
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword, // Almacenar la contraseña hasheada en la base de datos
-    });
-
-    // Guardar el nuevo usuario en la base de datos
-    await newUser.save();
-
-    return { success: true, user: newUser };
-  } catch (error) {
-    return { success: false, message: 'Error al crear el usuario' };
-  }
-}
-module.exports = { authenticateUser, createUser };
 

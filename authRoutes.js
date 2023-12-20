@@ -1,7 +1,14 @@
 const express = require('express');
+const passport = require('passport');
 const router = express.Router();
 const authRouter = express.Router();
 
+router.get('/auth/github', passport.authenticate('github'));
+
+router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
+  // Redirecciona después de la autenticación exitosa
+  res.redirect('/dashboard'); // Cambia '/dashboard' por la ruta deseada
+});
 // Configuración de rutas de autenticación
 authRouter.get('/login', (req, res) => {
     // Lógica para mostrar el formulario de inicio de sesión
