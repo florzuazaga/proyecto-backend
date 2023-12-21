@@ -1,6 +1,6 @@
 const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
-const User = require('../models/User'); // Importa tu modelo de usuario aquí
+const User = require('../dao/models/userSchema'); // Importa tu modelo de usuario aquí
 
 
 passport.use(
@@ -19,7 +19,6 @@ passport.use(
           user = new User({
             githubId: profile.id,
             username: profile.username,
-            // Otras propiedades que quieras guardar en tu base de datos
           });
           await user.save();
         }

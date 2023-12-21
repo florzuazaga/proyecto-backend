@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const CartManager = require('../managers/CartManager');
-const Product = require('../dao/models/Product'); 
-const Cart = require('../dao/models/Cart'); 
+const Product = require('../dao/models/productSchema'); 
+const Cart = require('../dao/models/cartSchema'); 
 
 
 // Crear instancia de CartManager

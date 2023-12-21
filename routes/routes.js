@@ -1,7 +1,7 @@
 //routes.js
 const express = require('express');
 const router = express.Router();
-const Product = require('../dao/models/ProductSchema'); 
+const Product = require('../dao/models/productSchema'); 
 
 // Operaciones CRUD para productos
 router.get('/', async (req, res) => {
