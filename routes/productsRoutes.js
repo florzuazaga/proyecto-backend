@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers/productsController');
 
-router.get('/products', (req, res) => {
+router.get('/productos', (req, res) => {
   const products = obtenerProductos(); // Lógica para obtener productos
   res.render('home', { products });
 });
