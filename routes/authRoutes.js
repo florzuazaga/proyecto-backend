@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
     req.session.user = authResult.user;
     
     // Redirección después del inicio de sesión
-    res.redirect('/dashboard'); // Cambia '/dashboard' por la ruta a la que quieres redirigir al usuario
+    res.redirect('/dashboard'); 
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }

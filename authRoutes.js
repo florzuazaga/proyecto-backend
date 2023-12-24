@@ -1,82 +1,66 @@
 const express = require('express');
-const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const router = express.Router();
-const authRouter = express.Router();
 
-router.get('/auth/github', passport.authenticate('github'));
+// Simulación de base de datos de usuarios
+const users = [];
 
-router.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
-  // Redirecciona después de la autenticación exitosa
-  res.redirect('/dashboard'); // Cambia '/dashboard' por la ruta deseada
-});
-// Configuración de rutas de autenticación
-authRouter.get('/login', (req, res) => {
-    // Lógica para mostrar el formulario de inicio de sesión
-    res.render('login'); // Renderiza el formulario de inicio de sesión
-  });
-  
-// Lógica simulada para usuarios (puedes sustituir esto por llamadas a una base de datos)
-let users = [];
+// Función para generar un token JWT
+function generateToken(user) {
+  const payload = {
+    username: user.username,
+    // Puedes incluir más información si es necesario
+  };
+  return jwt.sign(payload, 'secretKey', { expiresIn: '1h' }); // Cambia 'secretKey' por tu clave secreta
+}
 
-// Página de registro
-router.get('/signup', (req, res) => {
-  res.render('signup'); // Renderiza el formulario de registro
-});
-
-// Proceso de registro de usuario
-router.post('/signup', (req, res) => {
-  const { username, password } = req.body;
-  
-  // Validación básica (puedes implementar tu propia lógica de validación aquí)
-  if (!username || !password) {
-    return res.status(400).send('Nombre de usuario y contraseña son obligatorios');
-  }
-
-  // Verificar si el usuario ya existe
-  const existingUser = users.find(user => user.username === username);
-  if (existingUser) {
-    return res.status(400).send('El nombre de usuario ya está en uso');
-  }
-
-  // Crear un nuevo usuario (simulación)
-  const newUser = { username, password };
-  users.push(newUser);
-
-  res.status(201).send('Usuario registrado exitosamente');
-});
-
-// Página de inicio de sesión
-router.get('/login', (req, res) => {
-  res.render('login'); // Renderiza el formulario de inicio de sesión
-});
-
-// Proceso de inicio de sesión
-router.post('/login', (req, res) => {
+// Ruta de inicio de sesión
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // Buscar el usuario en la lista (simulación)
-  const user = users.find(user => user.username === username && user.password === password);
-  
+  // Buscar el usuario en la simulación de base de datos
+  const user = users.find(user => user.username === username);
   if (!user) {
     return res.status(401).send('Credenciales inválidas');
   }
 
-  // Simular almacenamiento de usuario en sesión
-  req.session.user = user;
+  // Verificar la contraseña encriptada
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).send('Credenciales inválidas');
+  }
 
-  res.status(200).send('Inicio de sesión exitoso');
+  // Generar un token JWT
+  const token = generateToken(user);
+
+  // Enviar el token como respuesta
+  res.status(200).json({ token });
 });
 
-// Proceso de cierre de sesión
-router.post('/logout', (req, res) => {
-  // Destruir la sesión
-  req.session.destroy((err) => {
+// Middleware para verificar el token en rutas protegidas
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).send('Token no proporcionado');
+  }
+
+  jwt.verify(token, 'secretKey', (err, user) => {
     if (err) {
-      return res.status(500).send('Error al cerrar sesión');
+      return res.status(403).send('Token inválido');
     }
-    res.clearCookie('connect.sid'); // Limpiar la cookie de sesión
-    res.status(200).send('Sesión cerrada exitosamente');
+    req.user = user; // Almacena la información del usuario decodificado en el objeto de solicitud
+    next(); // Continúa con la solicitud
   });
+}
+
+// Ejemplo de una ruta protegida que requiere autenticación con el token
+router.get('/protected', authenticateToken, (req, res) => {
+  // Si llega aquí, el token fue verificado con éxito y el usuario está autenticado
+  res.status(200).send('Ruta protegida, usuario autenticado');
 });
 
 module.exports = router;
+
+
