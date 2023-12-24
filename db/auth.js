@@ -10,9 +10,9 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 passport.use(new GitHubStrategy({
-  clientID: 'tu_client_id',
-  clientSecret: 'tu_client_secret',
-  callbackURL: 'http://localhost:3000/auth/github/callback',
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: 'http://localhost:8080/auth/github/callback',
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     const user = await User.findOne({ githubId: profile.id });
