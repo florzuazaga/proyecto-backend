@@ -34,6 +34,9 @@ app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
+// Configuración para servir archivos estáticos desde el directorio 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Manejador para la ruta raíz ('/')
 app.get('/', (req, res) => {
   res.send('¡Bienvenido a la página principal!');
