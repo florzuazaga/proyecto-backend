@@ -51,6 +51,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Ruta para registro de usuarios
+app.get('/auth/register', (req, res) => {
+  res.render('register'); // Renderiza el formulario de registro (utilizando tu motor de plantillas)
+});
+
+// Lógica para manejar la creación de usuarios cuando se envía el formulario
+app.post('/auth/register', (req, res) => {
+  // Aquí debes manejar la lógica para registrar un nuevo usuario
+  const { username, password } = req.body;
+
+  // ... Lógica para crear un nuevo usuario en tu base de datos
+
+  res.redirect('/auth/login'); // Redirige a la página de inicio de sesión después del registro exitoso
+});
+
 // Inicia el servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

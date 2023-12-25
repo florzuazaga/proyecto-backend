@@ -10,9 +10,8 @@ const users = [];
 function generateToken(user) {
   const payload = {
     username: user.username,
-    // Puedes incluir más información si es necesario
   };
-  return jwt.sign(payload, 'secretKey', { expiresIn: '1h' }); // Cambia 'secretKey' por tu clave secreta
+  return jwt.sign(payload, 'secretKey', { expiresIn: '1h' }); 
 }
 
 // Ruta de inicio de sesión
