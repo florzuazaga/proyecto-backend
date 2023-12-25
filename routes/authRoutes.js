@@ -35,6 +35,11 @@ router.post('/logout', (req, res) => {
   });
 });
 
+router.get('/register', (req, res) => {
+  res.render('register'); // Renderiza el formulario de registro utilizando tu motor de plantillas
+});
+
+
 module.exports = router;
 
 
