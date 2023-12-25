@@ -8,7 +8,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const { connectToDatabase } = require('./config/databaseConfig');
 const productsRoutes = require('./routes/productsRoutes'); // Rutas para productos
-const authRoutes = require('./authRoutes'); // Rutas de autenticación
+const authRoutes = require('./userAuthenticationRoutes'); // Rutas de autenticación
 const adminRoutes = require('./routes/adminRoutes'); // Rutas de administrador
 const User = require('./dao/models/userSchema');
 
