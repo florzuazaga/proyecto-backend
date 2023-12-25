@@ -10,6 +10,7 @@ const { connectToDatabase } = require('./config/databaseConfig');
 const productsRoutes = require('./routes/productsRoutes'); // Rutas para productos
 const authRoutes = require('./authRoutes'); // Rutas de autenticación
 const adminRoutes = require('./routes/adminRoutes'); // Rutas de administrador
+const User = require('./dao/models/userSchema');
 
 
 
@@ -28,9 +29,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Configuración de las rutas de autenticación
-app.use('/', authRoutes);
-
 // Configuración de Handlebars
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
@@ -41,10 +39,18 @@ app.get('/', (req, res) => {
   res.send('¡Bienvenido a la página principal!');
   // se envía una respuesta con un mensaje simple.
 });
+
 // Montar las rutas
 app.use('/products', productsRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
+
+// Ruta para mostrar el formulario de inicio de sesión
+app.get('/auth/login', (req, res) => {
+  res.render('login'); // Renderiza el formulario de inicio de sesión usando tu motor de plantillas
+});
+
+
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
@@ -52,29 +58,31 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta para registro de usuarios
-app.get('/auth/register', (req, res) => {
-  res.render('register'); // Renderiza el formulario de registro (utilizando tu motor de plantillas)
-});
-
-// Lógica para manejar la creación de usuarios cuando se envía el formulario
-app.post('/auth/register', (req, res) => {
-  // Aquí debes manejar la lógica para registrar un nuevo usuario
+app.post('/auth/register', async (req, res) => {
   const { username, password } = req.body;
 
-  // ... Lógica para crear un nuevo usuario en tu base de datos
+  try {
+    // Verifica si el usuario ya existe en la base de datos
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(400).send('El usuario ya existe'); // Puedes personalizar el mensaje según tu necesidad
+    }
 
-  res.redirect('/auth/login'); // Redirige a la página de inicio de sesión después del registro exitoso
+    // Crea un nuevo usuario en la base de datos
+    const newUser = await User.create({ username, password });
+
+    res.redirect('/auth/login'); // Redirige a la página de inicio de sesión después del registro exitoso
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al registrar el usuario'); // Manejo básico de errores
+  }
 });
 
-// Inicia el servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor en funcionamiento en el puerto ${PORT}`);
-});
 
 // Conexión a la base de datos
+const PORT = process.env.PORT || 8080;
+
 connectToDatabase().then(() => {
-  const PORT = process.env.PORT || 8080;
   app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
   });

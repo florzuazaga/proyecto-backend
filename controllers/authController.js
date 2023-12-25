@@ -1,3 +1,4 @@
+//authController.js
 const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const User = require('../dao/models/userSchema'); // Importa tu modelo de usuario aquí
