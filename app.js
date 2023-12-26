@@ -8,9 +8,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const { connectToDatabase } = require('./config/databaseConfig');
 const productsRoutes = require('./routes/productsRoutes'); // Rutas para productos
-const authRoutes = require('./userAuthenticationRoutes'); // Rutas de autenticación
+const userAuthenticationRoutes= require('./userAuthenticationRoutes'); // Rutas de autenticación
 const adminRoutes = require('./routes/adminRoutes'); // Rutas de administrador
 const User = require('./dao/models/userSchema');
+const authRoutes = require('./routes/authRoutes');
 
 
 
@@ -29,20 +30,19 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Configuración para servir archivos estáticos desde el directorio 'public'
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Configuración de Handlebars
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
-
-// Configuración para servir archivos estáticos desde el directorio 'public'
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Manejador para la ruta raíz ('/')
 app.get('/', (req, res) => {
   res.send('¡Bienvenido a la página principal!');
   // se envía una respuesta con un mensaje simple.
 });
-
 // Montar las rutas
 app.use('/products', productsRoutes);
 app.use('/auth', authRoutes);
@@ -53,12 +53,10 @@ app.get('/auth/login', (req, res) => {
   res.render('login'); // Renderiza el formulario de inicio de sesión usando tu motor de plantillas
 });
 
-
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
@@ -80,7 +78,6 @@ app.post('/auth/register', async (req, res) => {
     res.status(500).send('Error al registrar el usuario'); // Manejo básico de errores
   }
 });
-
 
 // Conexión a la base de datos
 const PORT = process.env.PORT || 8080;

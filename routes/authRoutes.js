@@ -1,6 +1,6 @@
 //authRoutes.js
 const express = require('express');
-const { authenticateUser } = require('../controllers/authController');
+const { authenticateUser } = require('../userAuthenticationRoutes');
 const router = express.Router();
 
 // Rutas de autenticación y autorización
