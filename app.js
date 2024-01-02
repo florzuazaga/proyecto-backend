@@ -57,21 +57,32 @@ app.get('/auth/login', (req, res) => {
 
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
-  const { username, password } = req.body;
+  const { nombre, apellido, correo_electronico, contraseña } = req.body;
 
   try {
-    const existingUser = await User.findOne({ where: { username } });
+    const existingUser = await User.findOne({ correo_electronico });
     if (existingUser) {
       return res.status(400).send('El usuario ya existe');
     }
 
-    const newUser = await User.create({ username, password });
+    const newUser = await User.create({
+      first_name: nombre,
+      last_name: apellido,
+      email: correo_electronico,
+      password: contraseña,
+    });
 
     res.redirect('/auth/login');
   } catch (error) {
     console.error(error);
     res.status(500).send('Error al registrar el usuario');
   }
+});
+
+// Middleware de manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Error interno del servidor');
 });
 
 // Conexión a la base de datos
