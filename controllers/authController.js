@@ -7,12 +7,13 @@ const User = require('../dao/models/userSchema'); // Importa tu modelo de usuari
 passport.use(
   new GitHubStrategy(
     {
-      clientID: GITHUB_CLIENT_ID,
-      clientSecret: GITHUB_CLIENT_SECRET,
-      callbackURL: 'http://localhost:8080/auth/github/callback', // Coloca tu URL de callback
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: 'http://localhost:8080/auth/github/callback', // Ajusta la URL de callback según tu configuración
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        // Buscar usuario en la base de datos por su GitHub ID
         let user = await User.findOne({ githubId: profile.id });
 
         if (!user) {
@@ -20,6 +21,7 @@ passport.use(
           user = new User({
             githubId: profile.id,
             username: profile.username,
+            
           });
           await user.save();
         }
@@ -27,6 +29,7 @@ passport.use(
         // Llama a "done" con el usuario para indicar éxito en la autenticación
         done(null, user);
       } catch (error) {
+        console.error('Error durante la autenticación con GitHub:', error);
         done(error); // En caso de error, pasa el error a "done"
       }
     }
@@ -34,11 +37,19 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  // Serializa solo la información necesaria para identificar al usuario (por ejemplo, el ID)
+  done(null, user.id);
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    // Deserializa el usuario por su ID
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error); // En caso de error, pasa el error a "done"
+  }
 });
 
 

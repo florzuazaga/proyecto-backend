@@ -1,3 +1,4 @@
+//passport.js
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
@@ -29,10 +30,11 @@ passport.use(
   })
 );
 
+
 // Configuración de la estrategia JWT
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'your_secret_key', // Puedes almacenar esto en una variable de entorno
+  secretOrKey: process.env.JWT_SECRET || 'your_fallback_secret', // Utiliza una variable de entorno
 };
 
 passport.use(
@@ -50,6 +52,7 @@ passport.use(
     }
   })
 );
+
 
 // Funciones para generar y verificar tokens JWT
 const generateToken = (user) => {

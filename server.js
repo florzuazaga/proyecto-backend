@@ -1,47 +1,46 @@
 // server.js
-
 const http = require('http');
+const express = require('express');
+const mongoose = require('mongoose');
+const { app } = require('./app');
+const { initializeSocket } = require('./manager/socketManager');
 const { Server } = require('socket.io');
-const { app } = require('./app'); // Importa la aplicación Express
+const User = require('./dao/models/userSchema');
+
+// Conecta a la base de datos MongoDB (cambia la URL por la de tu base de datos)
+const MONGODB_URI = 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority';
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('Conexión a la base de datos exitosa');
+  })
+  .catch((error) => {
+    console.error('Error de conexión a la base de datos:', error);
+    process.exit(1);
+  });
 
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Manejo de eventos en Socket.IO
-io.on('connection', (socket) => {
-  console.log('Usuario conectado');
+// Inicializa Socket.IO
+initializeSocket(io);
 
-  // Evento: Nuevo producto
-  socket.on('new-product', (productData) => {
-    console.log('Nuevo producto recibido:', productData);
-    // Lógica para manejar el nuevo producto
-    io.emit('update-products', productData); // Emitir un evento a todos los clientes para actualizar productos
-  });
-
-  // Evento: Eliminar producto
-  socket.on('delete-product', (productId) => {
-    console.log('Eliminar producto con ID:', productId);
-    // Lógica para eliminar el producto
-    io.emit('product-deleted', productId); // Emitir un evento a todos los clientes para indicar la eliminación del producto
-  });
-  socket.on('disconnect', () => {
-    console.log('Usuario desconectado');
-  });
+// Escucha del servidor
+const PORT = process.env.PORT || 8080;
+const serverInstance = server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-// Manejo de errores de conexión a la base de datos y la escucha del servidor
-const handleDatabaseConnection = async () => {
+
+// Manejo de eventos de cierre del servidor
+serverInstance.on('close', async () => {
   try {
-    // ... Lógica de conexión a la base de datos ...
+    // Realiza acciones de limpieza, como cerrar la conexión a la base de datos
+    await mongoose.connection.close();
+    console.log('Conexión a la base de datos cerrada correctamente');
   } catch (error) {
-    console.error('Error connecting to the database:', error);
-    process.exit(1);
+    console.error('Error al cerrar la conexión a la base de datos:', error);
   }
-};
-
-handleDatabaseConnection().then(() => {
-  const PORT = process.env.PORT || 8080;
-  server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
 });
+
+
 
