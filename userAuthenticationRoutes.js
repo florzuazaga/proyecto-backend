@@ -54,7 +54,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Ejemplo de una ruta protegida que requiere autenticación con el token
+//  ruta protegida que requiere autenticación con el token
 router.get('/protected', authenticateToken, (req, res) => {
   // Si llega aquí, el token fue verificado con éxito y el usuario está autenticado
   res.status(200).send('Ruta protegida, usuario autenticado');

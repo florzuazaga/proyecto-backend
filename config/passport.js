@@ -1,9 +1,7 @@
-//passport.js
+// passport.js
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
-const jwt = require('jsonwebtoken');
+const jwtPassport = require('./jwtStrategy'); // Importa tu estrategia JWT desde jwtStrategy.js
 const bcrypt = require('bcryptjs');
 const User = require('../dao/models/userSchema'); // Importa tu modelo de usuario
 
@@ -30,46 +28,26 @@ passport.use(
   })
 );
 
+// Configuración de la estrategia JWT (ya definida en jwtStrategy.js)
+passport.use('current', jwtPassport);
 
-// Configuración de la estrategia JWT
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET || 'your_fallback_secret', // Utiliza una variable de entorno
-};
-
-passport.use(
-  new JwtStrategy(jwtOptions, async (payload, done) => {
-    try {
-      const user = await User.findById(payload.id);
-
-      if (!user) {
-        return done(null, false);
-      }
-
-      return done(null, user);
-    } catch (error) {
-      return done(error, false);
-    }
-  })
-);
-
-
-// Funciones para generar y verificar tokens JWT
+// Funciones para generar y verificar tokens JWT (puedes mantenerlas como están)
 const generateToken = (user) => {
   const payload = {
     id: user._id,
     username: user.username,
-    // Otros campos que desees incluir en el token
+    
   };
 
-  return jwt.sign(payload, jwtOptions.secretOrKey);
+  return jwtPassport.sign(payload, jwtPassport.secretOrKey);
 };
 
 const verifyToken = (token) => {
-  return jwt.verify(token, jwtOptions.secretOrKey);
+  return jwtPassport.verify(token, jwtPassport.secretOrKey);
 };
 
 module.exports = {
   generateToken,
   verifyToken,
 };
+
