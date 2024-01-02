@@ -65,12 +65,7 @@ app.post('/auth/register', async (req, res) => {
       return res.status(400).send('El usuario ya existe');
     }
 
-    const newUser = await User.create({
-      first_name: nombre,
-      last_name: apellido,
-      email: correo_electronico,
-      password: contraseña,
-    });
+    const newUser = await User.create({ nombre, apellido, correo_electronico, contraseña });
 
     res.redirect('/auth/login');
   } catch (error) {
@@ -79,11 +74,6 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
-// Middleware de manejo de errores
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Error interno del servidor');
-});
 
 // Conexión a la base de datos
 const PORT = process.env.PORT || 8080;
