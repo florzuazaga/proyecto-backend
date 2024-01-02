@@ -3,39 +3,40 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
-  first_name: {
+  nombre: {
     type: String,
     required: true,
   },
-  last_name: {
+  apellido: {
     type: String,
     required: true,
   },
-  email: {
+  correo_electronico: {
     type: String,
     required: true,
     unique: true,
   },
-  age: {
+  edad: {
     type: Number,
   },
-  password: {
+  contraseña: {
     type: String,
     required: true,
   },
-  cart: {
+  carrito: {
     type: Schema.Types.ObjectId,
     ref: 'Carts',
   },
-  role: {
+  rol: {
     type: String,
-    default: 'user',
+    default: 'usuario',
   },
 });
 
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
+
 
 
   
