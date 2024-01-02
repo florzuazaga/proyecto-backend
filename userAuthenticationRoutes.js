@@ -1,3 +1,4 @@
+// userAuthenticationRoutes.js
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -54,12 +55,20 @@ function authenticateToken(req, res, next) {
   });
 }
 
-//  ruta protegida que requiere autenticación con el token
+// Ruta protegida que requiere autenticación con el token
 router.get('/protected', authenticateToken, (req, res) => {
   // Si llega aquí, el token fue verificado con éxito y el usuario está autenticado
   res.status(200).send('Ruta protegida, usuario autenticado');
 });
 
+// Ruta para obtener el usuario actual basado en el token JWT
+router.get('/current', authenticateToken, (req, res) => {
+  // En este punto, el usuario ha sido autenticado correctamente mediante JWT
+  const currentUser = req.user;
+  res.status(200).json({ user: currentUser });
+});
+
 module.exports = router;
+
 
 
