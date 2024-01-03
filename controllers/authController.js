@@ -36,6 +36,23 @@ passport.use(
   )
 );
 
+// Función para buscar o crear un usuario por GitHub ID
+async function findOrCreateUserByGitHub(profile) {
+  let user = await User.findOne({ githubId: profile.id });
+
+  if (!user) {
+    // Si el usuario no existe, crea uno nuevo
+    user = new User({
+      githubId: profile.id,
+      username: profile.username,
+      // ... otros campos según sea necesario
+    });
+    await user.save();
+  }
+
+  return user;
+}
+
 passport.serializeUser((user, done) => {
   // Serializa solo la información necesaria para identificar al usuario (por ejemplo, el ID)
   done(null, user.id);

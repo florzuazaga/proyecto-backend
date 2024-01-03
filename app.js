@@ -1,6 +1,5 @@
 // app.js
 
-// app.js
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
@@ -13,6 +12,9 @@ const userAuthenticationRoutes = require('./userAuthenticationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
+
+// Incluye la configuración y estrategia de GitHub
+require('./controllers/authController');
 
 require('dotenv').config();
 
@@ -36,7 +38,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-require('./controllers/authController');
 
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -63,6 +64,19 @@ app.get(
     res.redirect('/perfil');
   }
 );
+// Conexión a la base de datos
+const PORT = process.env.PORT || 8080;
+
+connectToDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error de conexión a la base de datos:', error);
+    process.exit(1);
+  });
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.get('/auth/login', (req, res) => {
@@ -88,20 +102,18 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
+// Ruta para cualquier otro caso (manejo de 404)
+app.use((req, res) => {
+  res.status(404).send('Página no encontrada');
+});
 
-// Conexión a la base de datos
-const PORT = process.env.PORT || 8080;
+// Manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Error interno del servidor');
+});
 
-connectToDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Servidor escuchando en el puerto ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error de conexión a la base de datos:', error);
-    process.exit(1);
-  });
+
 
 module.exports = app;
 
