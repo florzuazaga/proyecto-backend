@@ -3,13 +3,13 @@ const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const User = require('../dao/models/userSchema'); // Importa tu modelo de usuario aquí
 
-
+// Configuración de la Estrategia de GitHub
 passport.use(
   new GitHubStrategy(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: 'http://localhost:8080/auth/github/callback', // Ajusta la URL de callback según tu configuración
+      callbackURL: 'http://localhost:8080/auth/github/callback', 
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -52,4 +52,4 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-
+module.exports = passport;

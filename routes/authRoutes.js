@@ -10,8 +10,8 @@ router.get('/login', (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const authResult = await authenticateUser(username, password);
+    const { correo_electronico, contraseña } = req.body;
+    const authResult = await authenticateUser(correo_electronico, contraseña);
 
     if (!authResult.success) {
       return res.status(401).json({ message: authResult.message });
@@ -22,6 +22,7 @@ router.post('/login', async (req, res) => {
     // Redirección después del inicio de sesión
     res.redirect('/dashboard'); 
   } catch (error) {
+    console.error('Error al iniciar sesión:', error);
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });

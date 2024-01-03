@@ -36,6 +36,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+require('./controllers/authController');
+
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -49,6 +51,18 @@ app.use('/products', productsRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/auth', userAuthenticationRoutes);
+
+// Rutas de autenticación con GitHub
+app.get('/auth/github', passport.authenticate('github'));
+
+app.get(
+  '/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/' }),
+  (req, res) => {
+    // Manejar el éxito de la autenticación
+    res.redirect('/perfil');
+  }
+);
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.get('/auth/login', (req, res) => {
