@@ -1,71 +1,56 @@
 // userAuthenticationRoutes.js
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const router = express.Router();
+const passport = require('../passportConfig');
+const bcrypt = require('bcrypt');
+const User = require('../dao/models/userSchema');
 
-// Simulación de base de datos de usuarios
-const users = [];
-
-// Función para generar un token JWT
-function generateToken(user) {
-  const payload = {
-    username: user.username,
-  };
-  return jwt.sign(payload, 'secretKey', { expiresIn: '1h' }); 
-}
-
-// Ruta de inicio de sesión
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // Buscar el usuario en la simulación de base de datos
-  const user = users.find(user => user.username === username);
-  if (!user) {
-    return res.status(401).send('Credenciales inválidas');
-  }
-
-  // Verificar la contraseña encriptada
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return res.status(401).send('Credenciales inválidas');
-  }
-
-  // Generar un token JWT
-  const token = generateToken(user);
-
-  // Enviar el token como respuesta
-  res.status(200).json({ token });
+router.get('/login', (req, res) => {
+  res.render('login');
 });
 
-// Middleware para verificar el token en rutas protegidas
-function authenticateToken(req, res, next) {
-  const token = req.headers.authorization;
+router.post(
+  '/login',
+  passport.authenticate('local', {
+    successRedirect: '/dashboard',
+    failureRedirect: '/auth/login',
+    failureFlash: true,
+  })
+);
 
-  if (!token) {
-    return res.status(401).send('Token no proporcionado');
-  }
+router.post('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
-  jwt.verify(token, 'secretKey', (err, user) => {
-    if (err) {
-      return res.status(403).send('Token inválido');
+router.get('/register', (req, res) => {
+  res.render('register');
+});
+
+router.post('/register', async (req, res) => {
+  const { nombre, apellido, correo_electronico, contraseña } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ correo_electronico });
+
+    if (existingUser) {
+      return res.status(400).send('El usuario ya existe');
     }
-    req.user = user; // Almacena la información del usuario decodificado en el objeto de solicitud
-    next(); // Continúa con la solicitud
-  });
-}
 
-// Ruta protegida que requiere autenticación con el token
-router.get('/protected', authenticateToken, (req, res) => {
-  // Si llega aquí, el token fue verificado con éxito y el usuario está autenticado
-  res.status(200).send('Ruta protegida, usuario autenticado');
-});
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
 
-// Ruta para obtener el usuario actual basado en el token JWT
-router.get('/current', authenticateToken, (req, res) => {
-  // En este punto, el usuario ha sido autenticado correctamente mediante JWT
-  const currentUser = req.user;
-  res.status(200).json({ user: currentUser });
+    const newUser = await User.create({
+      nombre,
+      apellido,
+      correo_electronico,
+      contraseña: hashedPassword,
+    });
+
+    res.redirect('/auth/login');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al registrar el usuario');
+  }
 });
 
 module.exports = router;

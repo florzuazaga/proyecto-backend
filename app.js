@@ -12,6 +12,7 @@ const userAuthenticationRoutes = require('./userAuthenticationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
+const passport = require('./config/passport');
 
 // Incluye la configuración y estrategia de GitHub
 require('./controllers/authController');
@@ -24,6 +25,13 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: false }));
+// Inicialización de Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Rutas de autenticación con Passport
+app.use('/auth', userAuthenticationRoutes);
 
 // Configuración de sesiones
 app.use(
@@ -34,11 +42,6 @@ app.use(
   })
 );
 
-// Inicialización de Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -46,12 +49,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
-
-// Montar las rutas
-app.use('/products', productsRoutes);
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/auth', userAuthenticationRoutes);
 
 // Rutas de autenticación con GitHub
 app.get('/auth/github', passport.authenticate('github'));
@@ -64,19 +61,12 @@ app.get(
     res.redirect('/perfil');
   }
 );
-// Conexión a la base de datos
-const PORT = process.env.PORT || 8080;
 
-connectToDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Servidor escuchando en el puerto ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error de conexión a la base de datos:', error);
-    process.exit(1);
-  });
+// Montar las rutas
+app.use('/products', productsRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/auth', userAuthenticationRoutes);
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.get('/auth/login', (req, res) => {
@@ -102,6 +92,11 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
+// Ruta para la URL raíz (página de inicio)
+app.get('/', (req, res) => {
+  res.send('¡Bienvenido a la página de inicio!');
+});
+
 // Ruta para cualquier otro caso (manejo de 404)
 app.use((req, res) => {
   res.status(404).send('Página no encontrada');
@@ -113,7 +108,19 @@ app.use((err, req, res, next) => {
   res.status(500).send('Error interno del servidor');
 });
 
+// Conexión a la base de datos
+const PORT = process.env.PORT || 8080;
 
+connectToDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error de conexión a la base de datos:', error);
+    process.exit(1);
+  });
 
 module.exports = app;
 

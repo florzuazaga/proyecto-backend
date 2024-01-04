@@ -5,11 +5,11 @@ const mongoose = require('mongoose');
 const { app } = require('./app');
 const { initializeSocket } = require('./manager/socketManager');
 const { Server } = require('socket.io');
-const User = require('./dao/models/userSchema');
 
-// Conecta a la base de datos MongoDB (cambia la URL por la de tu base de datos)
+// Conexión a la base de datos MongoDB (cambia la URL por la de tu base de datos)
 const MONGODB_URI = 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority';
 
+// Conectar a MongoDB
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Conexión a la base de datos exitosa');
@@ -18,21 +18,17 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true 
     console.error('Error de conexión a la base de datos:', error);
     process.exit(1);
   });
-  
-  //Agrega un Evento de Error a la Conexión
-  mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-  const db = mongoose.connection;
-  
-  db.on('error', (error) => {
-    console.error('Error de conexión a la base de datos:', error);
-    process.exit(1);
-  });
-  
-  db.once('open', () => {
-    console.log('Conexión a la base de datos exitosa');
-  });
-  
+// Manejo de eventos de conexión y error con MongoDB
+const db = mongoose.connection;
+db.on('error', (error) => {
+  console.error('Error de conexión a la base de datos:', error);
+  process.exit(1);
+});
+db.once('open', () => {
+  console.log('Conexión a la base de datos exitosa');
+});
+
 const server = http.createServer(app);
 const io = new Server(server);
 
