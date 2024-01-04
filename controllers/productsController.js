@@ -1,48 +1,62 @@
 // productsController.js
-const fs = require('fs');
+const fs = require('fs').promises;  // Importa el módulo de promesas de fs
+
 const path = require('path');
 
-// Imagina que tienes una variable que contiene datos de productos
-const productosData = [
-    { id: 1, nombre: 'Producto 1', precio: 10, tipo: 'tipo1' },
-    { id: 2, nombre: 'Producto 2', precio: 20, tipo: 'tipo2' },
-    
-  ];
-  
-  // Función para obtener todos los productos
-  function obtenerProductos() {
-    const productosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'files', 'productos.json'), 'utf8'));
-  return productosData;
+const productosFilePath = path.join(__dirname, 'files', 'productos.json');
+const carritoFilePath = path.join(__dirname, 'files', 'carrito.json');
+
+async function obtenerProductos() {
+  try {
+    const productosData = await fs.readFile(productosFilePath, 'utf8');
+    return JSON.parse(productosData);
+  } catch (error) {
+    console.error('Error al obtener productos:', error);
+    throw error;
   }
-  
-  // Función para obtener un producto por su ID
-  function obtenerProductoPorId(productId) {
-    return productosData.find(producto => producto.id === productId);
+}
+
+async function obtenerProductosDelCarrito() {
+  try {
+    const carritoData = await fs.readFile(carritoFilePath, 'utf8');
+    return JSON.parse(carritoData);
+  } catch (error) {
+    console.error('Error al obtener productos del carrito:', error);
+    throw error;
   }
-  
-  // Función para agregar un nuevo producto
-  function agregarProducto(nuevoProducto) {
+}
+
+async function agregarProducto(nuevoProducto) {
+  try {
+    const productosData = await obtenerProductos();
     productosData.push(nuevoProducto);
+    await fs.writeFile(productosFilePath, JSON.stringify(productosData, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error al agregar producto:', error);
+    throw error;
   }
-  
-  // Función para eliminar un producto por su ID
-  function eliminarProducto(productId) {
+}
+
+async function eliminarProducto(productId) {
+  try {
+    let productosData = await obtenerProductos();
     const index = productosData.findIndex(producto => producto.id === productId);
     if (index !== -1) {
       productosData.splice(index, 1);
+      await fs.writeFile(productosFilePath, JSON.stringify(productosData, null, 2), 'utf8');
     }
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    throw error;
   }
-  function obtenerProductosDelCarrito() {
-    const carritoData = JSON.parse(fs.readFileSync(path.join(__dirname,'..', 'files', 'carrito.json'), 'utf8'));
-    return carritoData;
-  }
-  
-  // Exporta las funciones para que puedan ser utilizadas en otros archivos
-  module.exports = {
-    obtenerProductos,
-    obtenerProductoPorId,
-    obtenerProductosDelCarrito,
-    agregarProducto,
-    eliminarProducto,
-  };
+}
+
+
+module.exports = {
+  obtenerProductos,
+  obtenerProductosDelCarrito,
+  agregarProducto,
+  eliminarProducto,
+};
+
   

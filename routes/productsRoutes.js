@@ -1,10 +1,11 @@
 // productsRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers/productsController');
 
 // Importa el objeto io para emitir eventos
-const { io } = require('../manager/socketManager');
+const { io } = require('../managers/socketManager');
 
 router.get('/productos', (req, res) => {
   const products = obtenerProductos(); // Lógica para obtener productos
@@ -47,4 +48,5 @@ router.delete('/productos/:pid', (req, res) => {
 });
 
 module.exports = router;
+
 

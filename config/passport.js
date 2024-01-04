@@ -1,43 +1,50 @@
 // passport.js (passportConfig)
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcrypt');
-const User = require('./dao/models/userSchema');
+const passportJWT = require('passport-jwt');
+const { ExtractJwt } = passportJWT;
+const User = require('./models/userSchema'); // Ajusta la ruta según tu estructura de archivos
 
+const jwtSecretKey = 'yourSecretKey'; // Cambia esto y considera usar variables de entorno
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSecretKey,
+};
+
+// Estrategia para la autenticación JWT
 passport.use(
-  new LocalStrategy({ usernameField: 'correo_electronico' }, async (correo_electronico, contraseña, done) => {
+  'jwt',
+  new passportJWT.Strategy(jwtOptions, async (payload, done) => {
     try {
-      const user = await User.findOne({ correo_electronico });
+      const user = await User.findById(payload.sub);
 
-      if (!user) {
-        return done(null, false, { message: 'Usuario no encontrado' });
-      }
-
-      const match = await bcrypt.compare(contraseña, user.contraseña);
-
-      if (match) {
+      if (user) {
         return done(null, user);
       } else {
-        return done(null, false, { message: 'Contraseña incorrecta' });
+        return done(null, false);
       }
     } catch (error) {
-      return done(error);
+      return done(error, false);
     }
   })
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
+// Estrategia "current" para obtener el usuario asociado a un token de cookie
+passport.use(
+  'current',
+  new passportJWT.Strategy(jwtOptions, async (payload, done) => {
+    try {
+      const user = await User.findById(payload.sub);
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
-});
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    } catch (error) {
+      return done(error, false);
+    }
+  })
+);
 
 module.exports = passport;
-

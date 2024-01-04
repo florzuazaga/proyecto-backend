@@ -1,15 +1,31 @@
 // adminMiddleware.js
+const jwt = require('jsonwebtoken');
 
-function isAdmin(req, res, next) {
-    if (req.user && req.user.role === 'admin') {
-      // Si el usuario es un administrador, permite continuar
-      next();
-    } else {
-      // Si el usuario no es administrador, devuelve un error de acceso
-      res.status(403).send('Acceso denegado. No eres un administrador.');
-    }
+function isAdminMiddleware(req, res, next) {
+  // Verificar si el usuario tiene el rol de administrador
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Acceso no autorizado para administradores' });
   }
-  
-  module.exports = { isAdmin };
+}
+function authenticateToken(req, res, next) {
+  const token = req.header('Authorization');
+
+  if (!token) {
+    return res.status(401).json({ message: 'Acceso no autorizado' });
+  }
+
+  jwt.verify(token, 'secretKey', (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token inválido' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+module.exports = {isAdminMiddleware, authenticateToken };
+
   
 

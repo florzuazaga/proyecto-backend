@@ -12,7 +12,7 @@ const userAuthenticationRoutes = require('./userAuthenticationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
-const passport = require('./config/passport');
+const passportConfig = require('./config/passport');
 
 // Incluye la configuración y estrategia de GitHub
 require('./controllers/authController');
@@ -68,10 +68,12 @@ app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/auth', userAuthenticationRoutes);
 
+// Importación de login para manejar la ruta '/auth/login'
+const loginController = require('./controllers/login');
+
 // Ruta para mostrar el formulario de inicio de sesión
-app.get('/auth/login', (req, res) => {
-  res.render('login');
-});
+app.use('/auth/login', loginController);
+
 
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
@@ -109,18 +111,16 @@ app.use((err, req, res, next) => {
 });
 
 // Conexión a la base de datos
-const PORT = process.env.PORT || 8080;
+const MAIN_PORT = process.env.MAIN_PORT || 8080;
+const SOCKET_PORT = process.env.SOCKET_PORT || 3000;
 
-connectToDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Servidor escuchando en el puerto ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error de conexión a la base de datos:', error);
-    process.exit(1);
-  });
+const server = app.listen(MAIN_PORT, () => {
+  console.log(`Aplicación principal escuchando en el puerto ${MAIN_PORT}`);
+});
+
+// Inicializar Socket.io
+const { initializeSocket } = require('./managers/socketManager');
+initializeSocket(server);
 
 module.exports = app;
 

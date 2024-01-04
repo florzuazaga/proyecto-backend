@@ -1,8 +1,11 @@
 // socketManager.js
+
 const { Server } = require('socket.io');
 
+let io;
+
 const initializeSocket = (server) => {
-  const io = new Server(server);
+  io = new Server(server);
 
   io.on('connection', (socket) => {
     console.log('Usuario conectado');
@@ -27,4 +30,5 @@ const initializeSocket = (server) => {
   });
 };
 
-module.exports = { initializeSocket };
+module.exports = { initializeSocket, io };
+

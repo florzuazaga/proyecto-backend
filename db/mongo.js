@@ -1,7 +1,7 @@
 //mongo.js
 const { MongoClient } = require('mongodb');
 
-const { connectToDatabase } = require('./databaseConfig');
+const { connectToDatabase } = require('../config/databaseConfig');
 connectToDatabase();
 
 const client = new MongoClient(mongoURI, {

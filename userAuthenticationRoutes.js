@@ -1,59 +1,34 @@
 // userAuthenticationRoutes.js
 const express = require('express');
 const router = express.Router();
-const passport = require('../passportConfig');
 const bcrypt = require('bcrypt');
-const User = require('../dao/models/userSchema');
+const User = require('./dao/models/userSchema');
 
-router.get('/login', (req, res) => {
-  res.render('login');
-});
-
-router.post(
-  '/login',
-  passport.authenticate('local', {
-    successRedirect: '/dashboard',
-    failureRedirect: '/auth/login',
-    failureFlash: true,
-  })
-);
-
-router.post('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-
-router.get('/register', (req, res) => {
-  res.render('register');
-});
-
-router.post('/register', async (req, res) => {
-  const { nombre, apellido, correo_electronico, contraseña } = req.body;
-
+router.post('/login', async (req, res) => {
   try {
-    const existingUser = await User.findOne({ correo_electronico });
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
 
-    if (existingUser) {
-      return res.status(400).send('El usuario ya existe');
+    if (!user) {
+      return res.status(401).json({ message: 'Usuario no encontrado' });
     }
 
-    const hashedPassword = await bcrypt.hash(contraseña, 10);
+    const match = await user.comparePassword(password);
 
-    const newUser = await User.create({
-      nombre,
-      apellido,
-      correo_electronico,
-      contraseña: hashedPassword,
-    });
-
-    res.redirect('/auth/login');
+    if (match) {
+      const token = user.generateAuthToken();
+      res.status(200).json({ token });
+    } else {
+      res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error al registrar el usuario');
+    console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
 
 module.exports = router;
+
 
 
 
