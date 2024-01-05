@@ -69,7 +69,7 @@ app.use('/admin', adminRoutes);
 app.use('/auth', userAuthenticationRoutes);
 
 // Importación de login para manejar la ruta '/auth/login'
-const loginController = require('./controllers/login');
+const loginController = require('./config/login');
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.use('/auth/login', loginController);

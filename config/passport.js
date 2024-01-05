@@ -2,7 +2,7 @@
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
 const { ExtractJwt } = passportJWT;
-const User = require('./models/userSchema'); // Ajusta la ruta según tu estructura de archivos
+const User = require('../dao/models/userSchema'); // Ajusta la ruta según tu estructura de archivos
 
 const jwtSecretKey = 'yourSecretKey'; // Cambia esto y considera usar variables de entorno
 
