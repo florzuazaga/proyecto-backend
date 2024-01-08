@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Schema } = mongoose; // Agrega esta línea para importar Schema
+const { Schema } = mongoose; 
 
 const userSchema = new Schema({
   nombre: {
@@ -48,7 +48,7 @@ userSchema.pre('save', async function (next) {
 });
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
-    expiresIn: '1h', // Cambia la expiración según tus necesidades
+    expiresIn: '1h', 
   });
   return token;
 };

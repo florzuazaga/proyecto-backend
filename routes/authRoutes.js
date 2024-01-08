@@ -3,6 +3,7 @@ const express = require('express');
 const { User } = require('../dao/models/userSchema'); 
 const { authenticateUser } = require('../userAuthenticationRoutes');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
 // Rutas de autenticación y autorización
 router.get('/login', (req, res) => {
