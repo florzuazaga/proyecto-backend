@@ -35,6 +35,17 @@ const userSchema = new Schema({
   },
 });
 
+
+// Agrega lógica para cifrar la contraseña antes de guardar
+userSchema.pre('save', async function (next) {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.contraseña = await bcrypt.hash(this.contraseña, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
     expiresIn: '1h', // Cambia la expiración según tus necesidades
@@ -43,7 +54,7 @@ userSchema.methods.generateAuthToken = function () {
 };
 
 userSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, this.contraseña);
 };
 
 const User = mongoose.model('User', userSchema);

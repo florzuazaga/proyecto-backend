@@ -21,6 +21,9 @@ require('dotenv').config();
 
 const app = express();
 
+// Conexión a la base de datos
+connectToDatabase();
+
 // Middleware
 app.use(cookieParser());
 app.use(express.json());

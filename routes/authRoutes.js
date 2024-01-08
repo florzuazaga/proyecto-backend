@@ -1,5 +1,6 @@
 //authRoutes.js
 const express = require('express');
+const { User } = require('../dao/models/userSchema'); 
 const { authenticateUser } = require('../userAuthenticationRoutes');
 const router = express.Router();
 
@@ -35,16 +36,41 @@ router.post('/logout', (req, res) => {
     res.json({ message: 'Sesión cerrada correctamente' });
   });
 });
-
 router.get('/register', (req, res) => {
   res.render('register'); // Renderiza el formulario de registro utilizando tu motor de plantillas
 });
 
+router.get('/register', (req, res) => {
+  res.render('register');
+});
 
+router.post('/register', async (req, res) => {
+  try {
+    const { nombre, apellido, correo_electronico, edad, contraseña } = req.body;
+
+    const newUser = new User({
+      nombre,
+      apellido,
+      correo_electronico,
+      edad,
+      contraseña,
+    });
+
+    const savedUser = await newUser.save();
+
+    // Genera un token después de guardar el usuario
+    const token = jwt.sign({ _id: savedUser._id, role: savedUser.rol }, 'secretKey', {
+      expiresIn: '1h',
+    });
+
+    
+    req.session.token = token;
+
+    res.status(201).json({ message: 'Usuario registrado exitosamente', token });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    res.status(500).json({ message: 'Error al registrar usuario' });
+  }
+});
 module.exports = router;
 
-
-
-
-
-  
