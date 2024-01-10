@@ -36,14 +36,16 @@ app.use(passport.session());
 // Rutas de autenticación con Passport
 app.use('/auth', userAuthenticationRoutes);
 
-// Configuración de sesiones
-app.use(
-  session({
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+// Configuración de express-session
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false },
+  store: new (require('session-file-store')(session))({
+    path: path.join(__dirname, '/sessions'), // Ruta donde se guardarán las sesiones
+  }),
+}));
 
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));

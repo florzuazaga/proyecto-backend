@@ -5,9 +5,24 @@ const mongoose = require('mongoose');
 const { app } = require('./app');
 const { initializeSocket } = require('./manager/socketManager');
 const { Server } = require('socket.io');
+const dotenv = require('dotenv');
+
+// Carga las variables de entorno desde el archivo .env
+dotenv.config();
+
+// Accede a las variables de entorno
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
+const mongoURI = process.env.MONGO_URI;
+
+const adminCredentials = {
+  email: adminEmail,
+  password: adminPassword,
+};
+
 
 // Conexión a la base de datos MongoDB (cambia la URL por la de tu base de datos)
-const MONGODB_URI = 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.mongoURI || 'mongodb+srv://florenciazuazaga36:Fabi3926@cluster0.t6cqann.mongodb.net/?retryWrites=true&w=majority';
 
 // Conectar a MongoDB
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
