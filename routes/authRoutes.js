@@ -41,15 +41,12 @@ router.get('/register', (req, res) => {
   res.render('register'); // Renderiza el formulario de registro utilizando tu motor de plantillas
 });
 
-router.get('/register', (req, res) => {
-  res.render('register');
-});
 
 router.post('/register', async (req, res) => {
   try {
     const { nombre, apellido, correo_electronico, edad, contraseña } = req.body;
 
-    const newUser = new User({
+    const newUser = await User.create({
       nombre,
       apellido,
       correo_electronico,
@@ -57,14 +54,11 @@ router.post('/register', async (req, res) => {
       contraseña,
     });
 
-    const savedUser = await newUser.save();
-
     // Genera un token después de guardar el usuario
-    const token = jwt.sign({ _id: savedUser._id, role: savedUser.rol }, 'secretKey', {
+    const token = jwt.sign({ _id: newUser._id, role: newUser.rol }, 'secretKey', {
       expiresIn: '1h',
     });
 
-    
     req.session.token = token;
 
     res.status(201).json({ message: 'Usuario registrado exitosamente', token });
@@ -73,5 +67,6 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Error al registrar usuario' });
   }
 });
+
 module.exports = router;
 
