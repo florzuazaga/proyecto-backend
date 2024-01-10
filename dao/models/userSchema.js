@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Schema } = mongoose; 
+const mongoosePaginate = require('mongoose-paginate-v2');
+
 
 const userSchema = new mongoose.Schema({
   nombre: {
@@ -39,8 +41,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-});
-
+},{ timestamps: true });
+// Aplica el plugin mongoose-paginate al esquema
+userSchema.plugin(mongoosePaginate);
 
 // Agrega lógica para cifrar la contraseña antes de guardar
 userSchema.pre('save', async function (next) {
@@ -64,6 +67,19 @@ userSchema.methods.comparePassword = async function (password) {
 };
 
 const User = mongoose.model('User', userSchema);
+
+const options = {
+  page: 1,
+  limit: 10,
+};
+
+User.paginate({}, options, (err, result) => {
+  if (err) {
+    console.error('Error al paginar:', err);
+  } else {
+    console.log('Resultados paginados:', result);
+  }
+});
 
 module.exports = { User };
 

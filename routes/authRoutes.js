@@ -49,7 +49,7 @@ router.post('/register', async (req, res) => {
     console.log('Datos recibidos:', { nombre, apellido, correo_electronico, edad, contraseña, username });
     // Validar que el campo username esté definido y no sea nulo o vacío
     if (!username || !correo_electronico) {
-      return res.status(400).json({ message: 'El campo username es obligatorio.' });
+      return res.status(400).json({ message: 'Los campos username y correo electronico  son obligatorios.' });
     }
        // Validar si ya existe un usuario con el mismo correo electrónico
        const existingUser = await User.findOne({ correo_electronico });
