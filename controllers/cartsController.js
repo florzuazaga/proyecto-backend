@@ -1,13 +1,14 @@
-// cartsController.js
-const Cart = require('../dao/models/cartSchema'); // Asegúrate de tener la ruta correcta
+// cartController.js
+const Cart = require('../dao/models/cartSchema');
+const Product = require('../dao/models/productSchema'); 
 
-exports.eliminarProductoDelCarrito = async (req, res) => {
+// Eliminar un producto específico del carrito
+exports.deleteProductFromCart = async (req, res) => {
   try {
     const cartId = req.params.cid;
     const productId = req.params.pid;
 
-    // Lógica para eliminar el producto del carrito
-    await Cart.findByIdAndUpdate(cartId, { $pull: { products: { _id: productId } } });
+    await Cart.findByIdAndUpdate(cartId, { $pull: { products: productId } });
 
     res.json({ status: 'success', message: 'Producto eliminado del carrito exitosamente' });
   } catch (error) {
@@ -16,12 +17,12 @@ exports.eliminarProductoDelCarrito = async (req, res) => {
   }
 };
 
-exports.actualizarCarrito = async (req, res) => {
+// Actualizar todo el carrito con un nuevo arreglo de productos
+exports.updateCart = async (req, res) => {
   try {
     const cartId = req.params.cid;
     const newProducts = req.body.products;
 
-    // Lógica para actualizar todo el carrito
     await Cart.findByIdAndUpdate(cartId, { products: newProducts });
 
     res.json({ status: 'success', message: 'Carrito actualizado exitosamente' });
@@ -31,13 +32,13 @@ exports.actualizarCarrito = async (req, res) => {
   }
 };
 
-exports.actualizarCantidadProductoEnCarrito = async (req, res) => {
+// Actualizar la cantidad de ejemplares de un producto en el carrito
+exports.updateProductQuantity = async (req, res) => {
   try {
     const cartId = req.params.cid;
     const productId = req.params.pid;
     const newQuantity = req.body.quantity;
 
-    // Lógica para actualizar la cantidad de ejemplares de un producto en el carrito
     await Cart.findOneAndUpdate({ _id: cartId, 'products._id': productId }, { $set: { 'products.$.quantity': newQuantity } });
 
     res.json({ status: 'success', message: 'Cantidad de producto en el carrito actualizada exitosamente' });
@@ -46,3 +47,18 @@ exports.actualizarCantidadProductoEnCarrito = async (req, res) => {
     res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 };
+
+// Eliminar todos los productos del carrito
+exports.clearCart = async (req, res) => {
+  try {
+    const cartId = req.params.cid;
+
+    await Cart.findByIdAndUpdate(cartId, { products: [] });
+
+    res.json({ status: 'success', message: 'Todos los productos del carrito eliminados exitosamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+};
+
