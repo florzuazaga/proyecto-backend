@@ -12,40 +12,37 @@ const userAuthenticationRoutes = require('./userAuthenticationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
-const passportConfig = require('./config/passport');
+const { paginateUsers } = require('./queries/userQueries');
 
-// Incluye la configuración y estrategia de GitHub
-require('./controllers/authController');
-
+// Configuración de dotenv
 require('dotenv').config();
 
-const app = express();
+// Inicialización de Passport
+require('./controllers/authController');
+const passportConfig = require('./config/passport');
 
-// Conexión a la base de datos
-connectToDatabase();
+// Configuración de express
+const app = express();
 
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: false }));
-// Inicialización de Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Rutas de autenticación con Passport
-app.use('/auth', userAuthenticationRoutes);
 
 // Configuración de express-session
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false },
   store: new (require('session-file-store')(session))({
-    path: path.join(__dirname, '/sessions'), // Ruta donde se guardarán las sesiones
+    path: path.join(__dirname, '/sessions'),
   }),
 }));
+
+// Inicialización de Passport después de configurar sesiones
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -54,6 +51,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
+
+// Rutas
+app.use('/auth', userAuthenticationRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/products', productsRoutes);
+
+// Rutas de autenticación con Passport
+app.use('/auth', userAuthenticationRoutes);
 
 // Rutas de autenticación con GitHub
 app.get('/auth/github', passport.authenticate('github'));
@@ -67,18 +73,11 @@ app.get(
   }
 );
 
-// Montar las rutas
-app.use('/products', productsRoutes);
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/auth', userAuthenticationRoutes);
-
 // Importación de login para manejar la ruta '/auth/login'
 const loginController = require('./config/login');
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.use('/auth/login', loginController);
-
 
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
@@ -127,7 +126,18 @@ const server = app.listen(MAIN_PORT, () => {
 const { initializeSocket } = require('./managers/socketManager');
 initializeSocket(server);
 
+// Ejecutar consultas al iniciar la aplicación
+(async () => {
+  try {
+    const result = await paginateUsers(1, 10);
+    console.log('Resultados paginados:', result);
+  } catch (error) {
+    console.error('Error al ejecutar consultas:', error);
+  }
+})();
+
 module.exports = app;
+
 
 
 

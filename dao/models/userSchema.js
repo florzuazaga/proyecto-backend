@@ -2,9 +2,9 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Schema } = mongoose; 
 const mongoosePaginate = require('mongoose-paginate-v2');
 
+const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema({
   nombre: {
@@ -41,7 +41,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-},{ timestamps: true });
+}, { timestamps: true });
+
 // Aplica el plugin mongoose-paginate al esquema
 userSchema.plugin(mongoosePaginate);
 
@@ -55,6 +56,7 @@ userSchema.pre('save', async function (next) {
     next(error);
   }
 });
+
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
     expiresIn: '1h', 
@@ -66,22 +68,11 @@ userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.contraseña);
 };
 
+// Exporta el modelo
 const User = mongoose.model('User', userSchema);
 
-const options = {
-  page: 1,
-  limit: 10,
-};
-
-User.paginate({}, options, (err, result) => {
-  if (err) {
-    console.error('Error al paginar:', err);
-  } else {
-    console.log('Resultados paginados:', result);
-  }
-});
-
 module.exports = { User };
+
 
 
 
