@@ -3,13 +3,69 @@
 const express = require('express');
 const router = express.Router();
 const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers/productsController');
+const Product = require('../models/productSchema');
 
 // Importa el objeto io para emitir eventos
 const { io } = require('../managers/socketManager');
 
-router.get('/productos', (req, res) => {
-  const products = obtenerProductos(); // Lógica para obtener productos
-  res.render('home', { products });
+app.get('/productos', async (req, res) => {
+  try {
+    // Obtener los parámetros de la consulta (query params)
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const sort = req.query.sort || null;
+    const query = req.query.query || null;
+
+    // Construir el objeto de filtro según los parámetros recibidos
+    const filter = {};
+    if (query) {
+      filter.title = { $regex: new RegExp(query, 'i') }; // Búsqueda insensible a mayúsculas y minúsculas en el título
+    }
+
+    // Construir la consulta con Mongoose
+    let queryBuilder = Product.find(filter);
+
+    // Aplicar ordenamiento si se proporciona un sort
+    if (sort) {
+      queryBuilder = queryBuilder.sort({ price: sort === 'asc' ? 1 : -1 });
+    }
+
+    // Obtener el total de productos sin aplicar paginación
+    const totalProductos = await Product.countDocuments(filter);
+
+    // Obtener los resultados de la consulta paginados y limitados según los parámetros
+    const offset = (page - 1) * limit;
+    const resultados = await queryBuilder.skip(offset).limit(limit);
+
+    // Calcular la información relacionada con la paginación
+    const totalPages = Math.ceil(totalProductos / limit);
+    const hasPrevPage = page > 1;
+    const hasNextPage = page < totalPages;
+    const prevPage = hasPrevPage ? page - 1 : null;
+    const nextPage = hasNextPage ? page + 1 : null;
+    const prevLink = hasPrevPage ? `/productos?page=${prevPage}&limit=${limit}` : null;
+    const nextLink = hasNextPage ? `/productos?page=${nextPage}&limit=${limit}` : null;
+
+    // Construir el objeto de respuesta
+    const response = {
+      status: 'success',
+      payload: resultados,
+      totalPages: totalPages,
+      prevPage: prevPage,
+      nextPage: nextPage,
+      page: page,
+      hasPrevPage: hasPrevPage,
+      hasNextPage: hasNextPage,
+      prevLink: prevLink,
+      nextLink: nextLink,
+    };
+
+    // Devolver los resultados como respuesta en formato JSON
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
 });
 
 router.get('/cart', (req, res) => {
