@@ -2,12 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const User = require('./dao/models/userSchema');
+const { User } = require('./dao/models/userSchema');
 
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ correo_electronico: email });
+
 
     if (!user) {
       return res.status(401).json({ message: 'Usuario no encontrado' });

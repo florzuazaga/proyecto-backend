@@ -3,12 +3,12 @@
 const express = require('express');
 const router = express.Router();
 const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers/productsController');
-const Product = require('../models/productSchema');
+const Product = require('../dao/models/productSchema');
 
 // Importa el objeto io para emitir eventos
 const { io } = require('../managers/socketManager');
 
-app.get('/productos', async (req, res) => {
+router.get('/productos', async (req, res) => {
   try {
     // Obtener los parámetros de la consulta (query params)
     const limit = parseInt(req.query.limit) || 10;
@@ -31,7 +31,8 @@ app.get('/productos', async (req, res) => {
     }
 
     // Obtener el total de productos sin aplicar paginación
-    const totalProductos = await Product.countDocuments(filter);
+const totalProductos = await Product.find(filter).countDocuments();
+
 
     // Obtener los resultados de la consulta paginados y limitados según los parámetros
     const offset = (page - 1) * limit;

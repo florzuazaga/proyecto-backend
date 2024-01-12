@@ -14,6 +14,10 @@ const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
 const { paginateUsers } = require('./queries/userQueries');
 
+
+// Conecta a la base de datos antes de iniciar el servidor
+connectToDatabase();
+
 // Configuración de dotenv
 require('dotenv').config();
 
