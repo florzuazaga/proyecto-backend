@@ -23,8 +23,8 @@ router.post('/register', async (req, res) => {
       }
   
       // Resto del código para registrar el usuario
-      const { nombre, apellido, correo_electronico, contraseña } = req.body;
-      const newUser = new User({ nombre, apellido, correo_electronico, contraseña });
+      const { nombre, apellido, email, contraseña } = req.body;
+      const newUser = new User({ nombre, apellido, email, contraseña });
       await newUser.save();
   
       res.status(200).send('Registro exitoso');

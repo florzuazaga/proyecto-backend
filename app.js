@@ -85,15 +85,15 @@ app.use('/auth/login', loginController);
 
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
-  const { nombre, apellido, correo_electronico, contraseña } = req.body;
+  const { nombre, apellido, email, contraseña } = req.body;
 
   try {
-    const existingUser = await User.findOne({ correo_electronico });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).send('El usuario ya existe');
     }
 
-    const newUser = await User.create({ nombre, apellido, correo_electronico, contraseña });
+    const newUser = await User.create({ nombre, apellido,email, contraseña });
 
     res.redirect('/auth/login');
   } catch (error) {

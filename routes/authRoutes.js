@@ -12,8 +12,8 @@ router.get('/login', (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { correo_electronico, contraseña } = req.body;
-    const authResult = await authenticateUser(correo_electronico, contraseña);
+    const { email, contraseña } = req.body;
+    const authResult = await authenticateUser(email, contraseña);
 
     if (!authResult.success) {
       return res.status(401).json({ message: authResult.message });
@@ -44,22 +44,22 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { nombre, apellido, correo_electronico, edad, contraseña,  username } = req.body;
+    const { nombre, apellido, email, edad, contraseña,  username } = req.body;
     // Agrega registros de información para depurar
-    console.log('Datos recibidos:', { nombre, apellido, correo_electronico, edad, contraseña, username });
+    console.log('Datos recibidos:', { nombre, apellido, email, edad, contraseña, username });
     // Validar que el campo username esté definido y no sea nulo o vacío
-    if (!username || !correo_electronico) {
+    if (!username || !email) {
       return res.status(400).json({ message: 'Los campos username y correo electronico  son obligatorios.' });
     }
        // Validar si ya existe un usuario con el mismo correo electrónico
-       const existingUser = await User.findOne({ correo_electronico });
+       const existingUser = await User.findOne({ email });
        if (existingUser) {
          return res.status(400).json({ message: 'Ya existe un usuario con este correo electrónico.' });
        }
     const newUser = await User.create({
       nombre,
       apellido,
-      correo_electronico,
+      email,
       edad,
       contraseña,
       username,
