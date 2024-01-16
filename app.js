@@ -83,6 +83,13 @@ const loginController = require('./config/login');
 // Ruta para mostrar el formulario de inicio de sesión
 app.use('/auth/login', loginController);
 
+app.post('/auth/login', passport.authenticate('local', {
+  successRedirect: '/dashboard',
+  failureRedirect: '/auth/login',
+  failureFlash: true  // Habilita los mensajes flash en caso de fallo de autenticación (si estás utilizando connect-flash)
+}));
+
+
 // Ruta para registro de usuarios
 app.post('/auth/register', async (req, res) => {
   const { nombre, apellido, email, contraseña } = req.body;

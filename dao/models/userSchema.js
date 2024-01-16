@@ -68,6 +68,12 @@ userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.contraseña);
 };
 
+// Método para comparar contraseñas
+userSchema.methods.validPassword = function(password) {
+  return bcrypt.compareSync(password, this.contraseña);
+};
+
+
 // Exporta el modelo
 const User = mongoose.model('User', userSchema, 'users');
 
