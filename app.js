@@ -2,6 +2,7 @@
 
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const passport = require('passport');
 const exphbs = require('express-handlebars');
 const path = require('path');
@@ -39,7 +40,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false },
-  store: new (require('session-file-store')(session))({
+  store: new FileStore({
     path: path.join(__dirname, '/sessions'),
   }),
 }));

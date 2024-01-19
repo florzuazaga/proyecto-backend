@@ -45,7 +45,7 @@ async function findOrCreateUserByGitHub(profile) {
     user = new User({
       githubId: profile.id,
       username: profile.username,
-      // ... otros campos según sea necesario
+      
     });
     await user.save();
   }
