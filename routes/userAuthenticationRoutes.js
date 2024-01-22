@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { User } = require('./dao/models/userSchema');
+const { User } = require('../dao/models/userSchema');
 
 router.post('/login', async (req, res) => {
   try {
