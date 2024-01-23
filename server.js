@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const mongoose = require('mongoose');
 const { app } = require('./app');
-const { initializeSocket } = require('./manager/socketManager');
+const { initializeSocket } = require('./services/socketManager');
 const { Server } = require('socket.io');
 const dotenv = require('dotenv');
 

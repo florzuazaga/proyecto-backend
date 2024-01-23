@@ -6,7 +6,7 @@ const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers
 const Product = require('../dao/models/productSchema');
 
 // Importa el objeto io para emitir eventos
-const { io } = require('../managers/socketManager');
+const { io } = require('../services/socketManager');
 
 router.get('/productos', async (req, res) => {
   try {

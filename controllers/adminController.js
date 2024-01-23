@@ -1,16 +1,17 @@
 // adminController.js
 
 const User = require('../dao/models/userSchema');
+
 // Función para el dashboard de administrador
 function adminDashboard(req, res) {
     res.render('admin-dashboard'); // Renderizar la vista del dashboard de administrador
-  }
+}
 
-  // Función para la gestión de usuarios
+// Función para la gestión de usuarios
 function manageUsers(req, res) {
     res.render('manage-users'); // Renderizar la vista para gestionar usuarios
-  }
-  
+}
+
 // Función para obtener todos los usuarios
 async function getAllUsers(req, res) {
   try {
@@ -41,8 +42,9 @@ async function updateUserRole(req, res) {
 }
 
 module.exports = {
-    adminDashboard,
-    manageUsers,
-    getAllUsers,
+  adminDashboard,
+  manageUsers,
+  getAllUsers,
   updateUserRole,
 };
+

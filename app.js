@@ -7,13 +7,13 @@ const passport = require('passport');
 const exphbs = require('express-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const { connectToDatabase } = require('./config/databaseConfig');
+const { connectToDatabase } = require('./services/databaseConfig');
 const productsRoutes = require('./routes/productsRoutes');
 const userAuthenticationRoutes = require('./routes/userAuthenticationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
-const { paginateUsers } = require('./queries/userQueries');
+const { paginateUsers } = require('./Repositories/userQueries');
 
 
 // Conecta a la base de datos antes de iniciar el servidor
@@ -24,7 +24,7 @@ require('dotenv').config();
 
 // Inicialización de Passport
 require('./controllers/authController');
-const passportConfig = require('./config/passport');
+const passportConfig = require('./services/passport');
 
 // Configuración de express
 const app = express();
@@ -55,7 +55,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configuración de Handlebars
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', [path.join(__dirname, 'routes', 'views'), path.join(__dirname, 'layouts')]);
+
+
 
 // Rutas
 app.use('/auth', userAuthenticationRoutes);
@@ -79,7 +81,7 @@ app.get(
 );
 
 // Importación de login para manejar la ruta '/auth/login'
-const loginController = require('./config/login');
+const loginController = require('./services/login');
 
 // Ruta para mostrar el formulario de inicio de sesión
 app.use('/auth/login', loginController);
@@ -135,7 +137,7 @@ const server = app.listen(MAIN_PORT, () => {
 });
 
 // Inicializar Socket.io
-const { initializeSocket } = require('./managers/socketManager');
+const { initializeSocket } = require('./services/socketManager');
 initializeSocket(server);
 
 // Ejecutar consultas al iniciar la aplicación

@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const { User } = require('../dao/models/userSchema'); // Modelo de usuario definido en models.js
-const { store } = require('./db'); // El store para las sesiones MongoDB
+const { store } = require('./mongo'); // El store para las sesiones MongoDB
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 // userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { paginateUsers, searchUsers } = require('../queries/userQueries');
+const { paginateUsers, searchUsers } = require('../Repositories/userQueries');
 
 router.get('/paginate', async (req, res) => {
   try {

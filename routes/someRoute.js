@@ -1,6 +1,6 @@
 // someRoute.js
 const express = require('express');
-const dataCache = require('../utils/dataCacheSingleton');
+const dataCache = require('../services/dataCacheSingleton');
 
 const router = express.Router();
 
