@@ -40,8 +40,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Utiliza el controlador del ticket
-app.use(ticketController);
+
+// Utiliza la función generateTicket del controlador del ticket
+app.use(ticketController.generateTicket);
+
+
 
 // Configuración de express-session
 app.use(session({
