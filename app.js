@@ -18,6 +18,9 @@ const userDao = require('./dao/models/userDao');
 const multer = require('multer');
 const fileDao = require('./dao/models/fileDao');
 
+//Importa controlador de compra
+const cartsController = require('./controllers/cartsController');
+
 // Importa el controlador del ticket
 const ticketController = require('./controllers/ticket_controller');
 
@@ -174,6 +177,10 @@ app.post('/auth/register', async (req, res) => {
 app.get('/', (req, res) => {
   res.send('¡Bienvenido a la página de inicio!');
 });
+
+// Ruta para realizar compras
+app.post('/purchase/:cid', cartsController.purchaseFromCart);
+
 
 // Ruta para cualquier otro caso (manejo de 404)
 app.use((req, res) => {

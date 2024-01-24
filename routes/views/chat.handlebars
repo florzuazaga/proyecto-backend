@@ -27,7 +27,7 @@
     $('#chat-form').submit((e) => {
       e.preventDefault();
       const message = $('#message').val();
-      socket.emit('send-message', { user: 'Nombre de usuario', message }); // Cambia 'Nombre de usuario' por el nombre del usuario actual
+      socket.emit('send-message', { user: 'Nombre de usuario', message }); 
       $('#message').val('');
     });
   </script>

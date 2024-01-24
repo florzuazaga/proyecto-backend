@@ -1,10 +1,13 @@
 // cartController.js
+const fs = require('fs');
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
-const Ticket = require('../dao/models/ticketSchema');
+const Ticket = require('../dao/models/ticketModel');
 
 // Realizar la compra desde el carrito
 exports.purchaseFromCart = async (req, res) => {
+  let newTicket; // Declarar newTicket fuera del bloque try
+
   try {
     const cartId = req.params.cid;
 
@@ -36,20 +39,40 @@ exports.purchaseFromCart = async (req, res) => {
         price: product.price,
       })),
       totalPrice,
-      user: req.user._id, 
+      user: req.user._id,
       date: new Date(),
     };
 
-    const newTicket = await Ticket.create(ticketData);
+    // Agregar la información de compra al archivo purchaseData.json
+    const purchaseDataPath = '../files/purchaseData.json';
+    let existingPurchaseData = [];
 
-    // Limpiar el carrito después de la compra 
+    try {
+      existingPurchaseData = JSON.parse(fs.readFileSync(purchaseDataPath));
+    } catch (error) {
+      // Si el archivo no existe o hay un error al leerlo, continúa con un array vacío
+    }
+
+    existingPurchaseData.push(ticketData);
+
+    // Escribe el nuevo contenido en el archivo purchaseData.json
+    fs.writeFileSync(purchaseDataPath, JSON.stringify(existingPurchaseData, null, 2));
+
+    // Limpiar el carrito después de la compra
     await Cart.findByIdAndUpdate(cartId, { products: [] });
 
-    res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
+    // Crear el nuevo ticket después de limpiar el carrito
+    newTicket = await Ticket.create(ticketData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+    return res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  } finally {
+    // Devuelve la respuesta con el ticket
+    if (newTicket) {
+      return res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
+    }
   }
 };
+
 
 
