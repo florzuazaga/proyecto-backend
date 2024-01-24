@@ -14,7 +14,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
 const { paginateUsers } = require('./Repositories/userQueries');
-
+const userDao = require('./dao/models/userDao');
 
 // Conecta a la base de datos antes de iniciar el servidor
 connectToDatabase();
@@ -57,7 +57,30 @@ app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
 app.set('views', [path.join(__dirname, 'routes', 'views'), path.join(__dirname, 'layouts')]);
 
-
+// Buscar documentos con username: null antes de la operación de inserción
+const UserModel = require('./dao/models/userSchema').User;
+UserModel.find({ username: null })
+  .then(usersWithNullUsername => {
+    if (usersWithNullUsername.length > 0) {
+      console.log('Documentos con username: null encontrados:', usersWithNullUsername);
+      // Puedes decidir cómo manejar estos documentos si es necesario
+    } else {
+      console.log('No se encontraron documentos con username: null. Continuando con la inserción.');
+      
+      // Aquí puedes realizar la operación de inserción sin problemas
+      userDao.createUser('john_doe', 'Doe', 'john@example.com', 'hashedPassword', 'john_username')
+        .then(newUser => {
+          console.log('Nuevo usuario creado:', newUser);
+        })
+        .catch(error => {
+          console.error('Error al crear usuario:', error);
+        });
+    }
+  })
+  .catch(err => {
+    console.error('Error al buscar documentos con username: null:', err);
+    // Puedes decidir cómo manejar el error si es necesario
+  });
 
 // Rutas
 app.use('/auth', userAuthenticationRoutes);

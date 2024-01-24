@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
   },
   username: {
     type: String, 
-    required: true,
+    sparse: true,
     unique: true,
   },
 }, { timestamps: true });
@@ -77,7 +77,7 @@ userSchema.methods.validPassword = function(password) {
 // Exporta el modelo
 const User = mongoose.model('User', userSchema, 'users');
 
-module.exports = { User };
+module.exports = {  User: User };
 
 
 

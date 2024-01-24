@@ -29,6 +29,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+
 router.get('/register', (req, res) => {
   res.render('../routes/views/register');
 });
