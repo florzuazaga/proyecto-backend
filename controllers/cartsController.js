@@ -1,64 +1,55 @@
 // cartController.js
 const Cart = require('../dao/models/cartSchema');
-const Product = require('../dao/models/productSchema'); 
+const Product = require('../dao/models/productSchema');
+const Ticket = require('../dao/models/ticketSchema');
 
-// Eliminar un producto específico del carrito
-exports.deleteProductFromCart = async (req, res) => {
-  try {
-    const cartId = req.params.cid;
-    const productId = req.params.pid;
-
-    await Cart.findByIdAndUpdate(cartId, { $pull: { products: productId } });
-
-    res.json({ status: 'success', message: 'Producto eliminado del carrito exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
-  }
-};
-
-// Actualizar todo el carrito con un nuevo arreglo de productos
-exports.updateCart = async (req, res) => {
-  try {
-    const cartId = req.params.cid;
-    const newProducts = req.body.products;
-
-    await Cart.findByIdAndUpdate(cartId, { products: newProducts });
-
-    res.json({ status: 'success', message: 'Carrito actualizado exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
-  }
-};
-
-// Actualizar la cantidad de ejemplares de un producto en el carrito
-exports.updateProductQuantity = async (req, res) => {
-  try {
-    const cartId = req.params.cid;
-    const productId = req.params.pid;
-    const newQuantity = req.body.quantity;
-
-    await Cart.findOneAndUpdate({ _id: cartId, 'products._id': productId }, { $set: { 'products.$.quantity': newQuantity } });
-
-    res.json({ status: 'success', message: 'Cantidad de producto en el carrito actualizada exitosamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
-  }
-};
-
-// Eliminar todos los productos del carrito
-exports.clearCart = async (req, res) => {
+// Realizar la compra desde el carrito
+exports.purchaseFromCart = async (req, res) => {
   try {
     const cartId = req.params.cid;
 
+    // Obtener los productos actuales en el carrito
+    const cart = await Cart.findById(cartId).populate('products');
+
+    // Verificar el stock antes de realizar la compra
+    const outOfStockProducts = cart.products.filter(product => product.stock <= 0);
+    if (outOfStockProducts.length > 0) {
+      return res.status(400).json({ status: 'error', error: 'Algunos productos ya no están en stock' });
+    }
+
+    // Actualizar el inventario y generar un ticket
+    const updatedProducts = await Promise.all(cart.products.map(async (product) => {
+      // Actualizar el inventario del producto
+      product.stock -= 1;
+      await product.save();
+
+      // Devolver el producto actualizado
+      return product;
+    }));
+
+    // Generar un ticket con la información de la compra
+    const totalPrice = updatedProducts.reduce((total, product) => total + product.price, 0);
+    const ticketData = {
+      products: updatedProducts.map(product => ({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+      })),
+      totalPrice,
+      user: req.user._id, 
+      date: new Date(),
+    };
+
+    const newTicket = await Ticket.create(ticketData);
+
+    // Limpiar el carrito después de la compra 
     await Cart.findByIdAndUpdate(cartId, { products: [] });
 
-    res.json({ status: 'success', message: 'Todos los productos del carrito eliminados exitosamente' });
+    res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 };
+
 

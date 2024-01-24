@@ -15,6 +15,11 @@ const User = require('./dao/models/userSchema');
 const authRoutes = require('./routes/authRoutes');
 const { paginateUsers } = require('./Repositories/userQueries');
 const userDao = require('./dao/models/userDao');
+const multer = require('multer');
+const fileDao = require('./dao/models/fileDao');
+
+// Importa el controlador del ticket
+const ticketController = require('./controllers/ticket_controller');
 
 // Conecta a la base de datos antes de iniciar el servidor
 connectToDatabase();
@@ -28,11 +33,14 @@ const passportConfig = require('./services/passport');
 
 // Configuración de express
 const app = express();
-
+const upload = multer(); 
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Utiliza el controlador del ticket
+app.use(ticketController);
 
 // Configuración de express-session
 app.use(session({
@@ -87,6 +95,27 @@ app.use('/auth', userAuthenticationRoutes);
 app.use('/auth', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/products', productsRoutes);
+
+// Ruta para manejar la descarga de archivos por ID
+app.get('/download/:fileId', async (req, res) => {
+  try {
+    const fileId = req.params.fileId;
+
+    // Usa el DAO de archivos para obtener la información del archivo por su ID
+    const file = await fileDao.getFileById(fileId);
+
+    if (file) {
+      // Si el archivo existe, envíalo como respuesta
+      res.download(file.path, file.originalName);
+    } else {
+      // Archivo no encontrado
+      res.status(404).json({ error: 'Archivo no encontrado' });
+    }
+  } catch (error) {
+    console.error('Error al descargar el archivo:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
 
 // Rutas de autenticación con Passport
 app.use('/auth', userAuthenticationRoutes);
