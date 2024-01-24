@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Iniciar Sesión</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
 </head>
 <body>
   <h1>Iniciar Sesión</h1>
@@ -15,7 +16,7 @@
     
     <input type="submit" value="Iniciar Sesión">
   </form>
-  <title>Registro</title>
+  
   <h2>Registro</h2>
   <form action="/register" method="POST">
     <label for="username">Nombre de usuario:</label>
@@ -26,31 +27,33 @@
     
     <input type="submit" value="Registrarse">
   </form>
-  <!-- Botón de logout -->
-<button id="logoutButton">Logout</button>
-</body>
-<script>
-  // Manejar clic en el botón de logout
-  document.getElementById('logoutButton').addEventListener('click', async () => {
-    try {
-      // Realizar una solicitud POST para cerrar sesión
-      const response = await fetch('/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
 
-      if (response.ok) {
-        // Redirigir a la vista de inicio de sesión después de cerrar sesión correctamente
-        window.location.href = '/login';
-      } else {
-        // Manejar el caso si hay un error al cerrar sesión
-        console.error('Error al cerrar sesión');
+  <!-- Botón de logout -->
+  <button id="logoutButton">Logout</button>
+
+  <script>
+    // Manejar clic en el botón de logout
+    document.getElementById('logoutButton').addEventListener('click', async () => {
+      try {
+        // Realizar una solicitud POST para cerrar sesión
+        const response = await fetch('/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // Redirigir a la vista de inicio de sesión después de cerrar sesión correctamente
+          window.location.href = '/login';
+        } else {
+          // Manejar el caso si hay un error al cerrar sesión
+          console.error('Error al cerrar sesión');
+        }
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
       }
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  });
-</script>
+    });
+  </script>
+</body>
 </html>

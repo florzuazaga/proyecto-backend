@@ -13,7 +13,13 @@ async function obtenerProductos(req, res) {
 
 async function agregarProducto(req, res) {
   try {
-    const nuevoProducto = req.body; // Suponiendo que los datos del nuevo producto están en el cuerpo de la solicitud
+    const nuevoProducto = req.body;
+    
+    // Validar datos del nuevo producto
+    if (!nuevoProducto || !nuevoProducto.nombre || !nuevoProducto.precio) {
+      return res.status(400).json({ status: 'error', error: 'Datos del producto incompletos o inválidos' });
+    }
+
     const producto = new Product(nuevoProducto);
     await producto.save();
     res.json({ status: 'success', message: 'Producto agregado exitosamente' });
@@ -25,7 +31,13 @@ async function agregarProducto(req, res) {
 
 async function eliminarProducto(req, res) {
   try {
-    const productId = req.params.id; // Suponiendo que el ID del producto está en los parámetros de la solicitud
+    const productId = req.params.id;
+    
+    // Validar formato del ID
+    if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ status: 'error', error: 'ID de producto inválido' });
+    }
+
     const producto = await Product.findByIdAndRemove(productId);
     
     if (producto) {
@@ -39,13 +51,12 @@ async function eliminarProducto(req, res) {
   }
 }
 
-
-
 module.exports = {
   obtenerProductos,
   agregarProducto,
   eliminarProducto,
 };
+
 
 
   
