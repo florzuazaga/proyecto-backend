@@ -33,7 +33,8 @@ const passportConfig = require('./services/passport');
 
 // Configuración de express
 const app = express();
-const upload = multer(); 
+const upload = multer();
+ 
 // Middleware
 app.use(cookieParser());
 app.use(express.json());
@@ -87,8 +88,10 @@ UserModel.find({ username: null })
   })
   .catch(err => {
     console.error('Error al buscar documentos con username: null:', err);
-    // Puedes decidir cómo manejar el error si es necesario
+    
   });
+
+  
 
 // Rutas
 app.use('/auth', userAuthenticationRoutes);
