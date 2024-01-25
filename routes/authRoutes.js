@@ -6,6 +6,7 @@ const { authenticateUser } = require('./userAuthenticationRoutes');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 
+// Ruta para mostrar el formulario de inicio de sesión
 router.get('/login', (req, res) => {
   res.render('login');
 });
@@ -13,6 +14,7 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, contraseña } = req.body;
+    console.log('req.body:', req.body);
     const authResult = await authenticateUser(email, contraseña);
 
     if (!authResult.success) {
@@ -38,6 +40,7 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { nombre, apellido, email, edad, contraseña, username } = req.body;
+    console.log('req.body:', req.body);
 
     if (!username || !email || !contraseña) {
       console.error('Campos obligatorios faltantes'); // Agrega este console.log

@@ -6,7 +6,7 @@ const Ticket = require('../dao/models/ticketModel');
 
 // Realizar la compra desde el carrito
 exports.purchaseFromCart = async (req, res) => {
-  let newTicket; // Declarar newTicket fuera del bloque try
+  let newTicket;
 
   try {
     const cartId = req.params.cid;
@@ -20,6 +20,13 @@ exports.purchaseFromCart = async (req, res) => {
       return res.status(400).json({ status: 'error', error: 'Algunos productos ya no están en stock' });
     }
 
+    // Validar los datos del cliente
+    const { products, totalPrice, user, date } = req.body;
+
+    if (!Array.isArray(products) || !totalPrice || !user || !date) {
+      return res.status(400).json({ status: 'error', error: 'Datos de compra incompletos o en formato incorrecto' });
+    }
+
     // Actualizar el inventario y generar un ticket
     const updatedProducts = await Promise.all(cart.products.map(async (product) => {
       // Actualizar el inventario del producto
@@ -31,7 +38,6 @@ exports.purchaseFromCart = async (req, res) => {
     }));
 
     // Generar un ticket con la información de la compra
-    const totalPrice = updatedProducts.reduce((total, product) => total + product.price, 0);
     const ticketData = {
       products: updatedProducts.map(product => ({
         productId: product._id,
@@ -39,8 +45,8 @@ exports.purchaseFromCart = async (req, res) => {
         price: product.price,
       })),
       totalPrice,
-      user: req.user._id,
-      date: new Date(),
+      user,
+      date,
     };
 
     // Agregar la información de compra al archivo purchaseData.json
@@ -67,12 +73,12 @@ exports.purchaseFromCart = async (req, res) => {
     console.error(error);
     return res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   } finally {
-    // Devuelve la respuesta con el ticket
     if (newTicket) {
       return res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
     }
   }
 };
+
 
 
 
