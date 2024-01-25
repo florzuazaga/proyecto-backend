@@ -88,26 +88,8 @@ UserModel.find({ username: null })
 // Rutas
 app.use('/auth', userAuthenticationRoutes);
 
-
-
-// Ruta para registro de usuarios
-app.post('/auth/register', async (req, res) => {
-  const { nombre, apellido, email, contraseña } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).send('El usuario ya existe');
-    }
-
-    const newUser = await User.create({ nombre, apellido, email, contraseña });
-
-    res.redirect('/auth/login');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error al registrar el usuario');
-  }
-});
+// Utiliza las rutas definidas en authRoutes.js
+app.use('/auth', authRoutes);
 
 // Rutas adicionales
 app.use('/admin', adminRoutes);
