@@ -1,13 +1,14 @@
 // productService.js
-const productFactory = require('../dao/models/productFactory');
+
+const Product = require('../dao/models/productSchema');
 
 class ProductService {
   getAllProducts() {
-    return productFactory.getAllProducts();
+    return Product.find({});
   }
 
   getProductById(productId) {
-    return productFactory.getProductById(productId);
+    return Product.findById(productId);
   }
 }
 

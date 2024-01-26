@@ -1,21 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Carrito</title>
-  <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
-</head>
-<body>
-  <h1>Carrito de Compras</h1>
+<form method="POST" action="/purchase/:cid">
+  <!-- Campos para los detalles de la compra -->
   {{#each cartProducts}}
-    <div>
-      <h2>{{name}}</h2>
-      <p>Precio: {{price}}</p>
-      <p>Cantidad: {{quantity}}</p>
-      <p>Categoría: {{category}}</p>
-    </div>
+    <input type="hidden" name="products[]" value="{{productId}}">
+    <input type="hidden" name="quantity[]" value="{{quantity}}">
+    
   {{/each}}
-  <script src="/js/cart.js"></script> <!-- Enlace al archivo JavaScript del carrito -->
-</body>
-</html>
+
+  <input type="hidden" name="totalPrice" value="{{totalPrice}}">
+  <input type="hidden" name="user" value="{{userId}}">
+  <input type="hidden" name="date" value="{{purchaseDate}}">
+
+  <button type="submit">Realizar Compra</button>
+</form>
+
+
 

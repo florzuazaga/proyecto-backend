@@ -20,15 +20,18 @@ exports.purchaseFromCart = async (req, res) => {
       return res.status(400).json({ status: 'error', error: 'Algunos productos ya no están en stock' });
     }
 
-  // Verificar si la solicitud está relacionada con la compra del carrito
-if (req.path === '/purchase/:cid') {
-  // Validar los datos del cliente
-  const { products, totalPrice, user, date } = req.body;
+    // Log para verificar los datos recibidos en la solicitud
+    console.log('Contenido de req.body:', req.body);
 
-  if (!Array.isArray(products) || !totalPrice || !user || !date) {
-    return res.status(400).json({ status: 'error', error: 'Datos de compra incompletos o en formato incorrecto' });
-  }
-}
+    // Verificar si la solicitud está relacionada con la compra del carrito
+    if (req.path === '/purchase/:cid') {
+      // Validar los datos del cliente
+      const { products, totalPrice, user, date } = req.body;
+
+      if (!Array.isArray(products) || !totalPrice || !user || !date) {
+        return res.status(400).json({ status: 'error', error: 'Datos de compra incompletos o en formato incorrecto' });
+      }
+    }
 
     // Actualizar el inventario y generar un ticket
     const updatedProducts = await Promise.all(cart.products.map(async (product) => {

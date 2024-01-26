@@ -73,18 +73,26 @@ router.get('/cart', (req, res) => {
   const cartItems = obtenerProductosDelCarrito(); // Lógica para obtener los productos del carrito
   res.render('cart', { items: cartItems });
 });
-
-// Ruta para agregar un nuevo producto
-router.post('/productos', (req, res) => {
+// En la ruta para agregar un nuevo producto
+router.post('/productos', async (req, res) => {
   try {
-    // Lógica para agregar el nuevo producto
+    const nuevoProducto = req.body;
+    
+    // Validar datos del nuevo producto
+    if (!nuevoProducto || !nuevoProducto.title || !nuevoProducto.price) {
+      return res.status(400).json({ status: 'error', error: 'Datos del producto incompletos o inválidos' });
+    }
 
+    const producto = new Product(nuevoProducto);
+    await producto.save();
+    
     // Emite el evento 'new-product' con los datos del nuevo producto
-    io.emit('new-product', nuevoProducto);
+    io.emit('new-product', producto);
 
-    res.status(201).json(nuevoProducto);
+    res.json({ status: 'success', message: 'Producto agregado exitosamente' });
   } catch (error) {
-    res.status(400).json({ error: 'Error al crear el producto' });
+    console.error('Error al agregar producto:', error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 });
 

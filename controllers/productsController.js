@@ -38,9 +38,12 @@ async function eliminarProducto(req, res) {
       return res.status(400).json({ status: 'error', error: 'ID de producto inválido' });
     }
 
-    const producto = await Product.findByIdAndRemove(productId);
+    // Cambia Product.findByIdAndRemove a Product.findByIdAndDelete
+    const producto = await Product.findByIdAndDelete(productId);
     
     if (producto) {
+      // Emitir el evento 'delete-product' después de confirmar la eliminación en la base de datos
+      io.emit('delete-product', productId);
       res.json({ status: 'success', message: 'Producto eliminado exitosamente' });
     } else {
       res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
