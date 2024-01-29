@@ -2,7 +2,6 @@
 
 const express = require('express');
 const router = express.Router();
-const { obtenerProductos, obtenerProductosDelCarrito } = require('../controllers/productsController');
 const Product = require('../dao/models/productSchema');
 
 // Importa el objeto io para emitir eventos
@@ -31,8 +30,7 @@ router.get('/productos', async (req, res) => {
     }
 
     // Obtener el total de productos sin aplicar paginación
-const totalProductos = await Product.find(filter).countDocuments();
-
+    const totalProductos = await Product.find(filter).countDocuments();
 
     // Obtener los resultados de la consulta paginados y limitados según los parámetros
     const offset = (page - 1) * limit;
@@ -70,22 +68,25 @@ const totalProductos = await Product.find(filter).countDocuments();
 });
 
 router.get('/cart', (req, res) => {
-  const cartItems = obtenerProductosDelCarrito(); // Lógica para obtener los productos del carrito
+  // Lógica para obtener los productos del carrito
+  const cartItems = obtenerProductosDelCarrito();
   res.render('cart', { items: cartItems });
 });
+
 // En la ruta para agregar un nuevo producto
 router.post('/productos', async (req, res) => {
   try {
     const nuevoProducto = req.body;
-    
+
     // Validar datos del nuevo producto
     if (!nuevoProducto || !nuevoProducto.title || !nuevoProducto.price) {
       return res.status(400).json({ status: 'error', error: 'Datos del producto incompletos o inválidos' });
     }
 
+    // Resto de la lógica para crear el producto
     const producto = new Product(nuevoProducto);
     await producto.save();
-    
+
     // Emite el evento 'new-product' con los datos del nuevo producto
     io.emit('new-product', producto);
 
@@ -109,6 +110,17 @@ router.delete('/productos/:pid', (req, res) => {
     res.json({ message: 'Producto eliminado exitosamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar el producto' });
+  }
+});
+
+// Endpoint para obtener 50 productos generados
+router.get('/mockingproducts', (req, res) => {
+  try {
+    const mockedProducts = generateMockedProducts(50); // Asume que tienes una función para generar productos aleatorios
+    res.json(mockedProducts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 });
 

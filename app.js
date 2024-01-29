@@ -20,7 +20,7 @@ const authRoutes = require('./routes/authRoutes');
 const passportConfig = require('./controllers/authController');
 const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
-const fileDao = require('./dao/models/fileDao');
+const fileDao = require('./services/fileDao');
 
 // Configuración de express
 const app = express();
