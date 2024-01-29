@@ -7,19 +7,16 @@ Permite a los usuarios ver el carrito de compras, registrarse y iniciar una sesi
 
 Explicación detallada de la estructura del proyecto:
 
-- **Config:**
-  - `databaseconfig.js`: Configuración de la base de datos.
-  - `jwtstrategy.js`: Estrategia de autenticación JWT.
-  - `login.js`: Configuración de inicio de sesión.
-  - `passport.js`: Configuración de Passport.
-
 
 - **Controladores:**
   - `adminControllers.js`: Controladores relacionados con la administración.
   - `authControllers.js`: Controladores relacionados con la autenticación.
   - `cartsControllers.js`:  Controladores relacionados con carritos.
   - `productsControllers.js`:  Controladores relacionados con productos.
-  
+  - `login.js`: Configuración de inicio de sesión.
+  - `ticket_controller.js`: maneja la generación de tickets para las compras realizadas en la aplicación
+  - `purchaseController.js`:maneja la funcionalidad de realizar compras desde el carrito de compras.
+
 
 - **DAO/Models:**
   - `cartSchema.js`: Esquema del carrito.
@@ -27,27 +24,32 @@ Explicación detallada de la estructura del proyecto:
   - `messageSchema.js`: Esquema de mensajes.
   - `productsSchema.js`:Esquema de productos.
   - `userSchema.js`:Esquema de usuario.
-  
+  - `ticketModel.js`:define la estructura del documento en la base de datos para representar un ticket de compra.
+  - `userDao.js`:contiene funciones que interactúan con la base de datos MongoDB para realizar operaciones relacionadas con los usuarios.
 
-- **DB:**
-  - `auth.js`: Lógica de autenticación.
-  - `db.js`: Archivo relacionado con la base de datos.
-  - `mongo.js`:  Configuración de MongoDB.
- 
+  
 
 - **Files:**
   - `carrito.json`: Archivo relacionado con carritos.
   - `productos.json`: Archivo relacionado con productos.
+  - `purchaseData.json`: Archivo que representa los datos de una compra en el sistema.
  
 
-- **Managers:**
+- **Services:**
+  - `adminMiddlewares.js`:  Middleware relacionado con la administración.
+  - `auth.js`: Lógica de autenticación.
   - `CartManager.js`: Gestor del carrito.
+  - `databaseconfig.js`: Configuración de la base de datos.
   - `ProductManager.js`: Gestor de productos.
   - `SocketManager.js`: Gestor de sockets.
+  - `db.js`: Archivo relacionado con la base de datos.
+  - `mongo.js`:  Configuración de MongoDB.
+  - `jwtstrategy.js`: Estrategia de autenticación JWT.
+  - `passport.js`: Configuración de Passport.
+  - `productFactory.js`: gestiona la carga y manipulación de datos de productos.
+  - `productService.js`:  interactua con la base de datos y proporcionar funcionalidades relacionadas con los productos.
+  - `fileDao.js`:interactuar con archivos en un sistema de archivos
 
-
-- **Middleware:**
-  - `adminMiddlewares.js`:  Middleware relacionado con la administración.
 
 
 - **node_modules:**
@@ -56,10 +58,11 @@ Explicación detallada de la estructura del proyecto:
 
 - **Public:**
   - `realtimeproducts.html`: Archivo HTML público.
-  - `style.css`:  Archivo de estilo CSS público.
+  - `cart.js`: maneja las interacciones del usuario relacionadas con un carrito de compras en el lado del cliente.
+  
 
 
-- **Queries:**
+- **Repositories:**
   - `userQueries.js`:Archivo de consultas relacionadas con usuarios.
 
 
@@ -68,11 +71,11 @@ Explicación detallada de la estructura del proyecto:
   - `authRoutes.js`: Rutas relacionadas con la autenticación.
   - `cartRoutes.js`:  Rutas relacionadas con carritos.
   - `productsRoutes.js`:Rutas relacionadas con productos.
-  - `registerRoutes.js`:Rutas relacionadas con el registro de usuarios.
   - `routes.js`: Archivo de configuración de rutas.
+  - `someRoute.js`: rutas para endpoints relacionados con la manipulación de datos en una caché.
   - `userRoutes.js`: Rutas relacionadas con usuarios.
   - `userAuthenticationRoutes.js`: rutas específicas relacionadas con la autenticación de usuarios en la aplicación.
-
+  - `ticketRoutes.js`: Rutas relacionadas con generación de tickets.
 
 - **Sessions:**  (esta carpeta no se sigue en GitHub ya que contiene información sensible).
 
@@ -90,11 +93,10 @@ Explicación detallada de la estructura del proyecto:
   - `home.handlebars`
   - `index.handlebars`
   - `login.handlebars`
+  - `login.html`
   - `realTimeProducts.handlebars`
   - `register.handlebars`
 
-- **Vistas:**
- - `login.html`:  Otra vista específica.
 
 
 - **Archivos de Configuración:**
