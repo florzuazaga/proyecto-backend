@@ -1,38 +1,37 @@
-// ticketController.js
+const { v4: uuidv4 } = require('uuid');
+const Ticket = require('../dao/models/ticketModel');
 
-const generateTicket = (req, res) => {
-    try {
-      // Obtén la información de la compra desde el cuerpo de la solicitud
-      const purchaseData = req.body;
-  
-      // Valida la presencia de datos esenciales en la solicitud
-      if (!purchaseData || !purchaseData.products || !purchaseData.totalPrice || !purchaseData.user || !purchaseData.date) {
-        return res.status(400).json({ error: 'Datos de compra incompletos' });
-      }
-  
-      // Simplemente devolvemos la información de la compra como un ticket (en este caso, como ejemplo)
-      const ticket = {
-        products: purchaseData.products,
-        totalPrice: purchaseData.totalPrice,
-        user: purchaseData.user,
-        date: purchaseData.date,
-        ticketId: generateTicketId(), // Puedes generar un ID para el ticket
-      };
-  
-      // Puedes enviar el ticket como respuesta
-      res.json(ticket);
-    } catch (error) {
-      console.error('Error al generar el ticket:', error);
-      res.status(500).json({ error: 'Error interno del servidor' });
+const generateTicketId = () => {
+  return uuidv4();
+};
+
+exports.generateTicket = async (req, res) => {
+  try {
+    const purchaseData = req.body;
+
+    if (!purchaseData || !purchaseData.products || !purchaseData.totalPrice || !purchaseData.user || !purchaseData.date) {
+      return res.status(400).json({ error: 'Datos de compra incompletos' });
     }
-  };
-  
-  // Función auxiliar para generar un ID de ticket 
-  const generateTicketId = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  };
-  
-  module.exports = {
-    generateTicket,
-  };
-  
+
+    // Lógica para generar un ID único para el ticket
+    const ticketId = generateTicketId();
+
+    // Lógica para almacenar el ticket en la base de datos
+    const ticketData = {
+      ticketId,
+      products: purchaseData.products,
+      totalPrice: purchaseData.totalPrice,
+      user: purchaseData.user,
+      date: purchaseData.date,
+    };
+
+    const newTicket = await Ticket.create(ticketData);
+
+    // Puedes enviar el ticket como respuesta
+    res.json(newTicket);
+  } catch (error) {
+    console.error('Error al generar el ticket:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+

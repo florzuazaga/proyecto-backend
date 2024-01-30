@@ -3,6 +3,7 @@ const fs = require('fs');
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
 const Ticket = require('../dao/models/ticketModel');
+const { validatePurchaseData } = require('../services/middleware');
 
 // Realizar la compra desde el carrito
 exports.purchaseFromCart = async (req, res) => {
@@ -22,16 +23,6 @@ exports.purchaseFromCart = async (req, res) => {
 
     // Log para verificar los datos recibidos en la solicitud
     console.log('Contenido de req.body:', req.body);
-
-    // Verificar si la solicitud está relacionada con la compra del carrito
-    if (req.path === '/purchase/:cid') {
-      // Validar los datos del cliente
-      const { products, totalPrice, user, date } = req.body;
-
-      if (!Array.isArray(products) || !totalPrice || !user || !date) {
-        return res.status(400).json({ status: 'error', error: 'Datos de compra incompletos o en formato incorrecto' });
-      }
-    }
 
     // Actualizar el inventario y generar un ticket
     const updatedProducts = await Promise.all(cart.products.map(async (product) => {
@@ -84,6 +75,8 @@ exports.purchaseFromCart = async (req, res) => {
     }
   }
 };
+
+
 
 
 

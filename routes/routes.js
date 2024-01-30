@@ -2,6 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../dao/models/productSchema'); 
+const cartController = require('../controllers/cartController');
+const { validatePurchaseData } = require('../services/middleware');
+
+router.post('/purchase/:cid', validatePurchaseData, cartController.purchaseFromCart);
 
 // Operaciones CRUD para productos
 router.get('/', async (req, res) => {

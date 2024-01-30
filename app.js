@@ -102,8 +102,43 @@ app.get('/auth/github/callback', passport.authenticate('github', { failureRedire
   res.redirect('/perfil');
 });
 
+
 // Ruta para realizar compras
-app.post('/purchase/:cid', ticketController.generateTicket, cartsController.purchaseFromCart);
+app.post('/purchase/:cid', (req, res, next) => {
+  try {
+    const cartId = req.params.cid;
+    const purchaseData = req.body;
+
+    // Pasa los datos de compra al controlador de carritos
+    req.purchaseData = purchaseData;
+
+    // Llama al siguiente middleware (cartsController.purchaseFromCart)
+    next();
+  } catch (error) {
+    console.error('Error al procesar la solicitud de compra:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Controlador para procesar la compra desde el carrito
+cartsController.purchaseFromCart = async (req, res) => {
+  try {
+    // Obtener los datos de compra del cuerpo de la solicitud
+    const purchaseData = req.purchaseData;
+
+    // Verificar si los datos de compra son válidos
+    if (!purchaseData || !purchaseData.products || purchaseData.products.length === 0) {
+      return res.status(400).json({ error: 'Datos de compra incompletos' });
+    }
+
+    res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+};
+
+
 
 // Ruta para manejar la descarga de archivos por ID
 app.get('/download/:fileId', async (req, res) => {
@@ -156,7 +191,7 @@ const server = app.listen(MAIN_PORT, () => {
   }
 })();
 
-module.exports = app;
+module.exports = app; 
 
 
 
