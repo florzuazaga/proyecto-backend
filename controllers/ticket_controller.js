@@ -1,37 +1,37 @@
-const { v4: uuidv4 } = require('uuid');
+// ticketController.js
+
 const Ticket = require('../dao/models/ticketModel');
+const { obtenerInformacionParaTicket } = require('../services/ticketService');
 
-const generateTicketId = () => {
-  return uuidv4();
-};
-
-exports.generateTicket = async (req, res) => {
+// Middleware para generar un ticket
+exports.generateTicket = async (req, res, next) => {
   try {
-    const purchaseData = req.body;
+    // Obtener la información necesaria para el ticket desde la base de datos
+    const ticketInfoFromDB = await obtenerInformacionParaTicket();
 
-    if (!purchaseData || !purchaseData.products || !purchaseData.totalPrice || !purchaseData.user || !purchaseData.date) {
-      return res.status(400).json({ error: 'Datos de compra incompletos' });
-    }
-
-    // Lógica para generar un ID único para el ticket
-    const ticketId = generateTicketId();
-
-    // Lógica para almacenar el ticket en la base de datos
+    // Crear el objeto de datos para el ticket
     const ticketData = {
-      ticketId,
-      products: purchaseData.products,
-      totalPrice: purchaseData.totalPrice,
-      user: purchaseData.user,
-      date: purchaseData.date,
+      products: ticketInfoFromDB.products,
+      totalPrice: ticketInfoFromDB.totalPrice,
+      user: ticketInfoFromDB.user,
+      date: new Date(), // Puedes ajustar esto según tus necesidades
     };
 
+    // Guardar el ticket en la base de datos
     const newTicket = await Ticket.create(ticketData);
 
-    // Puedes enviar el ticket como respuesta
-    res.json(newTicket);
+    // Añadir el ticket al objeto req para que esté disponible en las rutas subsiguientes
+    req.generatedTicket = newTicket;
+
+    // Continuar con la ejecución del siguiente middleware o ruta
+    next();
   } catch (error) {
     console.error('Error al generar el ticket:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 };
 
+module.exports = {
+  generateTicket,
+  // ... Otros controladores y middleware
+};

@@ -1,6 +1,28 @@
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
-const Ticket = require('../dao/models/ticketModel');
+
+const mongoose = require('mongoose');
+
+const ticketSchema = new mongoose.Schema({
+  products: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+      name: String,
+      price: Number,
+    },
+  ],
+  totalPrice: Number,
+  user: String, // Puedes ajustar el tipo según tus necesidades
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Ticket = mongoose.model('Ticket', ticketSchema);
 
 // Realizar la compra desde el carrito
 exports.purchaseFromCart = async (req, res) => {
@@ -56,11 +78,3 @@ exports.purchaseFromCart = async (req, res) => {
     return res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 };
-
-
-
-
-
-
-
-

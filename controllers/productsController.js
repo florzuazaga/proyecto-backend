@@ -1,7 +1,6 @@
-// productsController.js
 const Product = require('../dao/models/productSchema');
 
-async function obtenerProductos(req, res) {
+async function getAllProducts(req, res) {
   try {
     const productos = await Product.find();
     res.json(productos);
@@ -11,7 +10,7 @@ async function obtenerProductos(req, res) {
   }
 }
 
-async function agregarProducto(req, res) {
+async function addProduct(req, res) {
   try {
     const nuevoProducto = req.body;
 
@@ -30,7 +29,7 @@ async function agregarProducto(req, res) {
   }
 }
 
-async function eliminarProducto(req, res) {
+async function deleteProduct(req, res) {
   try {
     const productId = req.params.id;
 
@@ -39,7 +38,6 @@ async function eliminarProducto(req, res) {
       return res.status(400).json({ status: 'error', error: 'ID de producto inválido' });
     }
 
-    // Cambia Product.findByIdAndRemove a Product.findByIdAndDelete
     const producto = await Product.findByIdAndDelete(productId);
 
     if (producto) {
@@ -54,9 +52,7 @@ async function eliminarProducto(req, res) {
 }
 
 module.exports = {
-  obtenerProductos,
-  agregarProducto,
-  eliminarProducto,
+  getAllProducts,
+  addProduct,
+  deleteProduct,
 };
-
-  

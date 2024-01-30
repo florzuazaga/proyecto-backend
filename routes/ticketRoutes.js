@@ -27,4 +27,16 @@ router.post('/generate-ticket', async (req, res) => {
   }
 });
 
+// Ruta para obtener todos los tickets
+router.get('/api/tickets', async (req, res) => {
+  try {
+    const tickets = await Ticket.find();
+    res.json(tickets);
+  } catch (error) {
+    console.error('Error al obtener tickets:', error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+});
+
 module.exports = router;
+

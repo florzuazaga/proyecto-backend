@@ -11,7 +11,8 @@ const multer = require('multer');
 const { connectToDatabase } = require('./services/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/socketManager');
-const cartsController = require('./controllers/cartsController');
+const cartController = require('./controllers/cartsController');
+const productController = require('./controllers/productsController');
 const ticketController = require('./controllers/ticket_controller');
 const productsRoutes = require('./routes/productsRoutes');
 const userAuthenticationRoutes = require('./routes/userAuthenticationRoutes');
@@ -101,7 +102,14 @@ app.get('/auth/github/callback', passport.authenticate('github', { failureRedire
   // Manejar el éxito de la autenticación
   res.redirect('/perfil');
 });
-
+// Rutas para carritos
+app.post('/api/carts', cartController.createCart);
+app.get('/api/carts/:id', cartController.getCartById);
+// Rutas para productos
+app.get('/api/products', productController.getAllProducts);
+app.get('/api/products/:id', productController.getProductById);
+// Rutas para tickets
+app.get('/api/tickets', ticketController.getAllTickets);
 
 // Ruta para realizar compras
 app.post('/purchase/:cid', (req, res, next) => {

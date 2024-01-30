@@ -1,106 +1,60 @@
-//ProductManager.js
-const fs = require('fs');
-const Product = require('../dao/models/productSchema');
+// ProductManager.js
+const crudOperations = require('./crudOperations');
+
 
 class ProductManager {
-    constructor(filePath) {
-      this.filePath = filePath;
-    }
-   // Métodos para operar con la base de datos MongoDB
-   static async getAllProducts() {
+
+  async getProductsByCategory(category) {
     try {
-      const products = await Product.find({});
+      const products = await Product.find({ category });
       return products;
     } catch (error) {
-      throw new Error('Error al obtener los productos');
+      throw new Error(`Error al obtener productos por categoría: ${error.message}`);
     }
   }
 
-  static async getProductById(productId) {
+  async searchProducts(keyword) {
     try {
-      const product = await Product.findById(productId);
+      const regex = new RegExp(keyword, 'i'); // Hace que la búsqueda sea insensible a mayúsculas y minúsculas
+      const products = await Product.find({ $or: [{ name: regex }, { description: regex }] });
+      return products;
+    } catch (error) {
+      throw new Error(`Error al buscar productos: ${error.message}`);
+    }
+  }
+
+  async getProductsWithDiscount() {
+    try {
+      const products = await Product.find({ discount: { $gt: 0 } });
+      return products;
+    } catch (error) {
+      throw new Error(`Error al obtener productos con descuento: ${error.message}`);
+    }
+  }
+
+  async updateProductStock(productId, newStock) {
+    try {
+      const product = await Product.findByIdAndUpdate(productId, { $set: { stock: newStock } }, { new: true });
+      if (!product) {
+        throw new Error('Producto no encontrado');
+      }
       return product;
     } catch (error) {
-      throw new Error('Error al obtener el producto');
+      throw new Error(`Error al actualizar el stock del producto: ${error.message}`);
     }
   }
 
-  static async createProduct(productData) {
+  async getPopularProducts(limit) {
     try {
-      const newProduct = await Product.create(productData);
-      return newProduct;
-    } catch (error) {
-      throw new Error('Error al crear el producto');
-    }
-  }
-    readProductsFile() {
-      try {
-        const fileData = fs.readFileSync(this.filePath, 'utf-8');
-        return JSON.parse(fileData);
-      } catch (error) {
-        // Maneja el error de lectura del archivo, si el archivo no existe
-        return [];
-      }
-    }
-  
-    writeProductsFile(data) {
-      try {
-        fs.writeFileSync(this.filePath, JSON.stringify(data, null, 2), 'utf-8');
-      } catch (error) {
-        // Maneja el error de escritura del archivo, si no se puede escribir
-        throw new Error('Error al escribir en el archivo JSON');
-      }
-    }
-  
-    getProducts(limit = null) {
-      const products = this.readProductsFile();
-      if (limit) {
-        return products.slice(0, limit);
-      }
+      const products = await Product.find({}).sort({ popularity: -1 }).limit(limit);
       return products;
-    }
-  
-    getProductById(productId) {
-      const products = this.readProductsFile();
-      const product = products.find((p) => p.id == productId);
-      if (product) {
-        return product;
-      } else {
-        throw new Error('Product not found');
-      }
-    }
-  
-    addProduct(newProduct) {
-      const products = this.readProductsFile();
-      const newId = products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
-      newProduct.id = newId;
-      products.push(newProduct);
-      this.writeProductsFile(products);
-      return newProduct;
-    }
-  
-    updateProduct(productId, updatedFields) {
-      const products = this.readProductsFile();
-      const productIndex = products.findIndex((p) => p.id == productId);
-      if (productIndex !== -1) {
-        products[productIndex] = { ...products[productIndex], ...updatedFields };
-        this.writeProductsFile(products);
-        return products[productIndex];
-      } else {
-        throw new Error('Product not found');
-      }
-    }
-  
-    deleteProduct(productId) {
-      const products = this.readProductsFile();
-      const productIndex = products.findIndex((p) => p.id == productId);
-      if (productIndex !== -1) {
-        const deletedProduct = products.splice(productIndex, 1);
-        this.writeProductsFile(products);
-        return deletedProduct[0];
-      } else {
-        throw new Error('Product not found');
-      }
+    } catch (error) {
+      throw new Error(`Error al obtener los productos más populares: ${error.message}`);
     }
   }
+
+ 
+}
+
 module.exports = ProductManager;
+
