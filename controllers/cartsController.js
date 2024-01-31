@@ -2,8 +2,42 @@ const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
 const Ticket = require('../dao/models/ticketModel');
 
+const cartsController = {};
+const cartController = {};
+
+// Función para crear un nuevo carrito
+cartsController.createCart = async (req, res) => {
+  try {
+    // Puedes agregar lógica adicional aquí según tus requisitos
+    const newCart = await Cart.create(/* datos del nuevo carrito */);
+
+    res.json({ status: 'success', message: 'Carrito creado con éxito', cart: newCart });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+};
+// Función para obtener un carrito por su ID
+cartController.getCartById = async (req, res) => {
+  try {
+    const cartId = req.params.id;
+    
+    // Lógica para obtener el carrito por su ID desde la base de datos
+    const cart = await Cart.findById(cartId);
+
+    if (!cart) {
+      return res.status(404).json({ status: 'error', error: 'Carrito no encontrado' });
+    }
+
+    res.json({ status: 'success', cart });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+};
+
 // Realizar la compra desde el carrito
-exports.purchaseFromCart = async (req, res) => {
+const purchaseFromCart = async (req, res) => {
   try {
     const cartId = req.params.cid;
 
@@ -57,7 +91,7 @@ exports.purchaseFromCart = async (req, res) => {
   }
 };
 
-
+module.exports ={cartsController,cartController,purchaseFromCart} ;
 
 
 

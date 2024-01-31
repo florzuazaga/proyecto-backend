@@ -11,8 +11,7 @@ const multer = require('multer');
 const { connectToDatabase } = require('./services/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/socketManager');
-const cartController = require('./controllers/cartsController');
-const productController = require('./controllers/productsController');
+const { getAllProducts, addProduct, deleteProduct,} = require('./controllers/productsController');
 const ticketController = require('./controllers/ticket_controller');
 const productsRoutes = require('./routes/productsRoutes');
 const userAuthenticationRoutes = require('./routes/userAuthenticationRoutes');
@@ -22,6 +21,7 @@ const passportConfig = require('./controllers/authController');
 const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
 const fileDao = require('./services/fileDao');
+const { cartsController, cartController, purchaseFromCart } = require('./controllers/cartsController');
 
 // Configuración de express
 const app = express();
@@ -50,14 +50,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Utiliza la función generateTicket del controlador del ticket
+app.use(ticketController.generateTicket);
+
 
 // Configuración de Handlebars
 app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
-app.set('views', [path.join(__dirname, 'routes', 'views'), path.join(__dirname, 'layouts')]);
+app.set('views', [path.join(__dirname, 'views'), path.join(__dirname, 'layouts')]);
 
-// Utiliza la función generateTicket del controlador del ticket
-app.use(ticketController.generateTicket);
 
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
@@ -103,48 +104,17 @@ app.get('/auth/github/callback', passport.authenticate('github', { failureRedire
   res.redirect('/perfil');
 });
 // Rutas para carritos
-app.post('/api/carts', cartController.createCart);
+app.post('/api/carts', cartsController.createCart);
 app.get('/api/carts/:id', cartController.getCartById);
+app.post('/purchase/:cid', purchaseFromCart);
 // Rutas para productos
-app.get('/api/products', productController.getAllProducts);
-app.get('/api/products/:id', productController.getProductById);
+app.get('/api/products', getAllProducts);
+app.post('/api/products', addProduct);
+app.delete('/api/products/:id', deleteProduct);
 // Rutas para tickets
+app.post('/api/generate-ticket', ticketController.generateTicket);
 app.get('/api/tickets', ticketController.getAllTickets);
 
-// Ruta para realizar compras
-app.post('/purchase/:cid', (req, res, next) => {
-  try {
-    const cartId = req.params.cid;
-    const purchaseData = req.body;
-
-    // Pasa los datos de compra al controlador de carritos
-    req.purchaseData = purchaseData;
-
-    // Llama al siguiente middleware (cartsController.purchaseFromCart)
-    next();
-  } catch (error) {
-    console.error('Error al procesar la solicitud de compra:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Controlador para procesar la compra desde el carrito
-cartsController.purchaseFromCart = async (req, res) => {
-  try {
-    // Obtener los datos de compra del cuerpo de la solicitud
-    const purchaseData = req.purchaseData;
-
-    // Verificar si los datos de compra son válidos
-    if (!purchaseData || !purchaseData.products || purchaseData.products.length === 0) {
-      return res.status(400).json({ error: 'Datos de compra incompletos' });
-    }
-
-    res.json({ status: 'success', message: 'Compra realizada con éxito', ticket: newTicket });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
-  }
-};
 
 
 
