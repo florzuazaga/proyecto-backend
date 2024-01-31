@@ -25,7 +25,11 @@ class ProductFactory {
   }
 
   getAllProducts() {
-    return this.products.slice(0, 50);
+    console.log('Llamada a getAllProducts');
+    // Limita la respuesta a 50 productos
+    const limitedProducts = this.products.slice(0, 50);
+    console.log('Número de productos después de limitar:', limitedProducts.length);
+    return limitedProducts;
   }
 }
 

@@ -2,7 +2,8 @@ const Product = require('../dao/models/productSchema');
 
 async function getAllProducts(req, res) {
   try {
-    const productos = await Product.find();
+    const limit = 50; // Límite de productos
+    const productos = await Product.find().limit(limit);
     res.json(productos);
   } catch (error) {
     console.error('Error al obtener productos:', error);
@@ -56,3 +57,4 @@ module.exports = {
   addProduct,
   deleteProduct,
 };
+
