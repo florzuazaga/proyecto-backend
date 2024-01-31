@@ -12,6 +12,7 @@ const { connectToDatabase } = require('./services/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/socketManager');
 const { getAllProducts, addProduct, deleteProduct,} = require('./controllers/productsController');
+const mockingProductsRoutes = require('./routes/mockingProductsRoutes');
 const ticketController = require('./controllers/ticket_controller');
 const productsRoutes = require('./routes/productsRoutes');
 const userAuthenticationRoutes = require('./routes/userAuthenticationRoutes');
@@ -22,6 +23,7 @@ const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
 const fileDao = require('./services/fileDao');
 const { cartsController, cartController, purchaseFromCart } = require('./controllers/cartsController');
+
 
 // Configuración de express
 const app = express();
@@ -52,6 +54,7 @@ app.use(passport.session());
 
 // Utiliza la función generateTicket del controlador del ticket
 app.use(ticketController.generateTicket);
+
 
 
 // Configuración de Handlebars
@@ -87,6 +90,9 @@ UserModel.find({ username: null })
     console.error('Error al buscar documentos con username: null:', err);
   });
 
+  app.get('/', (req, res) => {
+    res.render('index');
+  });
 // Rutas
 app.use('/auth', userAuthenticationRoutes);
 
@@ -111,6 +117,7 @@ app.post('/purchase/:cid', purchaseFromCart);
 app.get('/api/products', getAllProducts);
 app.post('/api/products', addProduct);
 app.delete('/api/products/:id', deleteProduct);
+app.use('/mockingproducts', mockingProductsRoutes);
 // Rutas para tickets
 app.post('/api/generate-ticket', ticketController.generateTicket);
 app.get('/api/tickets', ticketController.getAllTickets);

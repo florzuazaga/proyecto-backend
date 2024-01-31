@@ -19,6 +19,7 @@ router.post('/login', async (req, res) => {
     const { email, contraseña } = req.body;
     console.log('req.body:', req.body);
     const authResult = await authenticateUser(email, contraseña);
+    console.log('Contraseña recibida:', contraseña);
 
     if (!authResult.success) {
       console.error('Error de autenticación:', authResult.message); // Agrega este console.log
