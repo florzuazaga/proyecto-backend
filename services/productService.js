@@ -1,10 +1,13 @@
 // productService.js
 
+// productService.js
 const Product = require('../dao/models/productSchema');
 
 class ProductService {
   getAllProducts() {
-    return Product.find({});
+    console.log('Llamada a getAllProducts');
+    // Limita la respuesta a 50 productos
+    return Product.find({}).limit(50);
   }
 
   getProductById(productId) {

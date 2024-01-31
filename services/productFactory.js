@@ -25,7 +25,7 @@ class ProductFactory {
   }
 
   getAllProducts() {
-    return this.products;
+    return this.products.slice(0, 50);
   }
 }
 

@@ -118,6 +118,13 @@ app.get('/api/products', getAllProducts);
 app.post('/api/products', addProduct);
 app.delete('/api/products/:id', deleteProduct);
 app.use('/mockingproducts', mockingProductsRoutes);
+// Agrega logs de depuración
+app.get('/api/products', (req, res) => {
+  console.log('Recibida solicitud en /api/products');
+  const products = getAllProducts();
+  console.log('Número de productos:', products.length);
+  res.json({ products });
+});
 // Rutas para tickets
 app.post('/api/generate-ticket', ticketController.generateTicket);
 app.get('/api/tickets', ticketController.getAllTickets);
