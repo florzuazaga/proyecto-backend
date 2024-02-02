@@ -13,28 +13,29 @@ const { authenticateUser } = require('./userAuthenticationRoutes');
 router.get('/login', (req, res) => {
   res.render('login');
 });
-
 router.post('/login', async (req, res) => {
   try {
-    const { email, contraseña } = req.body;
-    console.log('req.body:', req.body);
-    const authResult = await authenticateUser(email, contraseña);
-    console.log('Contraseña recibida:', contraseña);
+    const { username, contraseña } = req.body; // Cambia 'email' a 'username'
+    const user = await User.findOne({ username }); // Cambia 'email' a 'username'
 
-    if (!authResult.success) {
-      console.error('Error de autenticación:', authResult.message); // Agrega este console.log
-      return res.status(401).json({ message: authResult.message });
+    if (!user) {
+      return res.status(401).json({ message: 'Usuario no encontrado' });
     }
 
-    req.session.user = authResult.user;
+    const match = await user.comparePassword(contraseña);
 
-    // Redirección después del inicio de sesión
-    res.redirect('/dashboard');
+    if (match) {
+      const token = user.generateAuthToken();
+      res.status(200).json({ token });
+    } else {
+      res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
   } catch (error) {
-    console.error('Error al iniciar sesión:', error); // Agrega este console.log
+    console.error('Error al iniciar sesión:', error);
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
+
 
 
 // Ruta para mostrar el formulario de registro

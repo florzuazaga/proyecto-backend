@@ -49,13 +49,17 @@ userSchema.plugin(mongoosePaginate);
 // Agrega lógica para cifrar la contraseña antes de guardar
 userSchema.pre('save', async function (next) {
   try {
-    const salt = await bcrypt.genSalt(10);
-    this.contraseña = await bcrypt.hash(this.contraseña, salt);
+    // Solo cifra la contraseña si está siendo modificada o es nueva
+    if (this.isModified('contraseña') || this.isNew) {
+      const salt = await bcrypt.genSalt(10);
+      this.contraseña = await bcrypt.hash(this.contraseña, salt);
+    }
     next();
   } catch (error) {
     next(error);
   }
 });
+
 
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
@@ -65,8 +69,12 @@ userSchema.methods.generateAuthToken = function () {
 };
 
 userSchema.methods.comparePassword = async function (password) {
+  console.log('Contraseña proporcionada:', password);
+  console.log('Contraseña almacenada:', this.contraseña);
+
   return await bcrypt.compare(password, this.contraseña);
 };
+
 
 // Método para comparar contraseñas
 userSchema.methods.validPassword = function(password) {
@@ -75,7 +83,7 @@ userSchema.methods.validPassword = function(password) {
 
 
 // Exporta el modelo
-const User = mongoose.model('User', userSchema, 'users');
+const User = mongoose.model('User', userSchema);
 
 module.exports = {  User: User };
 
