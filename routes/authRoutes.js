@@ -15,8 +15,8 @@ router.get('/login', (req, res) => {
 });
 router.post('/login', async (req, res) => {
   try {
-    const { username, contraseña } = req.body; // Cambia 'email' a 'username'
-    const user = await User.findOne({ username }); // Cambia 'email' a 'username'
+    const { username, contraseña } = req.body;
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.status(401).json({ message: 'Usuario no encontrado' });
@@ -31,8 +31,8 @@ router.post('/login', async (req, res) => {
       res.status(401).json({ message: 'Contraseña incorrecta' });
     }
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
-    res.status(500).json({ message: 'Error al iniciar sesión' });
+    console.error('Error en la autenticación:', error);
+    res.status(500).json({ message: 'Error interno en la autenticación' });
   }
 });
 

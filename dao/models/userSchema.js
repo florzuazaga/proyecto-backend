@@ -69,10 +69,19 @@ userSchema.methods.generateAuthToken = function () {
 };
 
 userSchema.methods.comparePassword = async function (password) {
-  console.log('Contraseña proporcionada:', password);
-  console.log('Contraseña almacenada:', this.contraseña);
+  try {
+    console.log('Contraseña proporcionada:', password);
+    console.log('Contraseña almacenada:', this.contraseña);
 
-  return await bcrypt.compare(password, this.contraseña);
+    const match = await bcrypt.compare(password, this.contraseña);
+
+    console.log('Coincide la contraseña:', match);
+
+    return match;
+  } catch (error) {
+    console.error('Error al comparar contraseñas:', error);
+    throw error; // Lanza el error para que se maneje en un nivel superior si es necesario
+  }
 };
 
 
