@@ -1,4 +1,5 @@
 // productFactory.js
+
 const fs = require('fs');
 const path = require('path');
 
@@ -8,14 +9,15 @@ class ProductFactory {
   }
 
   loadProducts() {
-    const productosPath = path.join(__dirname, 'productos.json');
+    // Cambia la ruta para reflejar la nueva ubicación del archivo
+    const productosPath = path.join(__dirname, '../files/productos.json');
 
     try {
       const productosData = fs.readFileSync(productosPath, 'utf-8');
       const productos = JSON.parse(productosData);
       return productos;
     } catch (error) {
-      console.error('Error al cargar productos:', error);
+      console.error('Error al cargar productos:', error.message);
       return [];
     }
   }
@@ -35,3 +37,4 @@ class ProductFactory {
 
 // Exporta una instancia de la clase ProductFactory
 module.exports = new ProductFactory();
+
