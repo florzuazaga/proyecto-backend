@@ -12,7 +12,6 @@ const flash = require('connect-flash');
 const { connectToDatabase } = require('./services/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/socketManager');
-const mockingProductsRoutes = require('./routes/mockingProductsRoutes');
 const ticketController = require('./controllers/ticket_controller');
 const productRoutes = require('./routes/productsRoutes');
 const adminRoutes = require('./routes/adminRoutes');

@@ -1,5 +1,4 @@
 // productsRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const Product = require('../dao/models/productSchema');
@@ -7,6 +6,7 @@ const cartController = require('../controllers/cartsController');
 const { validatePurchaseData } = require('../services/middleware');
 const { io } = require('../services/socketManager');
 const { getAllProducts, addProduct, deleteProduct } = require('../controllers/productsController');
+const ProductFactory = require('../services/productFactory');
 
 // Rutas para productos
 router.get('/api/products', getAllProducts);
@@ -15,83 +15,7 @@ router.delete('/api/products/:id', deleteProduct);
 // Endpoint para realizar una compra desde el carrito
 router.post('/purchase/:cid', validatePurchaseData, cartController.purchaseFromCart);
 
-// Operaciones CRUD para productos
-router.get('/', async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los productos' });
-  }
-});
-
-router.get('/:pid', async (req, res) => {
-  try {
-    const productId = req.params.pid;
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      res.status(404).json({ error: 'Producto no encontrado' });
-    } else {
-      res.json(product);
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el producto' });
-  }
-});
-
-// Agregar un nuevo producto
-router.post('/', async (req, res) => {
-  try {
-    const newProductData = req.body;
-    const newProduct = await Product.create(newProductData);
-
-    // Emite el evento 'new-product' con los datos del nuevo producto
-    io.emit('new-product', newProduct);
-
-    res.status(201).json(newProduct);
-  } catch (error) {
-    res.status(400).json({ error: 'Error al crear el producto' });
-  }
-});
-
-// Actualizar un producto existente por su ID
-router.put('/:pid', async (req, res) => {
-  try {
-    const productId = req.params.pid;
-    const updatedProductData = req.body;
-    const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
-
-    if (!updatedProduct) {
-      res.status(404).json({ error: 'Error al actualizar el producto' });
-    } else {
-      res.json(updatedProduct);
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar el producto' });
-  }
-});
-
-// Eliminar un producto por su ID
-router.delete('/:pid', async (req, res) => {
-  try {
-    const productId = req.params.pid;
-    const deletedProduct = await Product.findByIdAndDelete(productId);
-
-    if (!deletedProduct) {
-      res.status(404).json({ error: 'Error al eliminar el producto' });
-    } else {
-      // Emite el evento 'delete-product' con el ID del producto eliminado
-      io.emit('delete-product', productId);
-
-      res.json({ message: 'Producto eliminado exitosamente' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el producto' });
-  }
-});
-
-// Endpoint para obtener productos paginados y filtrados
+// Rutas adicionales
 router.get('/productos', async (req, res) => {
   try {
     // Obtener los parámetros de la consulta (query params)
@@ -152,7 +76,6 @@ router.get('/productos', async (req, res) => {
   }
 });
 
-// Ruta para obtener productos del carrito
 router.get('/cart', (req, res) => {
   try {
     // Lógica para obtener los productos del carrito
@@ -166,7 +89,6 @@ router.get('/cart', (req, res) => {
   }
 });
 
-// Ruta para eliminar un producto
 router.delete('/productos/:pid', async (req, res) => {
   try {
     const productId = req.params.pid;
@@ -193,8 +115,15 @@ router.delete('/productos/:pid', async (req, res) => {
   }
 });
 
+// Ruta para obtener 50 productos generados
+router.get('/mockingproducts', (req, res) => {
+  console.log('Llamada a /mockingproducts recibida');
+  const mockedProducts = ProductFactory.getAllProducts().slice(0, 50); // Limita la respuesta a 50 productos
+  res.json({ products: mockedProducts });
+});
 
 module.exports = router;
+
 
 
 
