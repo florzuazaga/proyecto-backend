@@ -5,38 +5,6 @@ const mongoose = require('mongoose');
 const { User } = require('../dao/models/userSchema');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { authenticateUser } = require('./userAuthenticationRoutes');
-
-
-
-// Ruta para mostrar el formulario de inicio de sesión
-router.get('/login', (req, res) => {
-  res.render('login');
-});
-router.post('/login', async (req, res) => {
-  try {
-    const { username, contraseña } = req.body;
-    const user = await User.findOne({ username });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Usuario no encontrado' });
-    }
-
-    const match = await user.comparePassword(contraseña);
-
-    if (match) {
-      const token = user.generateAuthToken();
-      res.status(200).json({ token });
-    } else {
-      res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
-  } catch (error) {
-    console.error('Error en la autenticación:', error);
-    res.status(500).json({ message: 'Error interno en la autenticación' });
-  }
-});
-
-
 
 // Ruta para mostrar el formulario de registro
 router.get('/register', (req, res) => {
@@ -93,6 +61,47 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Ruta para mostrar el formulario de inicio de sesión
+router.get('/login', (req, res) => {
+  res.render('login');
+});
+
+router.post('/login', async (req, res) => {
+  try {
+    const { username, contraseña } = req.body; 
+    console.log('Username recibido:', username);
+
+    const user = await User.findOne({ username }); 
+
+    if (!user) {
+      console.log('Usuario no encontrado');
+      return res.status(401).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Verificar que la contraseña almacenada no sea null o undefined
+    if (!user.contraseña) {
+      console.error('Contraseña almacenada no válida');
+      return res.status(500).json({ message: 'Error en la autenticación' });
+    }
+
+    console.log('Usuario encontrado:', user);
+
+    const match = await user.comparePassword(contraseña);
+
+    console.log('Coincide la contraseña:', match);
+
+    if (match) {
+      const token = user.generateAuthToken();
+      res.status(200).json({ token });
+    } else {
+      console.log('Contraseña incorrecta');
+      res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ message: 'Error al iniciar sesión' });
+  }
+});
 
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -104,5 +113,6 @@ router.post('/logout', (req, res) => {
 });
 
 module.exports = router;
+
 
 

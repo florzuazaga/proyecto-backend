@@ -3,10 +3,95 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../dao/models/productSchema');
-
-// Importa el objeto io para emitir eventos
+const cartController = require('../controllers/cartsController');
+const { validatePurchaseData } = require('../services/middleware');
 const { io } = require('../services/socketManager');
+const { getAllProducts, addProduct, deleteProduct } = require('../controllers/productsController');
 
+// Rutas para productos
+router.get('/api/products', getAllProducts);
+router.post('/api/products', addProduct);
+router.delete('/api/products/:id', deleteProduct);
+// Endpoint para realizar una compra desde el carrito
+router.post('/purchase/:cid', validatePurchaseData, cartController.purchaseFromCart);
+
+// Operaciones CRUD para productos
+router.get('/', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los productos' });
+  }
+});
+
+router.get('/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+    } else {
+      res.json(product);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el producto' });
+  }
+});
+
+// Agregar un nuevo producto
+router.post('/', async (req, res) => {
+  try {
+    const newProductData = req.body;
+    const newProduct = await Product.create(newProductData);
+
+    // Emite el evento 'new-product' con los datos del nuevo producto
+    io.emit('new-product', newProduct);
+
+    res.status(201).json(newProduct);
+  } catch (error) {
+    res.status(400).json({ error: 'Error al crear el producto' });
+  }
+});
+
+// Actualizar un producto existente por su ID
+router.put('/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+    const updatedProductData = req.body;
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+
+    if (!updatedProduct) {
+      res.status(404).json({ error: 'Error al actualizar el producto' });
+    } else {
+      res.json(updatedProduct);
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el producto' });
+  }
+});
+
+// Eliminar un producto por su ID
+router.delete('/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      res.status(404).json({ error: 'Error al eliminar el producto' });
+    } else {
+      // Emite el evento 'delete-product' con el ID del producto eliminado
+      io.emit('delete-product', productId);
+
+      res.json({ message: 'Producto eliminado exitosamente' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el producto' });
+  }
+});
+
+// Endpoint para obtener productos paginados y filtrados
 router.get('/productos', async (req, res) => {
   try {
     // Obtener los parámetros de la consulta (query params)
@@ -67,63 +152,49 @@ router.get('/productos', async (req, res) => {
   }
 });
 
+// Ruta para obtener productos del carrito
 router.get('/cart', (req, res) => {
-  // Lógica para obtener los productos del carrito
-  const cartItems = obtenerProductosDelCarrito();
-  res.render('cart', { items: cartItems });
-});
-
-// En la ruta para agregar un nuevo producto
-router.post('/productos', async (req, res) => {
   try {
-    const nuevoProducto = req.body;
+    // Lógica para obtener los productos del carrito
+    const productosDelCarrito = obtenerProductosDelCarrito(); // Ajusta según tu implementación real
 
-    // Validar datos del nuevo producto
-    if (!nuevoProducto || !nuevoProducto.title || !nuevoProducto.price) {
-      return res.status(400).json({ status: 'error', error: 'Datos del producto incompletos o inválidos' });
-    }
-
-    // Resto de la lógica para crear el producto
-    const producto = new Product(nuevoProducto);
-    await producto.save();
-
-    // Emite el evento 'new-product' con los datos del nuevo producto
-    io.emit('new-product', producto);
-
-    res.json({ status: 'success', message: 'Producto agregado exitosamente' });
-  } catch (error) {
-    console.error('Error al agregar producto:', error);
-    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
-  }
-});
-
-// Ruta para eliminar un producto
-router.delete('/productos/:pid', (req, res) => {
-  try {
-    const productId = req.params.pid;
-
-    // Lógica para eliminar el producto
-
-    // Emite el evento 'delete-product' con el ID del producto eliminado
-    io.emit('delete-product', productId);
-
-    res.json({ message: 'Producto eliminado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el producto' });
-  }
-});
-
-// Endpoint para obtener 50 productos generados
-router.get('/mockingproducts', (req, res) => {
-  try {
-    const mockedProducts = generateMockedProducts(50); // Asume que tienes una función para generar productos aleatorios
-    res.json(mockedProducts);
+    // Puedes continuar con el resto de la lógica según sea necesario
+    res.render('cart', { items: productosDelCarrito });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 });
 
+// Ruta para eliminar un producto
+router.delete('/productos/:pid', async (req, res) => {
+  try {
+    const productId = req.params.pid;
+
+    // Verificar el formato del ID antes de realizar la operación
+    if (!productId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ error: 'ID de producto inválido' });
+    }
+
+    // Buscar y eliminar el producto por su ID
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+
+    if (!deletedProduct) {
+      return res.status(404).json({ error: 'Error al eliminar el producto: Producto no encontrado' });
+    }
+
+    // Emite el evento 'delete-product' con el ID del producto eliminado
+    io.emit('delete-product', productId);
+
+    return res.json({ message: 'Producto eliminado exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar el producto:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+
 module.exports = router;
+
 
 

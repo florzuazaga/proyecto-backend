@@ -1,6 +1,5 @@
 // productService.js
 
-// productService.js
 const Product = require('../dao/models/productSchema');
 
 class ProductService {

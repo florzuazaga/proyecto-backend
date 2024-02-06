@@ -8,17 +8,16 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
+const flash = require('connect-flash');
 const { connectToDatabase } = require('./services/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/socketManager');
-const { getAllProducts, addProduct, deleteProduct,} = require('./controllers/productsController');
 const mockingProductsRoutes = require('./routes/mockingProductsRoutes');
 const ticketController = require('./controllers/ticket_controller');
-const productsRoutes = require('./routes/productsRoutes');
-const userAuthenticationRoutes = require('./routes/userAuthenticationRoutes');
+const productRoutes = require('./routes/productsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
-const passportConfig = require('./controllers/authController');
+const passportConfig = require('./controllers/adminController');
 const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
 const fileDao = require('./services/fileDao');
@@ -51,6 +50,9 @@ app.use(session({
 // Inicializa Passport después de configurar sesiones
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Configuración de connect-flash
+app.use(flash());
 
 // Utiliza la función generateTicket del controlador del ticket
 app.use(ticketController.generateTicket);
@@ -94,14 +96,11 @@ UserModel.find({ username: null })
     res.render('index');
   });
 // Rutas
-app.use('/auth', userAuthenticationRoutes);
-
-// Utiliza las rutas definidas en authRoutes.js
 app.use('/auth', authRoutes);
+
 
 // Rutas adicionales
 app.use('/admin', adminRoutes);
-app.use('/products', productsRoutes);
 
 // Rutas de autenticación con GitHub
 app.get('/auth/github', passport.authenticate('github'));
@@ -113,15 +112,12 @@ app.get('/auth/github/callback', passport.authenticate('github', { failureRedire
 app.post('/api/carts', cartsController.createCart);
 app.get('/api/carts/:id', cartController.getCartById);
 app.post('/purchase/:cid', purchaseFromCart);
-// Rutas para productos
-app.get('/api/products', getAllProducts);
-app.post('/api/products', addProduct);
-app.delete('/api/products/:id', deleteProduct);
-app.use('/mockingproducts', mockingProductsRoutes);
-// Agrega logs de depuración
+// Incluye las rutas de productos
+app.use(productRoutes);
+// Agrega logs de depuración para la ruta /api/products
 app.get('/api/products', (req, res) => {
   console.log('Recibida solicitud en /api/products');
-  const products = getAllProducts();
+  const products = getAllProducts(); 
   console.log('Número de productos:', products.length);
   res.json({ products });
 });
