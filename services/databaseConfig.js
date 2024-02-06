@@ -1,9 +1,13 @@
 // databaseConfig.js
 const mongoose = require('mongoose');
 const { MongoClient } = require('mongodb');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 require('dotenv').config();
 
-const connectToDatabase = async () => {
+
+
+async function connectToDatabase() {
   try {
     // Conexión a MongoDB con Mongoose
     const mongooseConnectionString = process.env.MONGODB_URI;
@@ -19,25 +23,40 @@ const connectToDatabase = async () => {
       useUnifiedTopology: true,
     });
 
-    mongoClient.connect((err) => {
-      if (err) {
-        console.error('Error en la conexión a MongoDB con MongoClient:', err);
-        return;
-      }
+    await mongoClient.connect(); // Cambiado a await para esperar la conexión
 
-      const mongoDB = mongoClient.db();
-      console.log('Conexión exitosa a MongoDB con MongoClient');
+    const mongoDB = mongoClient.db();
+    console.log('Conexión exitosa a MongoDB con MongoClient');
 
-      // Puedes exportar mongoDB o cualquier otro objeto según tus necesidades
-      module.exports = { mongoose, mongoDB };
+    // Configuración de la sesión y el almacenamiento
+    const store = new MongoDBStore({
+      uri: process.env.MONGODB_URI,
+      collection: 'sessions',
+      expires: 1000 * 60 * 60 * 24, // Tiempo de vida de la sesión en milisegundos 
+      connectionOptions: {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
     });
+
+    store.on('error', function (error) {
+      console.error('Error en MongoDBStore:', error);
+    });
+
+    // Puedes exportar mongoDB, mongoose y store según tus necesidades
+    return { mongoose, mongoDB, store };
   } catch (error) {
     console.error('Error al conectar a MongoDB:', error);
     process.exit(1); // Salir del proceso si hay un error en la conexión
   }
-};
+}
 
-module.exports = { connectToDatabase };
+module.exports = connectToDatabase;
+
+
+
+
+
 
 
 

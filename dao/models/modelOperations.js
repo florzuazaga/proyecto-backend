@@ -46,4 +46,3 @@ async function create(model, data) {
   }
   
   module.exports = { create, getById, updateById, deleteById };
-  
