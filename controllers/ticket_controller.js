@@ -2,7 +2,33 @@
 
 const Ticket = require('../dao/models/ticketModel');
 const { obtenerInformacionParaTicket } = require('../services/ticketService');
+const nodemailer = require('nodemailer'); 
 
+
+// Función para enviar correos electrónicos
+const sendEmail = async (to, subject, text) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'florenciazuazaga36@gmail.com',
+      pass: 'fabi3926',
+    },
+  });
+
+  const mailOptions = {
+    from: 'tu_correo@gmail.com',
+    to,
+    subject,
+    text,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Correo electrónico enviado con éxito');
+  } catch (error) {
+    console.error('Error al enviar el correo electrónico:', error);
+  }
+};
 // Middleware para generar un ticket
 const generateTicket = async (req, res, next) => {
   try {
@@ -19,6 +45,12 @@ const generateTicket = async (req, res, next) => {
       user: ticketInfoFromDB.user,
       date: new Date(), // Puedes ajustar esto según tus necesidades
     };
+     // Enviar correo electrónico con la información del ticket
+     const userEmail = 'correo_del_usuario@gmail.com';  // Ajusta esto según tus necesidades
+     const emailSubject = 'Compra realizada con éxito';
+     const emailText = 'Gracias por tu compra. Aquí está la información de tu ticket: [información del ticket]';
+     
+     await sendEmail(userEmail, emailSubject, emailText);
 
     // Guardar el ticket en la base de datos
     const newTicket = await Ticket.create(ticketData);

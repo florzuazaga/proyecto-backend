@@ -11,7 +11,6 @@ const authRouter = express.Router();
 authRouter.post('/login', passport.authenticate('local', {
   successRedirect: '/dashboard',   // Redirección en caso de autenticación exitosa
   failureRedirect: '/auth/login',  // Redirección en caso de fallo de autenticación
-  failureFlash: true  // Habilita los mensajes flash en caso de fallo de autenticación 
 }));
 
 module.exports = authRouter;

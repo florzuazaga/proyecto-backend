@@ -21,7 +21,8 @@ const passportConfig = require('./controllers/adminController');
 const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
 const fileDao = require('./services/fileDao');
-const { cartsController, cartController, purchaseFromCart } = require('./controllers/cartsController');
+const cartsController = require('./controllers/cartsController');
+
 
 
 // Configuración de express
@@ -110,8 +111,18 @@ app.get('/auth/github/callback', passport.authenticate('github', { failureRedire
 });
 // Rutas para carritos
 app.post('/api/carts', cartsController.createCart);
-app.get('/api/carts/:id', cartController.getCartById);
-app.post('/purchase/:cid', purchaseFromCart);
+app.get('/api/carts/:id', cartsController.getCartById);
+app.post('/purchase/:cid', async (req, res) => {
+  const { user, date } = req.body; // Asegúrate de que estos datos estén disponibles en req.body
+  const purchaseResult = await cartsController.purchaseFromCart(req.params.cid, user, date);
+
+  if (purchaseResult.status === 'success') {
+    res.json(purchaseResult);
+  } else {
+    res.status(500).json(purchaseResult);
+  }
+});
+
 // Incluye las rutas de productos
 app.use(productRoutes);
 // Agrega logs de depuración para la ruta /api/products
