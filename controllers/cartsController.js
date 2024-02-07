@@ -1,4 +1,5 @@
 // cartsController.js
+// combinedCartController.js
 const http = require('http');
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
@@ -44,51 +45,45 @@ cartsController.getCartById = async (req, res) => {
 // Realizar la compra desde el carrito
 cartsController.purchaseFromCart = async (cartId, user, date) => {
   try {
-    // Obtener el carrito actual con detalles de productos
-    const cart = await Cart.findById(cartId).populate('products.product');
+    // Resto de la lógica para realizar la compra desde el carrito
+    const purchaseResult = await cartsController.purchaseFromCart(cartId, user, date);
 
-    // Verificar el stock antes de realizar la compra
-    const outOfStockProducts = cart.products.filter(product => product.product.stock <= 0);
+    // Verifica si la compra se realizó con éxito antes de hacer la solicitud fetch
+    if (purchaseResult.status === 'success') {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
 
-    if (outOfStockProducts.length > 0) {
-      return { status: 'error', error: 'Algunos productos ya no están en stock' };
+      // Crea una instancia de la solicitud HTTP
+      const request = http.request(`http://localhost:8080/purchase/${cartId}`, options, (response) => {
+        let data = '';
+
+        // Recibe los datos de la respuesta
+        response.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        // Maneja el final de la respuesta
+        response.on('end', () => {
+          console.log(JSON.parse(data));
+        });
+      });
+
+      // Envia los datos de la compra en el cuerpo de la solicitud
+      request.write(JSON.stringify(purchaseResult.ticket));
+
+      // Finaliza la solicitud
+      request.end();
+    } else {
+      console.error('Error en la compra:', purchaseResult.error);
     }
 
-    // Actualizar el inventario y generar un ticket
-    const updatedProducts = await Promise.all(cart.products.map(async (cartProduct) => {
-      const product = cartProduct.product;
-
-      // Actualizar el inventario del producto
-      product.stock -= 1;
-      await product.save();
-
-      // Devolver el producto actualizado
-      return {
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-      };
-    }));
-
-    // Generar un ticket con la información de la compra
-    const totalPrice = updatedProducts.reduce((total, product) => total + product.price, 0);
-    
-    const ticketData = {
-      products: updatedProducts,
-      totalPrice,
-      user,
-      date,
-    };
-
-    // Guardar el ticket en la base de datos
-    const newTicket = await Ticket.create(ticketData);
-
-    // Limpiar el carrito después de la compra
-    await Cart.findByIdAndUpdate(cartId, { products: [] });
-
-    return { status: 'success', message: 'Compra realizada con éxito', ticket: newTicket };
+    return purchaseResult; // Puedes devolver el resultado de la compra si es necesario
   } catch (error) {
-    console.error(error);
+    console.error('Error en la compra y solicitud fetch:', error);
     return { status: 'error', error: 'Error interno del servidor' };
   }
 };
@@ -139,7 +134,46 @@ cartsController.purchaseAndFetch = async (cartId, user, date) => {
   }
 };
 
+// Archivo JavaScript para manejar interacciones del usuario y realizar solicitudes al servidor
+// Defini un objeto purchaseData inicial vacío
+let purchaseData = {
+  products: [],
+  totalPrice: 0,
+  user: "usuario_id",
+  date: new Date().toISOString().split('T')[0]
+};
+purchaseData.date = new Date().toISOString().split('T')[0];
+
+// Función para agregar un producto al carrito
+function addToCart(productId, quantity, price) {
+  const productIndex = purchaseData.products.findIndex(product => product.productId === productId);
+
+  if (productIndex !== -1) {
+    // El producto ya está en el carrito, actualiza la cantidad
+    purchaseData.products[productIndex].quantity += quantity;
+  } else {
+    // Agrega un nuevo producto al carrito
+    purchaseData.products.push({ productId, quantity });
+  }
+
+  // Actualiza el precio total
+  purchaseData.totalPrice += quantity * price;
+
+  // Muestra la información actualizada en la consola (puedes omitir esto en la implementación real)
+  console.log(purchaseData);
+}
+
+// Ejemplo de uso al agregar un producto al carrito
+const productIdToAdd = 1;
+const quantityToAdd = 2;
+const pricePerUnit = 25.99;
+
+addToCart(productIdToAdd, quantityToAdd, pricePerUnit);
+
+// Luego, cuando el usuario esté listo para realizar la compra, enviarías el purchaseData actualizado al servidor.
+
 module.exports = cartsController;
+
 
 
 

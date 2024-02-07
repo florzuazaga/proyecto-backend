@@ -4,9 +4,9 @@ const router = express.Router();
 const Product = require('../dao/models/productSchema');
 const cartController = require('../controllers/cartsController');
 const { validatePurchaseData } = require('../middlewars/middleware');
-const { io } = require('../services/socketManager');
+const { io } = require('../services/fileSocketApp');
 const { getAllProducts, addProduct, deleteProduct } = require('../controllers/productsController');
-const ProductFactory = require('../services/productService');
+const ProductFactory = require('../services/ProductManager');
 
 // Rutas para productos
 router.get('/api/products', getAllProducts);
