@@ -19,7 +19,7 @@ const authRoutes = require('./routes/authRoutes');
 const passportConfig = require('./controllers/adminController');
 const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
-const fileDao = require('./services/fileDao');
+const fileDao = require('./services/fileSocketApp');
 const cartsController = require('./controllers/cartsController');
 
 

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { adminDashboard, manageUsers, getAllUsers } = require('../controllers/adminController');
-const { authenticateToken, isAdminMiddleware } = require('../services/adminMiddleware');
+const { authenticateToken, isAdminMiddleware } = require('../middlewars/adminMiddleware');
 const { paginateUsers, searchUsers } = require('../Repositories/userQueries');
 
 // Rutas protegidas para administradores

@@ -1,5 +1,5 @@
 // CartManager.js
-const crudOperations = require('./crudOperations');
+const modelOperations = require('../dao/models/modelOperations');
 
 
 class CartManager {
