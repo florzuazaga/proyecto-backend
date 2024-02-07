@@ -1,9 +1,9 @@
 // cartsController.js
-// combinedCartController.js
+
 const http = require('http');
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
-const Ticket = require('../dao/models/ticketModel');
+const Ticket = require('../controllers/ticket_controller');
 
 const cartsController = {};
 
@@ -171,6 +171,35 @@ const pricePerUnit = 25.99;
 addToCart(productIdToAdd, quantityToAdd, pricePerUnit);
 
 // Luego, cuando el usuario esté listo para realizar la compra, enviarías el purchaseData actualizado al servidor.
+// Función para realizar la compra cuando el usuario esté listo
+async function realizarCompra() {
+  try {
+    const response = await fetch('http://localhost:8080/api/carts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(purchaseData),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Compra realizada con éxito:', result);
+      // Puedes realizar acciones adicionales después de una compra exitosa
+    } else {
+      console.error('Error al realizar la compra:', response.statusText);
+      // Puedes manejar el error de acuerdo a tus necesidades
+    }
+  } catch (error) {
+    console.error('Error en la solicitud fetch:', error);
+    // Puedes manejar errores de red u otros errores aquí
+  }
+}
+
+// Llamas a la función cuando el usuario esté listo para realizar la compra
+// se llama cuando el usuario haga clic en un botón de "Comprar"
+realizarCompra();
+
 
 module.exports = cartsController;
 

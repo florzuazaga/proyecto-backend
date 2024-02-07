@@ -1,17 +1,41 @@
-<form method="POST" action="/purchase/:cid">
-  <!-- Campos para los detalles de la compra -->
-  {{#each cartProducts}}
-    <input type="hidden" name="products[]" value="{{productId}}">
-    <input type="hidden" name="quantity[]" value="{{quantity}}">
-    
-  {{/each}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Página de Compra</title>
+</head>
+<body>
 
-  <input type="hidden" name="totalPrice" value="{{totalPrice}}">
-  <input type="hidden" name="user" value="{{userId}}">
-  <input type="hidden" name="date" value="{{purchaseDate}}">
+  <!-- Formulario para enviar detalles de la compra al servidor -->
+  <form method="POST" action="/purchase/:cid">
+    <!-- Campos para los detalles de la compra -->
+    {{#each cartProducts}}
+      <input type="hidden" name="products[]" value="{{productId}}">
+      <input type="hidden" name="quantity[]" value="{{quantity}}">
+    {{/each}}
 
-  <button type="submit">Realizar Compra</button>
-</form>
+    <input type="hidden" name="totalPrice" value="{{totalPrice}}">
+    <input type="hidden" name="user" value="{{userId}}">
+    <input type="hidden" name="date" value="{{purchaseDate}}">
+
+    <!-- Botón de compra -->
+    <button type="button" id="btnComprar">Comprar</button>
+  </form>
+
+  <script>
+    // Event listener para el botón de "Comprar"
+    document.getElementById('btnComprar').addEventListener('click', realizarCompra);
+
+    // Función para realizar la compra
+    function realizarCompra() {
+      
+      // Envía el formulario
+      document.querySelector('form').submit();
+    }
+  </script>
+</body>
+</html>
 
 
 
