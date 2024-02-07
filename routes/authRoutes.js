@@ -18,25 +18,24 @@ router.get('/register', (req, res) => {
 
 // Ruta para registrar un nuevo usuario
 router.post('/register', async (req, res) => {
-  console.log('Recibida solicitud en /register');
   try {
-    // Resto del código para registrar el usuario
     const { nombre, apellido, email, contraseña, username } = req.body;
 
+    // Verifica si los campos obligatorios están presentes
     if (!username || !email || !contraseña) {
-      console.error('Campos obligatorios faltantes');
       return res.status(400).json({ message: 'Los campos username, correo electrónico y contraseña son obligatorios.' });
     }
 
+    // Verifica si ya existe un usuario con el mismo correo electrónico
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.error('Ya existe un usuario con este correo electrónico.');
       return res.status(400).json({ message: 'Ya existe un usuario con este correo electrónico.' });
     }
 
     // Utiliza bcrypt para hashear la contraseña
     const hashedPassword = await bcrypt.hash(contraseña, 10);
 
+    // Crea un nuevo usuario
     const newUser = await User.create({
       nombre,
       apellido,
@@ -45,19 +44,40 @@ router.post('/register', async (req, res) => {
       username,
     });
 
+    // Genera un token de autenticación
     const token = jwt.sign({ _id: newUser._id, role: newUser.rol }, 'secretKey', {
       expiresIn: '1h',
     });
 
-    req.session.token = token;
     res.status(201).json({ message: 'Usuario registrado exitosamente', token });
   } catch (error) {
     console.error('Error al registrar usuario:', error);
-
-    // Agrega este console.log para imprimir detalles del error en la terminal de VSC
-    console.log('Error details:', error);
-
     res.status(500).json({ message: 'Error al registrar usuario' });
+  }
+});
+
+// Ruta para iniciar sesión
+router.post('/login', async (req, res) => {
+  try {
+    const { username, contraseña } = req.body;
+
+    // Busca el usuario por nombre de usuario
+    const user = await User.findOne({ username });
+
+    // Verifica si el usuario existe y si la contraseña coincide
+    if (user && await user.comparePassword(contraseña)) {
+      // Genera un token de autenticación
+      const token = jwt.sign({ _id: user._id, role: user.rol }, 'secretKey', {
+        expiresIn: '1h',
+      });
+
+      res.status(200).json({ token });
+    } else {
+      res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
+    }
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
 

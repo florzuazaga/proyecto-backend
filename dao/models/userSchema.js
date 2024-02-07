@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
   contraseña: {
     type: String,
     required: true,
+    set: (rawPassword) => bcrypt.hashSync(rawPassword, 10), 
   },
   carrito: {
     type: Schema.Types.ObjectId,
@@ -55,23 +56,9 @@ userSchema.methods.generateAuthToken = function () {
   });
   return token;
 };
-userSchema.methods.comparePassword = async function (password) {
-  try {
-    console.log('Contraseña proporcionada:', password);
-    console.log('Contraseña almacenada:', this.contraseña);
-
-    // Aplica trim a la contraseña proporcionada
-    const trimmedPassword = password.trim();
-
-    const match = await bcrypt.compare(trimmedPassword, this.contraseña);
-
-    console.log('Coincide la contraseña:', match);
-
-    return match;
-  } catch (error) {
-    console.error('Error al comparar contraseñas:', error);
-    throw error;
-  }
+// Método para comparar contraseñas
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.contraseña);
 };
 
 
