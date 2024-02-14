@@ -7,6 +7,7 @@ const { validatePurchaseData } = require('../middlewars/middleware');
 const { io } = require('../services/fileSocketApp');
 const { getAllProducts, addProduct, deleteProduct } = require('../controllers/productsController');
 const ProductFactory = require('../services/ProductManager');
+const Order = require('../dao/models/orderSchema');
 
 // Rutas para productos
 router.get('/api/products', getAllProducts);
@@ -16,6 +17,7 @@ router.delete('/api/products/:id', deleteProduct);
 router.post('/purchase/:cid', validatePurchaseData, cartController.purchaseFromCart);
 
 // Rutas adicionales
+
 router.get('/productos', async (req, res) => {
   try {
     // Obtener los parámetros de la consulta (query params)
@@ -121,7 +123,20 @@ router.get('/mockingproducts', (req, res) => {
   const mockedProducts = ProductFactory.getAllProducts().slice(0, 50); // Limita la respuesta a 50 productos
   res.json({ products: mockedProducts });
 });
-
+// Ruta para renderizar la vista de realizar orden
+router.get('/api/ordenes', (req, res) => {
+  res.render('order'); // Renderiza el archivo order.hbs
+});
+// Ruta para obtener órdenes
+router.get('/api/ordenes', async (req, res) => {
+  try {
+    const ordenes = await Order.find();
+    res.json(ordenes);
+  } catch (error) {
+    console.error('Error al obtener órdenes:', error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+});
 module.exports = router;
 
 

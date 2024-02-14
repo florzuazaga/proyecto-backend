@@ -3,14 +3,13 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoosePaginate = require('mongoose-paginate-v2');
-
 const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema({
   nombre: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   apellido: {
     type: String,
@@ -27,7 +26,7 @@ const userSchema = new mongoose.Schema({
   contraseña: {
     type: String,
     required: true,
-    set: (rawPassword) => bcrypt.hashSync(rawPassword, 10), 
+    set: (rawPassword) => bcrypt.hashSync(rawPassword, 10),
   },
   carrito: {
     type: Schema.Types.ObjectId,
@@ -38,35 +37,29 @@ const userSchema = new mongoose.Schema({
     default: 'usuario',
   },
   username: {
-    type: String, 
+    type: String,
     sparse: true,
     unique: true,
   },
 }, { timestamps: true });
 
-// Aplica el plugin mongoose-paginate al esquema
 userSchema.plugin(mongoosePaginate);
-
-
-
 
 userSchema.methods.generateAuthToken = function () {
   const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
-    expiresIn: '1h', 
+    expiresIn: '1h',
   });
   return token;
 };
-// Método para comparar contraseñas
-userSchema.methods.comparePassword = async function(candidatePassword) {
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.contraseña);
 };
 
-
-
-// Exporta el modelo
 const User = mongoose.model('User', userSchema);
 
 module.exports = { User };
+
 
 
 

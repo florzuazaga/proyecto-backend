@@ -3,7 +3,7 @@
 const http = require('http');
 const Cart = require('../dao/models/cartSchema');
 const Product = require('../dao/models/productSchema');
-const Ticket = require('../controllers/ticket_controller');
+const Ticket = require('./ticket_controller');
 
 const cartsController = {};
 
@@ -185,14 +185,14 @@ async function realizarCompra() {
     if (response.ok) {
       const result = await response.json();
       console.log('Compra realizada con éxito:', result);
-      // Puedes realizar acciones adicionales después de una compra exitosa
+      
     } else {
       console.error('Error al realizar la compra:', response.statusText);
-      // Puedes manejar el error de acuerdo a tus necesidades
+      
     }
   } catch (error) {
     console.error('Error en la solicitud fetch:', error);
-    // Puedes manejar errores de red u otros errores aquí
+    
   }
 }
 

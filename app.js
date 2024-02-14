@@ -9,6 +9,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const flash = require('connect-flash');
+const cors = require('cors');
+const compression = require('compression');
+const brotli = require('brotli');
 const connectToDatabase = require('./config/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/fileSocketApp');
@@ -65,8 +68,23 @@ app.set('view engine', 'handlebars');
 app.set('views', [path.join(__dirname, 'views'), path.join(__dirname, 'layouts')]);
 
 
+
 // Configuración para servir archivos estáticos desde el directorio 'public'
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Configuración de CORS
+app.use(cors({
+  origin: 'http://localhost:8080',
+  methods: ['GET', 'POST', 'PUT'],
+}));
+//Configura dotenv en la aplicación
+require('dotenv').config();
+// Middleware de compresión
+app.use(compression());
+// Middleware de compresión con soporte para Brotli
+app.use(compression({
+  brotli:{enabled:true, zlib:{}}
+}));
 
 // Buscar documentos con username: null antes de la operación de inserción
 const UserModel = User.User;
@@ -135,7 +153,19 @@ app.get('/api/products', (req, res) => {
 app.post('/api/generate-ticket', ticketController.generateTicket);
 app.get('/api/tickets', ticketController.getAllTickets);
 
+// Define la ruta para obtener las órdenes
+app.get('/api/ordenes', async (req, res) => {
+  try {
+    // Lógica para obtener las órdenes desde la base de datos o cualquier otra fuente de datos
+    const ordenes = await obtenerOrdenes(); // Debes implementar esta función
 
+    // Devuelve las órdenes como respuesta JSON
+    res.json({ ordenes });
+  } catch (error) {
+    console.error('Error al obtener órdenes:', error);
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+});
 
 
 // Ruta para manejar la descarga de archivos por ID
