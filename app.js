@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 const cors = require('cors');
 const compression = require('compression');
 const brotli = require('brotli');
+const routes = require('./routes/routes');
 const logger = require('./config/logger');
 const connectToDatabase = require('./config/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
@@ -129,7 +130,7 @@ app.use('/auth', authRoutes);
 
 // Rutas adicionales
 app.use('/admin', adminRoutes);
-
+app.use('/api', routes);
 // Rutas de autenticación con GitHub
 app.get('/auth/github', passport.authenticate('github'));
 app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/' }), (req, res) => {
