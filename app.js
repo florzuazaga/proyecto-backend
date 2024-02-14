@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 const cors = require('cors');
 const compression = require('compression');
 const brotli = require('brotli');
+const logger = require('./config/logger');
 const connectToDatabase = require('./config/databaseConfig');
 const { paginateUsers } = require('./Repositories/userQueries');
 const { initializeSocket } = require('./services/fileSocketApp');
@@ -111,6 +112,10 @@ UserModel.find({ username: null })
   });
 
   app.get('/', (req, res) => {
+    // Loguea un mensaje de información
+    logger.info('Endpoint "/" llamado');
+  
+   
     res.render('index');
   });
 // Rutas
