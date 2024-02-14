@@ -86,6 +86,11 @@ app.use(compression());
 app.use(compression({
   brotli:{enabled:true, zlib:{}}
 }));
+// Middleware que establece el logger en el objeto req
+app.use((req, res, next) => {
+  req.logger = logger;
+  next();
+});
 
 // Buscar documentos con username: null antes de la operación de inserción
 const UserModel = User.User;
@@ -201,7 +206,7 @@ app.use((req, res) => {
 
 // Manejo de errores
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  req.logger.error(`Error: ${err.message}`);
   res.status(500).send('Error interno del servidor');
 });
 
