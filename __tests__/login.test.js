@@ -1,5 +1,5 @@
 // login.test.js
-// login.test.js
+
 const request = require('supertest');
 const express = require('express');
 const mongoose = require('mongoose'); 
@@ -39,6 +39,8 @@ describe('Authentication Endpoints', () => {
     // Intenta registrar otro usuario con el mismo username
     const duplicateRegisterResponse = await registerUser();
 
+    logger.error('Intento de registro duplicado:', duplicateRegisterResponse.body);
+
     expect(duplicateRegisterResponse.statusCode).toBe(400);
     expect(duplicateRegisterResponse.body).toHaveProperty('error', 'El nombre de usuario ya está en uso');
   });
@@ -55,6 +57,8 @@ describe('Authentication Endpoints', () => {
         contraseña: 'wrong_password',
       });
 
+    logger.warn('Intento de inicio de sesión con credenciales incorrectas:', incorrectLoginResponse.body);
+
     expect(incorrectLoginResponse.statusCode).toBe(401);
     expect(incorrectLoginResponse.body).toHaveProperty('message', 'Contraseña incorrecta');
   });
@@ -64,6 +68,7 @@ describe('Authentication Endpoints', () => {
     await mongoose.connection.close();
   });
 });
+
 
 
 
