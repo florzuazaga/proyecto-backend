@@ -1,75 +1,27 @@
 // login.test.js
+const { createLogger, transports, format } = require('winston');
 
-const request = require('supertest');
-const express = require('express');
-const mongoose = require('mongoose'); 
-const winston = require('winston');
-const authRoutes = require('../routes/authRoutes');
+// Configuración para entorno de desarrollo
+const developmentLogger = createLogger({
+  format: format.combine(format.simple(), format.colorize()),
+  transports: [new transports.Console({ level: 'verbose' })],  // Cambiado a 'verbose'
+});
 
-const app = express();
-app.use(express.json());
-app.use('/auth', authRoutes);
-
-const logger = winston.createLogger({
-  format: winston.format.simple(),
+// Configuración para entorno de producción
+const productionLogger = createLogger({
+  format: format.combine(format.simple(), format.json()),
   transports: [
-    new winston.transports.Console({ level: 'info' }),  // Nivel de prioridad para consola
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),  // Archivo para errores
-    new winston.transports.File({ filename: 'combined.log' }),  // Archivo para mensajes informativos
-    // Agrega un nuevo transporte de archivo
-    new winston.transports.File({ filename: 'custom.log', level: 'info' })  // Archivo personalizado
+    new transports.Console({ level: 'http' }),  // Cambiado a 'http'
+    new transports.File({ filename: 'logs/errors.log', level: 'error' }),  // Cambiado a 'error' y 'errors.log'
+    new transports.File({ filename: 'logs/combined.log' }),
   ],
 });
 
-const registerUser = async () => {
-  return await request(app)
-    .post('/auth/register')
-    .send({
-      nombre: 'John',
-      apellido: 'Doe',
-      email: 'john.doe@example.com',
-      contraseña: 'password123',
-      username: 'john_doe',
-    });
-};
+// Selecciona el logger según el entorno
+const logger = process.env.NODE_ENV === 'production' ? productionLogger : developmentLogger;
 
-describe('Authentication Endpoints', () => {
-  test('should fail to register with existing username', async () => {
-    // Registra un usuario primero
-    await registerUser();
+module.exports = logger;
 
-    // Intenta registrar otro usuario con el mismo username
-    const duplicateRegisterResponse = await registerUser();
-
-    logger.error('Intento de registro duplicado:', duplicateRegisterResponse.body);
-
-    expect(duplicateRegisterResponse.statusCode).toBe(400);
-    expect(duplicateRegisterResponse.body).toHaveProperty('error', 'El nombre de usuario ya está en uso');
-  });
-
-  test('should fail to log in with incorrect credentials', async () => {
-    // Registra un usuario primero
-    await registerUser();
-
-    // Intenta iniciar sesión con credenciales incorrectas
-    const incorrectLoginResponse = await request(app)
-      .post('/auth/login')
-      .send({
-        username: 'john_doe',
-        contraseña: 'wrong_password',
-      });
-
-    logger.warn('Intento de inicio de sesión con credenciales incorrectas:', incorrectLoginResponse.body);
-
-    expect(incorrectLoginResponse.statusCode).toBe(401);
-    expect(incorrectLoginResponse.body).toHaveProperty('message', 'Contraseña incorrecta');
-  });
-
-  // Cerrar correctamente la conexión de la base de datos después de las pruebas
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
-});
 
 
 

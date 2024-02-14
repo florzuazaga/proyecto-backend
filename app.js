@@ -117,14 +117,23 @@ UserModel.find({ username: null })
     console.error('Error al buscar documentos con username: null:', err);
   });
 
-  app.get('/', (req, res) => {
-    // Loguea un mensaje de información
-    logger.info('Endpoint "/" llamado');
+  // Rutas
+app.get('/', (req, res) => {
+   // Loguea un mensaje de información
+  logger.info('Endpoint "/" llamado');
   
    
-    res.render('index');
-  });
-// Rutas
+  res.render('index');
+});
+app.get('/loggerTest', (req, res) => {
+  logger.info('Este es un mensaje de información');
+  logger.warn('Este es un mensaje de advertencia');
+  logger.error('Este es un mensaje de error');
+
+  res.send('Logs generados en la consola y en archivos.');
+});
+
+
 app.use('/auth', authRoutes);
 
 
