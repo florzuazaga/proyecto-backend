@@ -1,6 +1,7 @@
 //adminMiddleware.js
 const jwt = require('jsonwebtoken');
 
+// Middleware para autenticar el token
 function authenticateToken(req, res, next) {
   const tokenHeader = req.headers['authorization'];
 
@@ -27,6 +28,8 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+// Middleware para verificar si el usuario es un administrador
 function isAdminMiddleware(req, res, next) {
   // Verificar si el usuario tiene privilegios de administrador
   if (req.user && req.user.role === 'admin') {
@@ -39,7 +42,3 @@ function isAdminMiddleware(req, res, next) {
 }
 
 module.exports = { authenticateToken, isAdminMiddleware };
-
-
-  
-

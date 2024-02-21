@@ -1,6 +1,5 @@
 // userSchema.js
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mongoosePaginate = require('mongoose-paginate-v2');
 const { Schema } = mongoose;
@@ -35,6 +34,7 @@ const userSchema = new mongoose.Schema({
   rol: {
     type: String,
     default: 'usuario',
+    enum: ['usuario', 'premium'],
   },
   username: {
     type: String,
@@ -45,16 +45,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.plugin(mongoosePaginate);
 
-userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({ _id: this._id, role: this.rol }, 'secretKey', {
-    expiresIn: '1h',
-  });
-  return token;
-};
-
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.contraseña);
-};
 
 const User = mongoose.model('User', userSchema);
 

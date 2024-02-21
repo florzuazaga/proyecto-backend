@@ -1,10 +1,11 @@
-// authRoutes.js
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const mongoose = require('mongoose');
 const { User } = require('../dao/models/userSchema');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const logger = require('../config/logger');
 
 // Ruta para mostrar el formulario de registro
 router.get('/register', (req, res) => {
@@ -40,7 +41,7 @@ router.post('/register', async (req, res) => {
       nombre,
       apellido,
       email,
-      contraseña: hashedPassword,  // Almacena la contraseña hasheada
+      contraseña: hashedPassword,
       username,
     });
 
@@ -48,35 +49,57 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign({ _id: newUser._id, role: newUser.rol }, 'secretKey', {
       expiresIn: '1h',
     });
-
     res.status(201).json({ message: 'Usuario registrado exitosamente', token });
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.username === 1) {
+      // Si el error es debido a un nombre de usuario duplicado
+      return res.status(400).json({ message: 'Ya existe un usuario con este nombre de usuario. Por favor, elige otro.' });
+    }
+
     console.error('Error al registrar usuario:', error);
     res.status(500).json({ message: 'Error al registrar usuario' });
   }
 });
 
-// Ruta para iniciar sesión
-router.post('/login', async (req, res) => {
+// Ruta para iniciar sesión con Passport (sesiones)
+router.post('/login', passport.authenticate('local', {
+  failureRedirect: '/auth/login',
+}), (req, res) => {
+  // Si la autenticación es exitosa, llegarás aquí
+  logger.info('Inicio de sesión exitoso', { user: req.user }); // Registro de éxito con info
+  res.status(200).json({ message: 'Inicio de sesión exitoso', user: req.user });
+  // Redirige a la vista de productos
+  res.redirect('/api/products');
+});
+
+// Ruta para iniciar sesión con JWT
+router.post('/login-jwt', async (req, res) => {
   try {
     const { username, contraseña } = req.body;
-
-    // Busca el usuario por nombre de usuario
     const user = await User.findOne({ username });
 
-    // Verifica si el usuario existe y si la contraseña coincide
-    if (user && await user.comparePassword(contraseña)) {
-      // Genera un token de autenticación
-      const token = jwt.sign({ _id: user._id, role: user.rol }, 'secretKey', {
-        expiresIn: '1h',
-      });
+    if (!user) {
+      logger.error('Usuario no encontrado'); // Registro de error con error
+      return res.status(401).json({ message: 'Usuario no encontrado' });
+    }
 
+    if (!user.contraseña) {
+      logger.error('Contraseña almacenada no válida'); // Registro de error con error
+      return res.status(500).json({ message: 'Error en la autenticación' });
+    }
+
+    const match = await user.comparePassword(contraseña);
+
+    if (match) {
+      logger.info('Inicio de sesión exitoso', { user }); // Registro de éxito con info
+      const token = user.generateAuthToken();
       res.status(200).json({ token });
     } else {
-      res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
+      logger.error('Contraseña incorrecta'); // Registro de error con error
+      res.status(401).json({ message: 'Contraseña incorrecta' });
     }
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
+    logger.error('Error al iniciar sesión:', error); // Registro de error con error
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
@@ -85,54 +108,36 @@ router.post('/login', async (req, res) => {
 router.get('/login', (req, res) => {
   res.render('login');
 });
-
-router.post('/login', async (req, res) => {
+// Ruta para obtener información del usuario actual
+router.get('/current', passport.authenticate('current', { session: false }), (req, res) => {
   try {
-    const { username, contraseña } = req.body; 
-    console.log('Username recibido:', username);
-
-    const user = await User.findOne({ username }); 
+    // Aquí obtienes el usuario desde la solicitud (ya autenticado por la estrategia 'current')
+    const user = req.user;
 
     if (!user) {
-      console.log('Usuario no encontrado');
-      return res.status(401).json({ message: 'Usuario no encontrado' });
+      return res.status(401).json({ message: 'Usuario no autenticado' });
     }
 
-    // Verificar que la contraseña almacenada no sea null o undefined
-    if (!user.contraseña) {
-      console.error('Contraseña almacenada no válida');
-      return res.status(500).json({ message: 'Error en la autenticación' });
-    }
+    // Crear un DTO del usuario con la información necesaria
+    const userDto = new UserDto(user);
 
-    console.log('Usuario encontrado:', user);
-
-    const match = await user.comparePassword(contraseña);
-
-    console.log('Coincide la contraseña:', match);
-
-    if (match) {
-      const token = user.generateAuthToken();
-      res.status(200).json({ token });
-    } else {
-      console.log('Contraseña incorrecta');
-      res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
+    // Enviar el DTO como respuesta
+    res.status(200).json(userDto);
   } catch (error) {
-    console.error('Error al iniciar sesión:', error);
-    res.status(500).json({ message: 'Error al iniciar sesión' });
+    // Manejar errores, si es necesario
+    console.error('Error al obtener información del usuario:', error);
+    res.status(500).json({ message: 'Error al obtener información del usuario' });
   }
 });
-
+// Ruta para cerrar sesión
 router.post('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error al cerrar sesión' });
-    }
-    res.json({ message: 'Sesión cerrada correctamente' });
-  });
+  req.logout(); // Esta función es proporcionada por Passport para limpiar la sesión
+  res.json({ message: 'Sesión cerrada correctamente' });
 });
 
 module.exports = router;
+
+
 
 
 

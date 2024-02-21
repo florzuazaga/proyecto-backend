@@ -4,8 +4,10 @@ const bcrypt = require('bcrypt');
 const GitHubStrategy = require('passport-github2').Strategy;
 const { User } = require('../dao/models/userSchema');
 const jwt = require('jsonwebtoken');
-const { ExtractJwt } = require('passport-jwt'); // Agrega esta línea para importar ExtractJwt
+const { ExtractJwt } = require('passport-jwt');
 require('dotenv').config();
+const LocalStrategy = require('passport-local').Strategy;
+const JwtStrategy = require('passport-jwt').Strategy;
 
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
@@ -56,7 +58,7 @@ function generateJWT(user) {
 }
 
 // Estrategia Local
-passport.use(new LocalStrategy(async (username, password, done) => {
+passport.use(new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
   try {
     const user = await User.findOne({ username });
 
@@ -64,7 +66,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
       return done(null, false, { message: 'Usuario no encontrado' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.contraseña);
 
     if (!passwordMatch) {
       return done(null, false, { message: 'Contraseña incorrecta' });
@@ -80,7 +82,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
 // Estrategia JWT
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'your_secret_key', 
+  secretOrKey: 'secretKey',
 };
 
 passport.use('current', new JwtStrategy(jwtOptions, async (payload, done) => {
@@ -105,5 +107,6 @@ module.exports = {
     return passport.session();
   },
 };
+
 
 

@@ -10,6 +10,9 @@ const productSchema = new mongoose.Schema({
   thumbnail: String,
   code: String,
   stock: Number,
+  owner: {
+    type: String,  
+  },
   
 },{ timestamps: true });
 

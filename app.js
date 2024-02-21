@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 const cors = require('cors');
 const compression = require('compression');
 const brotli = require('brotli');
+const winston = require('winston');
 const routes = require('./routes/routes');
 const logger = require('./config/logger');
 const connectToDatabase = require('./config/databaseConfig');
@@ -26,6 +27,10 @@ const User = require('./dao/models/userSchema');
 const userDao = require('./dao/models/userDao');
 const fileDao = require('./services/fileSocketApp');
 const cartsController = require('./controllers/cartsController');
+const mockingModule = require('./__tests__/mockingModule');
+const errorHandler = require('./middlewars/errorHandler');
+const errorDictionary = require('./middlewars/errorDictionary');
+const testLogger = require('./__tests__/login.test');
 
 
 
@@ -93,36 +98,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// Buscar documentos con username: null antes de la operación de inserción
-const UserModel = User.User;
-UserModel.find({ username: null })
-  .then(usersWithNullUsername => {
+// Función asincrónica para buscar documentos con username: null antes de la operación de inserción
+const searchAndInsert = async (req) => {
+  const UserModel = User.User;
+  try {
+    const usersWithNullUsername = await UserModel.find({ username: null });
     if (usersWithNullUsername.length > 0) {
-      console.log('Documentos con username: null encontrados:', usersWithNullUsername);
+      req.logger.info('Documentos con username: null encontrados:', usersWithNullUsername);
       // Puedes decidir cómo manejar estos documentos si es necesario
     } else {
-      console.log('No se encontraron documentos con username: null. Continuando con la inserción.');
-      
+      req.logger.info('No se encontraron documentos con username: null. Continuando con la inserción.');
+
       // Aquí puedes realizar la operación de inserción sin problemas
-      userDao.createUser('john_doe', 'Doe', 'john@example.com', 'hashedPassword', 'john_username')
-        .then(newUser => {
-          console.log('Nuevo usuario creado:', newUser);
-        })
-        .catch(error => {
-          console.error('Error al crear usuario:', error);
-        });
+      const newUser = await userDao.createUser('john_doe', 'Doe', 'john@example.com', 'hashedPassword', 'john_username');
+      req.logger.info('Nuevo usuario creado:', newUser);
     }
-  })
-  .catch(err => {
-    console.error('Error al buscar documentos con username: null:', err);
-  });
+  } catch (error) {
+    req.logger.error('Error al buscar documentos con username: null:', error);
+  }
+};
+
 
   // Rutas
+// Llamada a la función asincrónica dentro de una solicitud HTTP
 app.get('/', (req, res) => {
-   // Loguea un mensaje de información
-  logger.info('Endpoint "/" llamado');
-  
-   
+  searchAndInsert(req); // Llama a la función y pasa el objeto req
   res.render('index');
 });
 app.get('/loggerTest', (req, res) => {
@@ -130,7 +130,13 @@ app.get('/loggerTest', (req, res) => {
   logger.warn('Este es un mensaje de advertencia');
   logger.error('Este es un mensaje de error');
 
-  res.send('Logs generados en la consola y en archivos.');
+   // Obtén todos los registros del logger
+   const allLogs = req.logger.transports.filter(t => t instanceof winston.transports.Console)
+   .map(t => t.logQueue)
+   .flat();
+
+ // Envía los registros como respuesta JSON
+ res.json(allLogs);
 });
 
 
@@ -162,11 +168,12 @@ app.post('/purchase/:cid', async (req, res) => {
 
 // Incluye las rutas de productos
 app.use(productRoutes);
+
 // Agrega logs de depuración para la ruta /api/products
 app.get('/api/products', (req, res) => {
-  console.log('Recibida solicitud en /api/products');
+  req.logger.log('info', 'Recibida solicitud en /api/products');
   const products = getAllProducts(); 
-  console.log('Número de productos:', products.length);
+  req.logger.log('info', 'Número de productos:', products.length);
   res.json({ products });
 });
 // Rutas para tickets
@@ -182,7 +189,7 @@ app.get('/api/ordenes', async (req, res) => {
     // Devuelve las órdenes como respuesta JSON
     res.json({ ordenes });
   } catch (error) {
-    console.error('Error al obtener órdenes:', error);
+    req.logger.error('Error al obtener órdenes:', error);
     res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
   }
 });
@@ -204,10 +211,17 @@ app.get('/download/:fileId', async (req, res) => {
       res.status(404).json({ error: 'Archivo no encontrado' });
     }
   } catch (error) {
-    console.error('Error al descargar el archivo:', error);
+    req.logger.error('Error al descargar el archivo:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+// Monta el módulo de Mocking en la ruta específica
+app.use('/api', mockingModule);
+
+// Monta el manejador de errores al final de las rutas
+app.use(errorHandler);
+// Usa el logger en las pruebas
+testLogger.debug('Mensaje de depuración para pruebas');
 
 // Ruta para cualquier otro caso (manejo de 404)
 app.use((req, res) => {
