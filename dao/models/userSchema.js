@@ -31,10 +31,12 @@ const userSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: 'Carts',
   },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   rol: {
     type: String,
+    enum: ['usuario', 'premium', 'admin'],
     default: 'usuario',
-    enum: ['usuario', 'premium'],
   },
   username: {
     type: String,
