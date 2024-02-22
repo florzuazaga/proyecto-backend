@@ -1,32 +1,5 @@
 // ticketController.js
 
-// ticketModel
-const mongoose = require('mongoose');
-
-const ticketSchema = new mongoose.Schema({
-  products: [
-    {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product', 
-      },
-      name: String,
-      price: Number,
-    },
-  ],
-  totalPrice: Number,
-  user: String, 
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-const Ticket = mongoose.model('Ticket', ticketSchema);
-
-module.exports = Ticket;
-
-// ticketController
 const { obtenerInformacionParaTicket } = require('../services/ticketService');
 const nodemailer = require('nodemailer');
 

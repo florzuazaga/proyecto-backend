@@ -1,3 +1,5 @@
+//mockingUtils.js
+
 const faker = require('faker');
 
 function generateMockProducts(count) {

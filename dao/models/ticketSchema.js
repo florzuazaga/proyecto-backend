@@ -23,6 +23,7 @@ const ticketSchema = new mongoose.Schema({
 });
 
 const Ticket = mongoose.model('Ticket', ticketSchema);
+module.exports = Ticket;
 
 // Realizar la compra desde el carrito
 exports.purchaseFromCart = async (req, res) => {

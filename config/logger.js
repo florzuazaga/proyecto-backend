@@ -1,3 +1,4 @@
+//logger.js
 const { createLogger, transports, format } = require('winston');
 
 // Configuración para entorno de desarrollo (devLogger)
