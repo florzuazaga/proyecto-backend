@@ -1,3 +1,4 @@
+//errorHandler.js
 // Customizador de errores
 function errorHandler(err, req, res, next) {
     console.error(err.stack);

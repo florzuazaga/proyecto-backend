@@ -5,7 +5,7 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
-const {UserModel,User} = require('../dao/models/userSchema');
+const {UserModel,User} = require('../models/userSchema');
 
 const authRouter = express.Router();
 

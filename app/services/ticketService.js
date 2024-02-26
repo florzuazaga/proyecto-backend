@@ -1,5 +1,5 @@
 // ticketService.js
-const Product = require('../dao/models/productSchema');
+const Product = require('../models/productSchema');
 
 const obtenerInformacionParaTicket = async () => {
   try {

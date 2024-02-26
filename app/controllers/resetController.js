@@ -1,5 +1,5 @@
 // resetController.js
-const User = require('../dao/models/userSchema');
+const User = require('../models/userSchema');
 
 const resetPassword = async (req, res) => {
   try {

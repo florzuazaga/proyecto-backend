@@ -2,7 +2,7 @@
 const express = require('express');
 const dataCache = require('../services/dataCacheSingleton');
 const router = express.Router();
-const Ticket = require('../dao/models/ticketModel');
+const Ticket = require('../models/ticketModel');
 
 // Endpoint para generar el ticket
 router.post('/generate-ticket', async (req, res) => {

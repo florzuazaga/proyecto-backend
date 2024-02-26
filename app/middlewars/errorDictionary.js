@@ -1,3 +1,4 @@
+//errorDictionary.js
 const errorDictionary = {
     PRODUCT_NOT_FOUND: 'Producto no encontrado',
     CART_EMPTY: 'El carrito está vacío',

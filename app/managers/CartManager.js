@@ -1,5 +1,5 @@
-// CartManager.js
-const modelOperations = require('../dao/models/modelOperations');
+// cartManager.js
+const Cart = require('../models/cartModel');
 
 
 class CartManager {

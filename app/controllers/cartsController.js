@@ -1,8 +1,8 @@
 // cartsController.js
 
 const http = require('http');
-const Cart = require('../dao/models/cartSchema');
-const Product = require('../dao/models/productSchema');
+const Cart = require('../models/cartSchema');
+const Product = require('../models/productSchema');
 const Ticket = require('./ticket_controller');
 
 const cartsController = {};

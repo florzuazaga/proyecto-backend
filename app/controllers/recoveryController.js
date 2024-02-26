@@ -1,5 +1,5 @@
 // recoveryController.js
-const User = require('../dao/models/userSchema');  
+const User = require('../models/userSchema');  
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const { emailSender } = require('./ticket_controller'); 

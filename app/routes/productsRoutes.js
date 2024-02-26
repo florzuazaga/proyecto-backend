@@ -1,13 +1,13 @@
 // productsRoutes.js
 const express = require('express');
 const router = express.Router();
-const Product = require('../dao/models/productSchema');
+const Product = require('../models/productSchema');
 const cartController = require('../controllers/cartsController');
 const { validatePurchaseData } = require('../middlewars/middleware');
 const { io } = require('../services/fileSocketApp');
 const { getAllProducts, addProduct, deleteProduct } = require('../controllers/productsController');
-const ProductFactory = require('../services/ProductManager');
-const Order = require('../dao/models/orderSchema');
+const ProductFactory = require('../managers/ProductManager');
+const Order = require('../models/orderSchema');
 
 // Rutas para productos
 router.get('/api/products', getAllProducts);

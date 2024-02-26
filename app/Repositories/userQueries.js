@@ -1,5 +1,5 @@
 // userQueries.js
-const { User } = require('../dao/models/userSchema');
+const { User } = require('../models/userSchema');
 
 const paginateUsers = async (page, limit) => {
   const options = {
