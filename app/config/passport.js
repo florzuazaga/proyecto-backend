@@ -2,7 +2,7 @@
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const GitHubStrategy = require('passport-github2').Strategy;
-const { User } = require('../dao/models/userSchema');
+const { User } = require('../models/userSchema');
 const jwt = require('jsonwebtoken');
 const { ExtractJwt } = require('passport-jwt');
 require('dotenv').config();

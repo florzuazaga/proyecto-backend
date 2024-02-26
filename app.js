@@ -13,6 +13,8 @@ const cors = require('cors');
 const compression = require('compression');
 const brotli = require('brotli');
 const winston = require('winston');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./app/config/swagger');
 const routes = require('./app/routes/routes');
 const logger = require('./config/logger');
 const connectToDatabase = require('./config/databaseConfig');
@@ -118,6 +120,8 @@ const searchAndInsert = async (req) => {
   }
 };
 
+// Configuración de Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
   // Rutas
 // Llamada a la función asincrónica dentro de una solicitud HTTP
