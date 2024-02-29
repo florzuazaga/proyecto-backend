@@ -17,9 +17,7 @@
  *       500:
  *         description: Error del servidor
  */
-app.get('/api/products', (req, res) => {
-    // Implementación de la lógica para obtener todos los productos
-  });
+app.get('/api/products', productController.getAllProducts);
   
   /**
    * @swagger
@@ -42,8 +40,6 @@ app.get('/api/products', (req, res) => {
    *       500:
    *         description: Error del servidor
    */
-  app.delete('/api/products/:id', (req, res) => {
-    // Implementación de la lógica para eliminar un producto por ID
-  });
+  app.delete('/api/products/:id', productController.deleteProduct);
   
   

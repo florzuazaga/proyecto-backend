@@ -42,7 +42,7 @@ const generateTicket = async (req, res, next) => {
       products: ticketInfoFromDB.products,
       totalPrice: ticketInfoFromDB.totalPrice,
       user: ticketInfoFromDB.user,
-      date: new Date(), // Puedes ajustar esto según tus necesidades
+      date: new Date(), 
     };
     // Enviar correo electrónico con la información del ticket
     const userEmail = 'correo_del_usuario@gmail.com'; // Ajusta esto según tus necesidades

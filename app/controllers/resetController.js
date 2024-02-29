@@ -10,7 +10,7 @@ const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.redirect('/password-reset-expired'); // Redirige a la vista correspondiente
+      return res.redirect('/password-reset-expired'); // Redirige a la vista 
     }
 
     // Restablece la contraseña y reinicia los campos relacionados con la recuperación

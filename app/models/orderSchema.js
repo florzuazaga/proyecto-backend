@@ -6,14 +6,14 @@ const { Schema } = mongoose;
 const orderSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User', // Referencia al modelo de usuario
+    ref: 'User',
     required: true,
   },
   products: [
     {
       product: {
         type: Schema.Types.ObjectId,
-        ref: 'Product', // Referencia al modelo de producto
+        ref: 'Product',
         required: true,
       },
       quantity: {
@@ -30,10 +30,10 @@ const orderSchema = new Schema({
     type: Number,
     required: true,
   },
-  // Otros campos relacionados con la orden
   status: {
     type: String,
     default: 'pendiente',
+    enum: ['pendiente', 'en_proceso', 'completa'], // Agrega un enum para estados válidos
   },
   createdAt: {
     type: Date,
@@ -44,3 +44,5 @@ const orderSchema = new Schema({
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;
+
+

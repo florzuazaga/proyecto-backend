@@ -12,7 +12,7 @@ fetch('http://localhost:8080/api/ordenes')
     return response.json();
   })
   .then(data => {
-    // Manejar los datos obtenidos (por ejemplo, mostrar en la consola)
+    // Manejar los datos obtenidos 
     console.log('Órdenes obtenidas:', data);
   })
   .catch(error => {

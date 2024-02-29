@@ -60,7 +60,7 @@ async function updateProduct(req, res) {
       return res.status(403).json({ status: 'error', error: 'Acceso no autorizado para modificar este producto' });
     }
 
-    // Aquí deberías tener la lógica para actualizar el producto
+    
 
     res.json({ status: 'success', message: 'Producto actualizado exitosamente' });
   } catch (error) {
