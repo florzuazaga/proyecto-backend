@@ -1,6 +1,6 @@
 //ticketSchema.js
-const Cart = require('../dao/models/cartSchema');
-const Product = require('../dao/models/productSchema');
+const Cart = require('../models/cartSchema');
+const Product = require('../models/productSchema');
 
 const mongoose = require('mongoose');
 

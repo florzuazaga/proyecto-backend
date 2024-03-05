@@ -1,6 +1,7 @@
 // ticketController.js
 
 const { obtenerInformacionParaTicket } = require('../services/ticketService');
+const Ticket = require('../models/ticketSchema');
 const nodemailer = require('nodemailer');
 
 // Función para enviar correos electrónicos

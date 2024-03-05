@@ -1,6 +1,6 @@
 //mockingUtils.js
+const faker = require('@faker-js/faker');
 
-const faker = require('faker');
 
 function generateMockProducts(count) {
   const mockProducts = [];

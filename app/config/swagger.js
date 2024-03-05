@@ -1,3 +1,4 @@
+//swagger.js
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
@@ -10,12 +11,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000', // Reemplaza con la URL de tu servidor
+        url: 'http://localhost:8080', 
         description: 'Servidor local',
       },
     ],
   },
-  apis: ['./app/routes/*.js'], // Rutas de tus controladores o archivos de rutas
+  apis: ['./routes/*.js'], // Rutas 
 };
 
 const specs = swaggerJsdoc(options);

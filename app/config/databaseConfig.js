@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 require('dotenv').config();
-
+const path = require('path');
 
 
 async function connectToDatabase() {

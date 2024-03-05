@@ -5,6 +5,9 @@ const Cart = require('../models/cartSchema');
 const Product = require('../models/productSchema');
 const Ticket = require('./ticket_controller');
 const Order = require('../models/orderSchema');
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongoose').Types;
+const objectIdInstance = new ObjectId();
 
 const cartsController = {};
 
@@ -131,18 +134,26 @@ purchaseData.date = new Date().toISOString().split('T')[0];
 
 // Función para agregar un producto al carrito
 function addToCart(productId, quantity, price) {
-  const productIndex = purchaseData.products.findIndex((product) => product.productId === productId);
+  const productIndex = purchaseData.products.findIndex((product) => product.productId.equals(productId));
 
   if (productIndex !== -1) {
     purchaseData.products[productIndex].quantity += quantity;
   } else {
-    purchaseData.products.push({ productId, quantity });
+    // Ajusta la estructura del objeto agregado al carrito
+    purchaseData.products.push({
+      productId: mongoose.Types.ObjectId(productId), // Usa mongoose.Types.ObjectId
+      quantity: quantity,
+      price: price,
+    });
   }
 
   purchaseData.totalPrice += quantity * price;
 
   console.log(purchaseData);
 }
+
+
+
 
 // Ejemplo de uso al agregar un producto al carrito
 const productIdToAdd = 1;

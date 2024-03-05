@@ -106,6 +106,7 @@ module.exports = {
   sessionPassport: () => {
     return passport.session();
   },
+  generateJWT, 
 };
 
 

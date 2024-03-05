@@ -1,0 +1,24 @@
+# products.yaml
+
+paths:
+  /api/products:
+    get:
+      summary: Obtener todos los productos
+      tags: [Products]
+      responses:
+        200:
+          description: Devuelve la lista de todos los productos
+          content:
+            application/json:
+              example:
+                - productId: "1a2b3c4d5e6f"
+                  name: "Ejemplo Producto 1"
+                  price: 19.99
+                - productId: "2b3c4d5e6f1a"
+                  name: "Ejemplo Producto 2"
+                  price: 29.99
+                
+        500:
+          description: Error del servidor
+
+        
