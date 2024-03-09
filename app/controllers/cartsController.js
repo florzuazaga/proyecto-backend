@@ -141,7 +141,7 @@ function addToCart(productId, quantity, price) {
   } else {
     // Ajusta la estructura del objeto agregado al carrito
     purchaseData.products.push({
-      productId: mongoose.Types.ObjectId(productId), // Usa mongoose.Types.ObjectId
+      product: new mongoose.Types.ObjectId(productId), // Utiliza 'new' para crear una instancia
       quantity: quantity,
       price: price,
     });
@@ -151,8 +151,6 @@ function addToCart(productId, quantity, price) {
 
   console.log(purchaseData);
 }
-
-
 
 
 // Ejemplo de uso al agregar un producto al carrito
