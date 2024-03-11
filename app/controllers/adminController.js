@@ -3,7 +3,7 @@
 
 const express = require('express');
 const passport = require('passport');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const LocalStrategy = require('passport-local').Strategy;
 const {UserModel,User} = require('../models/userSchema');
 

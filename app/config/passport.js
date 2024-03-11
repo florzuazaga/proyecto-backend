@@ -1,6 +1,6 @@
 // passportConfig.js
 const passport = require('passport');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const GitHubStrategy = require('passport-github2').Strategy;
 const { User } = require('../models/userSchema');
 const jwt = require('jsonwebtoken');
