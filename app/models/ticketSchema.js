@@ -16,7 +16,7 @@ const ticketSchema = new mongoose.Schema({
     },
   ],
   totalPrice: Number,
-  user: String, // Puedes ajustar el tipo según tus necesidades
+  user: String, 
   date: {
     type: Date,
     default: Date.now,

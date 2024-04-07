@@ -1,6 +1,5 @@
 // userSchema.js
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const mongoosePaginate = require('mongoose-paginate-v2');
 const { Schema } = mongoose;
 
@@ -25,7 +24,6 @@ const userSchema = new mongoose.Schema({
   contraseña: {
     type: String,
     required: true,
-    set: (rawPassword) => bcrypt.hashSync(rawPassword, 10),
   },
   carrito: {
     type: Schema.Types.ObjectId,
@@ -43,15 +41,21 @@ const userSchema = new mongoose.Schema({
     sparse: true,
     unique: true,
   },
+  // Nuevas propiedades para las imágenes y el indicador de premium
+  identificationImage: String,
+  addressProofImage: String,
+  accountStatementImage: String,
+  isPremium: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 userSchema.plugin(mongoosePaginate);
 
-
 const User = mongoose.model('User', userSchema);
 
-module.exports = { User };
-
+module.exports = User;
 
 
 

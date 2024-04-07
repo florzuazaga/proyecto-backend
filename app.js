@@ -26,7 +26,6 @@ const adminRoutes = require('./app/routes/adminRoutes');
 const authRoutes = require('./app/routes/authRoutes');
 const passportConfig = require('./app/controllers/adminController');
 const User = require('./app/models/userSchema');
-const userDao = require('./app/models/userDao');
 const fileDao = require('./app/services/fileSocketApp');
 const cartsController = require('./app/controllers/cartsController');
 const mockingModule = require('./__tests__/mockingModule');

@@ -46,7 +46,7 @@ const generateTicket = async (req, res, next) => {
       date: new Date(), 
     };
     // Enviar correo electrónico con la información del ticket
-    const userEmail = 'correo_del_usuario@gmail.com'; // Ajusta esto según tus necesidades
+    const userEmail = 'correo_del_usuario@gmail.com'; 
     const emailSubject = 'Compra realizada con éxito';
     const emailText = 'Gracias por tu compra. Aquí está la información de tu ticket: [información del ticket]';
 

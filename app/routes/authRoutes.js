@@ -86,11 +86,11 @@ router.post('/login-jwt', async (req, res) => {
       return res.status(401).json({ message: 'Usuario no encontrado' });
     }
 
-    if (!user.contraseña) {
-      logger.error('Contraseña almacenada no válida'); // Registro de error con error
-      return res.status(500).json({ message: 'Error en la autenticación' });
-    }
+    // Imprime la contraseña almacenada en la base de datos y la contraseña proporcionada por el usuario
+    console.log('Contraseña almacenada en la base de datos:', user.contraseña);
+    console.log('Contraseña proporcionada por el usuario:', contraseña);
 
+    // Continúa con la comparación de contraseñas
     const match = await user.comparePassword(contraseña);
 
     if (match) {
@@ -106,7 +106,6 @@ router.post('/login-jwt', async (req, res) => {
     res.status(500).json({ message: 'Error al iniciar sesión' });
   }
 });
-
 // Ruta para mostrar el formulario de inicio de sesión
 router.get('/login', (req, res) => {
   res.render('login');
